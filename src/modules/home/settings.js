@@ -1,5 +1,4 @@
 import common from 'src/common.js'
-import Steps from 'modules/home/Landing/Steps.vue'
 export default {
   page: [{
     property: {
