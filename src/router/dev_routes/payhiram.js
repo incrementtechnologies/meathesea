@@ -43,13 +43,6 @@ export default{
       tokenRequired: false
     }
   }, {
-    path: '/home',
-    name: 'landing',
-    component: resolve => require(['modules/home/Landing.vue'], resolve),
-    meta: {
-      tokenRequired: false
-    }
-  }, {
     path: '/request_reset_password',
     name: 'requestResetPassword',
     component: resolve => require(['components/increment/basic/RequestResetPassword.vue'], resolve),

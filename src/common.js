@@ -2,7 +2,7 @@ import config from 'src/config.js'
 let APP_EMAIL = 'support@payhiram.ph'
 export default {
   sidebarMenu: [
-    {accountType: 'ALL', showOnAdmin: true, accountStatus: 'ALL', description: 'Dashboard', icon: 'fa fa-arrow-right', path: 'dashboard', flag: false, subMenu: null},
+    {accountType: 'ALL', showOnAdmin: true, accountStatus: 'ALL', description: 'Dashboard', icon: 'fa fa-arrow-right', path: 'dashboard', flag: false, subMenu: null}
   ],
   APP_NAME: 'MTS',
   APP_NAME_HTML: 'MTS',
