@@ -4,7 +4,7 @@
       <span class="logo">
         <a class="navbar-brand" v-on:click="redirect('/')">
           <img src="../../../assets/img/logo_white.png" style="margin-bottom: 5px;">
-          <label>PAY<b>HIRAM</b></label>
+          <label>MTS</label>
         </a>
       </span>
       <span class="menu">
