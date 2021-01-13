@@ -1,7 +1,7 @@
 <template>
   <div class="system-body"> 
      <div class="main-sidebar sidebar-collapse navbar-collapse collapse" v-bind:class="hide" id="idfactory" >
-      <div class="sidebar">
+      <div class="sidebar" style="margin-top:60px">
         <ul class="sidebar-menu">
             <li v-for="item, index in menu" v-bind:class="{ 'active-menu': item.flag === true }" v-on:click="setActive(index)" v-if="(((item.users === user.type || item.users === 'ALL') && user.type !== 'ADMIN') || user.type === 'ADMIN') && menuFlag === true" class="menu-holder">
               <i v-bind:class="item.icon" class="visible"></i> 
@@ -47,16 +47,6 @@
 </template>
 <style lang="scss">
 @import "~assets/style/colors.scss";
-.menu-holder:nth-child(6){
-  // background-color: red;
-  border: none
-}
-.menu-holder:nth-child(6):hover{
-  // background-color: red;
-  background-color: white;
-  box-shadow: none;
-  cursor:default;
-}
 .main-sidebar, .content-holder{  
   min-height: 200px;
   overflow: hidden;
@@ -138,7 +128,7 @@
   float: left;
   min-height: 80px;
   line-height: 40px;
-  border: 1px solid gray;
+  border: 1px solid #BDBDBD;
   overflow: hidden;
   padding-left:10px;
   padding-top:15px
