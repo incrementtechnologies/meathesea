@@ -56,6 +56,13 @@ export default{
     meta: {
       tokenRequired: false
     }
+  }, {
+    path: '/deli_products',
+    name: 'deliProducts',
+    component: resolve => require(['modules/products/List.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
   }
   ]
 }
