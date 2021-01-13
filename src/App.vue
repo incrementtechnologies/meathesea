@@ -2,8 +2,10 @@
   <div id="app">
     <div v-bind:style="(globalVariables.showModal) ? 'overflow-y:hidden; height:'+deviceHeight+'px!important': ''">
       <div v-if="tokenData.token !== null && parseInt(user.userID) > 0 && tokenData.loading === false">
-       <system-header></system-header>
-       <system-sidebar></system-sidebar>
+       <custom-header></custom-header>
+       <custom-sidebar></custom-sidebar>
+       <!-- <system-header></system-header> -->
+       <!-- <system-sidebar></system-sidebar> -->
        <!-- <support-messenger></support-messenger> -->
        <system-footer></system-footer>
        <tutorial></tutorial>
@@ -223,7 +225,9 @@ export default {
     'support-messenger': () => import('components/increment/support/Support.vue'),
     'tutorial': () => import('components/increment/generic/tutorial/Tutorial.vue'),
     'error-modal': () => import('components/increment/generic/modal/Error.vue'),
-    'lazy-loading': () => import('components/increment/generic/lazy/loading.vue')
+    'lazy-loading': () => import('components/increment/generic/lazy/loading.vue'),
+    'custom-header': () => import('modules/frame/Header.vue'),
+    'custom-sidebar': () => import('modules/frame/Sidebar.vue')
   }
 }
 </script>
