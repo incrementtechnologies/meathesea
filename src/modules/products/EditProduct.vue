@@ -2,22 +2,41 @@
   <div>
     <div class="container2">
       <div class="row">
-        <div class="column">
+        <div class="column col-3">
           <i class="fas fa-arrow-alt-circle-left" style="font-size: 2em; margin-left: 20px; margin-right: 20px;" @click="back()"></i>
+          <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="100" height="100">
         </div>
-        <div class="column">
-          <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="70" height="30">
-        </div>
-        <div class="column">
-          <p class="name">Product name</p>
+        <div class="col-9">
+          <p class="name" style="margin-left: 0%;"><b>PRODUCT IMAGE</b></p>
+          <button>Change picture</button>
+          <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>PRODUCT TITLE</b></p>
+          <input type="text" class="col-sm-12">
+          <p class="name" style="margin-left: 0%; margin-top: 3%"><b>PRODUCT DESCRIPTION</b></p>
+          <textarea name="" id="" cols="30" rows="10" class="col-sm-12" style="height: 10%;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur</textarea>
+          <div class="row" style="margin-top: 3%;">
+            <div class="col-6">
+              <p class="name" style="margin-left: 0%;"><b>REGULAR PRICE</b></p>
+              <input type="text" class="w-100">
+            </div>
+            <div class="col-6">
+              <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
+              <input type="text" class="w-100">
+            </div>
+          </div>
+          <p class="name" style="margin-left: 0%; margin-top: 3%"><b>ADD-ON CATEGORY 1</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: 1</b></p>
+          <textarea name="" id="" cols="30" rows="10" class="col-sm-12" style="height: 10%;">Multiple manual adding of Category</textarea>
+          <p class="name" style="margin-left: 0%; margin-top: 3%"><b>ADD-ON CATEGORY 2</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: -</b></p>
+          <textarea name="" id="" cols="30" rows="10" class="col-sm-12" style="height: 10%;">Multiple manual adding of Category</textarea>
+          <p class="name" style="margin-left: 0%; margin-top: 3%"><b>PRODUCT AVAILABILITY (TIME)</b></p>
+          <label value="allDay"  style="width:47%">
+          <input type="radio" v-model="setTime" name="time" checked="" > All Day </label>
+          <label value="setTime" style="width:46%">
+          <input type="radio" v-model="setTime" name="time"> Set Time </label>
+          <div class="mt-3">Selected: <strong>{{ setTime }}</strong></div>
         </div>
         <div class="column available">
           <div class="right">
-            <h5 class="a">AVAILABLE: </h5>
-            <label class="switch">
-              <input type="checkbox" :checked="false">
-              <span class="slider round"></span>
-            </label>
+            <button><i class="fas fa-trash"></i> Remove</button>
           </div>
         </div>
       </div>
@@ -25,32 +44,23 @@
   </div>
 </template>
 <style lang="css" scoped>
+button {
+  top: 296px;
+  left: 1028px;
+  width: 144px;
+  height: 31px;
+  text-align: center;
+  font: normal normal 600 19px/23px Barlow;
+  letter-spacing: 0px;
+  color: #0064B1;
+  background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  border: 1px solid #0064B1;
+  border-radius: 7px;
+  opacity: 1;
+}
 * {
   box-sizing: border-box;
-}
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
 }
 .available {
   flex-grow: 1;
@@ -59,69 +69,11 @@
   float: right;
   margin-right: 25px;
 }
-.slider:before {
-  position: absolute;
-  font-family: "FontAwesome";
-  content: "\f058";
-  display: inline-block;
-  font-size: 30px;
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-  color: green;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
 .column {
   float: left;
 }
-.content {
-  width: 70%;
-}
-.active {
-  background-color:  #ffe1a6;
-}
-.a {
-  display: inline;
-	float: left;
-  margin-right: 10px;
-}
 .name{
 	margin-left: 20px;
-}
-.content{
-	margin: 0% 3% 3% 0%;
-}
-.column1{
-	float: left;
-  width: 50%;
-  padding: 10px;
-  height: 300px;
 }
 .container2{
   width: 80%;
@@ -133,11 +85,17 @@ input:checked + .slider:before {
 export default {
   data(){
     return {
+      selectedImage: null,
+      checked: true,
+      setTime: null
     }
   },
   methods: {
     back() {
       this.$parent.isEdit = false
+    },
+    selectImage(url){
+      this.selectedImage = url
     }
   }
 }
