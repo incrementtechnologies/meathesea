@@ -3,20 +3,9 @@
      <div class="main-sidebar sidebar-collapse navbar-collapse collapse" v-bind:class="hide" id="idfactory" >
       <div class="sidebar">
         <ul class="sidebar-menu">
-            <li class="header">
-                <span v-if="menuFlag === true" class="profile-photo">
-                  <span class="profile-image-holder"  v-if="user.profile !== null">
-                    <img v-bind:src="config.BACKEND_URL + user.profile.url">
-                  </span>
-                  <i class="fa fa-user-circle-o profile-icon" v-else></i>
-                  <i class="fas fa-check text-primary profile-status" v-if="user.status === 'VERIFIED'"></i>
-                  Hi {{user.username}}!
-                </span>
-                <i v-bind:class="toggleSidebar + ' pull-right'" aria-hidden="true" v-on:click="changeToggleSidebarIcon()" id="toggleIcon"></i>
-            </li>
             <li v-for="item, index in menu" v-bind:class="{ 'active-menu': item.flag === true }" v-on:click="setActive(index)" v-if="(((item.users === user.type || item.users === 'ALL') && user.type !== 'ADMIN') || user.type === 'ADMIN') && menuFlag === true" class="menu-holder">
-              <i v-bind:class="item.icon" class=" visible"></i> 
-              <label>{{item.description}}</label>
+              <i v-bind:class="item.icon" class="visible"></i> 
+              <center><label>{{item.description}}</label></center>
               <ul class="sub-menu" v-if="item.subMenu !== null">
                 <li v-for="itemSub, indexSub in item.subMenu" v-bind:class="{ 'active-menu': itemSub.flag === true }" v-on:click="setActiveSubMenu(index, indexSub)" v-if="((itemSub.users === user.type || itemSub.users === 'ALL') && itemSub.type !== 'ADMIN') || itemSub.type === 'ADMIN'">
                   <i v-bind:class="itemSub.icon" class=" visible"></i>
@@ -55,10 +44,19 @@
         </transition>
       </div>
     </div>
-  </div>  
 </template>
 <style lang="scss">
 @import "~assets/style/colors.scss";
+.menu-holder:nth-child(6){
+  // background-color: red;
+  border: none
+}
+.menu-holder:nth-child(6):hover{
+  // background-color: red;
+  background-color: white;
+  box-shadow: none;
+  cursor:default;
+}
 .main-sidebar, .content-holder{  
   min-height: 200px;
   overflow: hidden;
@@ -138,23 +136,34 @@
 .menu-holder{
   width: 100%;
   float: left;
-  min-height: 40px;
+  min-height: 80px;
   line-height: 40px;
+  border: 1px solid gray;
   overflow: hidden;
+  padding-left:10px;
+  padding-top:15px
+}
+
+.menu-holder:hover{
+  background-color: #FFFBDB;
+  box-shadow: 2px 3px 4px black;
 }
 
 .menu-holder .visible{
-  width: 10%;
+  width: 1%;
   float: left;
   text-align: right;
   line-height: 40px;
+  font-size: 40px;
 }
 
 .menu-holder label{
   float: left;
   width: 86%;
-  margin-left: 4%;
+  // margin-left: 4%; 
   line-height: 40px;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 .menu-holder:hover, .menu-holder i:hover, .menu-holder label:hover, .menu-holder-hidden i:hover{
@@ -398,12 +407,16 @@
   .force-collapse{
     display: none;
   }
+  .item{
+    border: 1px solid black
+  }
 }
 </style>
 <script>
 import AUTH from '../../services/auth'
 import CONFIG from '../../config.js'
 import ROUTER from '../../router'
+import COMMON from '../../common.js'
 export default {
   mounted(){
   },
@@ -411,20 +424,8 @@ export default {
     return{
       user: AUTH.user,
       config: CONFIG,
-      menu: [
-        {id: 1, users: 'ALL', parent_id: 0, description: 'Dashboard', icon: 'fa fa-tachometer', path: 'dashboard', flag: false, subMenu: null},
-        {id: 2, users: 'ALL', parent_id: 0, description: 'Requested', icon: 'fa fa-arrow-right', path: 'requests', flag: false, subMenu: null},
-        {id: 3, users: 'INVESTOR', parent_id: 0, description: 'Invested', icon: 'fa fa-arrow-left', path: 'investments', flag: false, subMenu: null},
-        {id: 4, users: 'ALL', parent_id: 0, description: 'Payments', icon: 'fa fa-money', path: 'payments', flag: false, subMenu: null},
-        {id: 5, users: 'ALL', parent_id: 0, description: 'Deposit', icon: 'fa fa-money', path: 'deposits', flag: false, subMenu: null},
-        {id: 5, users: 'ALL', parent_id: 0, description: 'Withdrawals', icon: 'fa fa-money', path: 'withdrawals', flag: false, subMenu: null}
-      ],
-      menuOff: [
-        {id: 1, users: 'ALL', parent_id: 0, description: 'Dashboard', icon: 'fa fa-tachometer', path: 'dashboard', flag: false, subMenu: null},
-        {id: 2, users: 'ALL', parent_id: 0, description: 'Requested', icon: 'fa fa-arrow-right', path: 'requests', flag: false, subMenu: null},
-        {id: 3, users: 'INVESTOR', parent_id: 0, description: 'Invested', icon: 'fa fa-arrow-left', path: 'investments', flag: false, subMenu: null},
-        {id: 4, users: 'ALL', parent_id: 0, description: 'Payments', icon: 'fa fa-money', path: 'payments', flag: false, subMenu: null}
-      ],
+      menu: COMMON.sidebarMenu,
+      menuOff: COMMON.menuOff,
       toggleSidebar: 'fa fa-toggle-on',
       hide: '',
       flag: false,
