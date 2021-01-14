@@ -1,8 +1,8 @@
  <template>
   <div>
-    <div class="system-header" style="width:50%;">
+    <div class="system-header" style="width:20%;">
       <a class="navbar-brand" v-on:click="redirect('dashboard')">
-        <img src="../../assets/img/meatthesea_logo.png" class="logo-brand">
+        <img src="../../assets/img/meatthesea_logo.png" class="logo-brand" style="margin-left:-5%">
         <label class="navbar-brand hide-on-mobile text-white" v-html="config.APP_NAME_VHTML"></label>
       </a>
     </div>
@@ -65,9 +65,9 @@
           </span>
         </div>
 
-  <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')">
+  <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}"  v-on:click="logOut()">
       <span>
-        <i class="fas fa-sign-out-alt" style="font-size:30px;margin-top:20px"></i>
+        <i class="fas fa-sign-out-alt" style="font-size:30px;margin-top:20px" title="Logout"></i>
       </span>
   </span>
   <div class="dropdown"> 
@@ -228,7 +228,7 @@ body{
   /*-- navbar --*/
   .system-header .navbar-brand{
     color: #fff;
-    text-transform: uppercase;
+    // text-transform: uppercase;
     line-height: 30px;
     font-size: 30px;
   }
@@ -482,7 +482,7 @@ body{
 .logo-brand{
   width: 80px;
   height: 80px;
-  margin-left: -10% !important;
+  margin-right: 5% !important;
 }
 .left-menu-icons .account-type{
   padding: 10px 10px 10px 10px;
@@ -609,17 +609,17 @@ body{
       width: 5% !important;
     }
     .logo-brand{
-      margin-left:-10% !important;
+      margin-left:-50% !important;
     }
   }
 
  @media (max-width: 1199px){
     .system-header{
-      width: 50% !important;
+      width: 70% !important;
     }
     .header-navbar{
-      width: 50% !important;
-      margin-left: 18%;
+      width: 30% !important;
+      margin-left: 70% !important;
     }
     .header-navbar-nav{
       width: 30%;

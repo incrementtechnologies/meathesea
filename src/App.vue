@@ -16,6 +16,8 @@
       </div>
       <div v-else-if="tokenData.token === null && parseInt(user.userID) <= 0 && tokenData.loading === false">
         <login-header></login-header>
+         <!-- <custom-header></custom-header>
+        <custom-sidebar></custom-sidebar> -->
         <system-content></system-content>
         <landing-footer></landing-footer>
       </div>
