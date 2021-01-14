@@ -110,7 +110,7 @@ export default {
     //   password: password,
     //   status: 'VERIFIED'
     // }
-    vue.APIGetRequest('customerlogin' + `?Email=test@email.com&Password=t3$Tasdf`, (response) => {
+    vue.APIGetRequest('/customerlogin' + `?Email=${username}&Password=${password}`, (response) => {
       console.log('==========================', response)
       this.tokenData.token = response.token
       vue.APIRequest('authenticate/user', {}, (userInfo) => {
