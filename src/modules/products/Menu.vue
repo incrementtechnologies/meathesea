@@ -62,7 +62,7 @@
 .slider:before {
   position: absolute;
   font-family: "FontAwesome";
-  content: "\f058";
+  content: "";
   display: inline-block;
   font-size: 30px;
   height: 26px;
