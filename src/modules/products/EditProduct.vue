@@ -11,23 +11,37 @@
         <p class="name" style="margin-left: 0%;"><b>PRODUCT IMAGE</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
         <button class="buttons">Change picture</button>
         <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>PRODUCT TITLE</b></p>
-        <input type="text" class="col-sm-12">
+        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="title" placeholder="Type product title here...">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>PRODUCT DESCRIPTION</b></p>
-        <textarea name="" id="" cols="30" rows="10" class="col-sm-12" style="height: 10%;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur</textarea>
+        <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="description" placeholder="Type product description here..."></textarea>
         <div class="row" style="margin-top: 3%;">
           <div class="col-6">
             <p class="name" style="margin-left: 0%;"><b>REGULAR PRICE</b></p>
-            <input type="number" class="w-100">
+            <input type="number" class="w-100 form-control form-control-custom" placeholder="Input Regular Price">
           </div>
           <div class="col-6">
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
-            <input type="number" class="w-100">
+            <input type="number" class="w-100 form-control form-control-custom" placeholder="Input Special Offer Price">
           </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>ADD-ON CATEGORY 1</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: 1</b></p>
-        <input class="col-sm-12" data-role="tagsinput">
+        <vue-tags-input
+          v-model="category"
+          :tags="CategoryTags"
+          :validation="validation"
+          :autocomplete-items="filteredCategory"
+          placeholder="Add Category"
+          @tags-changed="newTags => CategoryTags = newTags"
+        />
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>ADD-ON CATEGORY 2</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: -</b></p>
-        <input class="col-sm-12" data-role="tagsinput">
+        <vue-tags-input
+          v-model="categories"
+          :tags="CategoriesTags"
+          :validation="validation"
+          :autocomplete-items="filteredItems"
+          placeholder="Add Another Category"
+          @tags-changed="newTags => CategoriesTags = newTags"
+        />
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>PRODUCT AVAILABILITY (TIME)</b></p>
         <input type="radio" value="allDay" v-model="setTime" class="all">
         <label for="allDay" style="width:45%">All Day</label>
@@ -54,7 +68,14 @@
     </div>
   </div>
 </template>
-<style lang="css" scoped>
+<style lang="css" >
+.vue-tags-input[data-v-61d92e31] {
+  /* max-width: 491px; */
+  max-width: none !important;
+  position: relative;
+  background-color: #fff;
+  width: 100% !important;
+}
 .buttonCommon {
   height: 64px;
   width: 243px;
@@ -118,19 +139,99 @@
   border: 1px solid #c9c9c9;
   padding: 20px 10px 10px 10px;
 }
+
+.vue-tags-input .ti-new-tag-input {
+  background: transparent;
+  color: #495057;
+  font-size: 1rem;
+}
+
+.vue-tags-input .ti-input {
+  padding: 2px 10px;
+  transition: border-bottom 200ms ease;
+}
+
+.vue-tags-input.ti-focus .ti-input {
+  border: 1px solid skyblue;
+}
+
+.vue-tags-input .ti-item.ti-selected-item {
+  background: #0064B1;
+  color: white;
+}
+
+.vue-tags-input .ti-tag {
+  position: relative;
+  background: #0064B1 !important;
+  color: white;
+}
 </style>
 <script>
+import VueTagsInput from '@johmun/vue-tags-input'
 export default {
   data(){
     return {
-      selectedImage: null,
       checked: true,
       setTime: null,
       clickSetTime: false,
-      setLocation: null
+      setLocation: null,
+      title: null,
+      description: null,
+      category: '',
+      categories: '',
+      CategoryTags: [],
+      CategoriesTags: [],
+      autocompleteCategory: [{
+        text: 'Rare'
+      }, {
+        text: 'Medium Rare'
+      }, {
+        text: 'Medium'
+      }, {
+        text: 'Medium Well Done'
+      }, {
+        text: 'Well Done'
+      }],
+      autocompleteItems: [{
+        text: 'Side Salad'
+      }, {
+        text: 'Side Fries'
+      }, {
+        text: 'Side Dish'
+      }, {
+        text: 'Side Pasta'
+      }, {
+        text: 'Side Desserts'
+      }],
+      validation: [{
+        classes: 'no-numbers',
+        rule: /^([^0-9]*)$/
+      }, {
+        classes: 'avoid-item',
+        rule: /^(?!Cannot).*$/,
+        disableAdd: true
+      }, {
+        classes: 'no-braces',
+        rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
+      }]
     }
   },
+  components: {
+    VueTagsInput
+  },
   mounted(){
+  },
+  computed: {
+    filteredCategory() {
+      return this.autocompleteCategory.filter(i => {
+        return i.text.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
+      })
+    },
+    filteredItems() {
+      return this.autocompleteItems.filter(i => {
+        return i.text.toLowerCase().indexOf(this.categories.toLowerCase()) !== -1
+      })
+    }
   },
   methods: {
     back() {
