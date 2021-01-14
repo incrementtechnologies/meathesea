@@ -17,6 +17,43 @@ Vue.mixin({
       })
       return request
     },
+    APIGetRequest(link, parameter, callback, errorCallback){
+      // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
+      let request = jQuery.get({
+        url: CONFIG.API_URL + link,
+        headers: {
+          'Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+          Authorization: 'bearer ' + CONFIG.authorization
+        },
+        success: (response) => {
+          this.APISuccessRequestHandler(response, callback)
+        },
+        error: (jqXHR) => {
+          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+        }
+      })
+    },
+    APIPostRequest(link, parameter, callback, errorCallback){
+      // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
+      let request = $.ajax({
+        url: CONFIG.API_URL + link,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: 'bearer ' + CONFIG.authorization
+        },
+        data: JSON.stringify(parameter),
+        success: (response) => {
+          this.APISuccessRequestHandler(response, callback)
+        },
+        error: (jqXHR) => {
+          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+        }
+      })
+      return request
+    },
     APIAudioRequest(link, parameter, callback, errorCallback){
       let request = jQuery.ajax({
         url: link,

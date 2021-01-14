@@ -3,8 +3,8 @@
     <div class="header-section">
       <span class="logo">
         <a class="navbar-brand" v-on:click="redirect('/')">
-          <img src="../../../assets/img/logo_white.png" style="margin-bottom: 5px;">
-          <label>PAY<b>HIRAM</b></label>
+          <img src="../../../assets/img/meatthesea_logo.png" style="margin-bottom: 5px; width:80px; height:80px">
+          <label v-html="config.APP_NAME_VHTML"></label>
         </a>
       </span>
       <span class="menu">
@@ -53,7 +53,7 @@
   width: 80%;
   float: left;
   height: 100%;
-  margin-top: 10px;
+  margin-top: 30px;
 }
 
 .navbar-menu-toggler-md{
@@ -189,13 +189,15 @@
 <script>
 import ROUTER from '../../../router'
 import AUTH from '../../../services/auth'
+import CONFIG from '../../../config'
 import Jquery from 'jquery'
 export default {
   mounted(){
   },
   data(){
     return {
-      flag: true
+      flag: true,
+      config: CONFIG
     }
   },
   watch: {
