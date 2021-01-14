@@ -38,16 +38,10 @@ export default{
   }, {
     path: '/login',
     name: 'loginAccount',
-    component: resolve => require(['modules/products/List.vue'], resolve),
+    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
     meta: {
       tokenRequired: false
     }
-    // path: '/login',
-    // name: 'loginAccount',
-    // component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
-    // meta: {
-    //   tokenRequired: false
-    // }
   }, {
     path: '/request_reset_password',
     name: 'requestResetPassword',
