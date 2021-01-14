@@ -105,12 +105,13 @@ export default {
   },
   authenticate(username, password, callback, errorCallback){
     let vue = new Vue()
-    let credentials = {
-      username: username,
-      password: password,
-      status: 'VERIFIED'
-    }
-    vue.APIRequest('authenticate', credentials, (response) => {
+    // let credentials = {
+    //   username: username,
+    //   password: password,
+    //   status: 'VERIFIED'
+    // }
+    vue.APIGetRequest('customerlogin' + `?Email=test@email.com&Password=t3$Tasdf`, (response) => {
+      console.log('==========================', response)
       this.tokenData.token = response.token
       vue.APIRequest('authenticate/user', {}, (userInfo) => {
         let parameter = {
