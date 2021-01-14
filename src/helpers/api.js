@@ -22,8 +22,8 @@ Vue.mixin({
       let request = jQuery.get({
         url: CONFIG.API_URL + link,
         headers: {
-          'Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
+          Accept: 'application/json',
           Authorization: 'bearer ' + CONFIG.authorization
         },
         success: (response) => {

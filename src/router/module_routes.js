@@ -18,8 +18,8 @@ let beforeEnter = (to, from, next) => {
   }
 }
 var devRoutes = []
-let payhiram = require('./dev_routes/payhiram.js')
-devRoutes = devRoutes.concat(payhiram.default.routes)
+let app = require('./dev_routes/app.js')
+devRoutes = devRoutes.concat(app.default.routes)
 for(let x = 0; x < devRoutes.length; x++){
   devRoutes[x]['beforeEnter'] = beforeEnter
 }
@@ -27,7 +27,7 @@ let routes = [
   {
     path: '/',
     name: 'home',
-    component: resolve => require(['modules/home/Landing.vue'], resolve),
+    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
     beforeEnter: beforeEnter
   }
 ]

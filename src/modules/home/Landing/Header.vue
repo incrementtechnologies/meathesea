@@ -4,19 +4,19 @@
       <span class="logo">
         <a class="navbar-brand" v-on:click="redirect('/')">
           <img src="../../../assets/img/meatthesea_logo.png" style="margin-bottom: 5px; width:80px; height:80px">
-          <label v-html="config.APP_NAME_VHTML"></label>
+          <label>MTS</label>
         </a>
       </span>
       <span class="menu">
         <span class="navbar-menu-toggler-md">
           <i class="fa fa-bars" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onclick="void(0)"></i>
         </span>
-        <ul class="header-primary-menu">
+<!--         <ul class="header-primary-menu">
           <li class="nav-item" v-on:click="scrollTo('#partner')" v-if="flag === true"><a class="nav-link">Be Our Partner</a></li>
           <li class="nav-item" v-on:click="scrollTo('#services')" v-if="flag === true"><a class="nav-link">Services</a></li>          
           <li class="nav-item" v-on:click="redirect('/signup')"><a class="nav-link">Register</a></li>
           <li class="nav-item" v-on:click="redirect('/login')"><a class="nav-link">Login</a></li>
-        </ul>
+        </ul> -->
       </span>
     </div>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
