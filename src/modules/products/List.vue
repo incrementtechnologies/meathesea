@@ -2,12 +2,15 @@
 	<div class="contents">
 		<div class="clearfix">
 			<div class="column menu">
-				<ul>
-					<li class="list" v-for="(item, i) in 15" :key="i" @click="setActive(i)">The Flight</li>
+				<ul v-if="$route.name === 'deliProducts'">
+					<li class="list" v-for="(item, i) in 15" :key="i" @click="setActive(i)">Deli Product {{i}}</li>
 				</ul>
+        <ul v-else>
+          <li class="list" v-for="(item, i) in 10" :key="i" @click="setActive(i)">Menu Item {{i}}</li>
+        </ul>
 			</div>
 			<div class="column content">
-				<Menu v-if="!isEdit"/>
+				<Menu v-if="!isEdit" @showAddForm="isEdit = true"/>
         <EditProduct v-if="isEdit"/>
 			</div>
 		</div>
@@ -27,15 +30,16 @@
   display: table;
 }
 .menu {
-  width: 18%;
+  width: 25%;
   padding-left: 100px;
+  margin-top: 1.3%;
 }
 .content {
   width: 70%;
 
 }
 .contents {
-  margin-top: 2%;
+  margin-top: 60px;
   margin-bottom: 2%;
 }
 .menu ul {
@@ -49,6 +53,8 @@
 .menu li {
   padding: 8px;
 	border: 1px solid #cccccc;
+  padding-top: 15px;
+  height: 51px;
 }
 .content{
 	margin: 0% 3% 3% 0%;
@@ -69,6 +75,12 @@ export default {
       isActive: false,
       hasError: false,
       isEdit: false
+    }
+  },
+  watch: {
+    $route(to, from){
+      console.log(to)
+      this.isEdit = false
     }
   },
   components: {

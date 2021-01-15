@@ -63,6 +63,13 @@ export default{
     meta: {
       tokenRequired: false
     }
+  }, {
+    path: '/menu_items',
+    name: 'menuItems',
+    component: resolve => require(['modules/products/List.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
   }
   ]
 }

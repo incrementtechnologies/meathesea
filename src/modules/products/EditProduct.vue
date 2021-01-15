@@ -1,4 +1,5 @@
 <template>
+<div class="cont">
   <div class="container2">
     <div class="row">
       <div class="column col-.5">
@@ -60,15 +61,16 @@
         <label for="location" class="on">Location 2</label>
         <input type="radio" value="allLocations" v-model="setLocation" class="in">
         <label for="allLocations" class="on">All Locations</label>
-        <div style="bottom: 0; margin-left: 20%; margin-top: 15%; margin-right: 20%;">
+        <div style="bottom: 0; margin-left: 15%; margin-top: 15%; margin-right: 15%;">
           <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;">SAVE</button>
           <button class="buttonCommon pull-right">DISCARD</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 </template>
-<style lang="css" >
+<style lang="css" scoped>
 .vue-tags-input[data-v-61d92e31] {
   /* max-width: 491px; */
   max-width: none !important;
@@ -135,9 +137,10 @@
 	margin-left: 20px;
 }
 .container2{
-  width: 90%;
+  width: 100%;
   border: 1px solid #c9c9c9;
   padding: 20px 10px 10px 10px;
+  /* margin-top: 2% */
 }
 
 .vue-tags-input .ti-new-tag-input {
@@ -164,6 +167,12 @@
   position: relative;
   background: #0064B1 !important;
   color: white;
+}
+.cont{
+  margin-top: 2%
+}
+.fas{
+  cursor: pointer;
 }
 </style>
 <script>

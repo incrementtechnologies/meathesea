@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="cont">
     <div class="container2" v-for="(item, i) in 6" :key="i">
       <div class="row">
         <div class="column">
@@ -16,12 +16,14 @@
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
               <input type="checkbox" :checked="false">
-              <span class="slider round"></span>
+              <span class="slider round">
+              </span>
             </label>
           </div>
         </div>
       </div>
-    </div>
+    </div><br>
+    <button class="btn btn-outline-primary addBtn" v-if="$route.name === 'menuItems'" @click="$emit('showAddForm', true)"><b>add new</b></button>
   </div>
 </template>
 <style lang="css" scoped>
@@ -40,15 +42,20 @@
   width: 0;
   height: 0;
 }
+.addBtn{
+  float:right;
+  width: 150px;
+}
 
 .slider {
   position: absolute;
   cursor: pointer;
+  border: 1px solid #B2AFAF;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #ffffff;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -59,7 +66,7 @@
   float: right;
   margin-right: 25px;
 }
-.slider:before {
+.slider:before{
   position: absolute;
   font-family: "FontAwesome";
   content: "";
@@ -69,18 +76,18 @@
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: #7ABC87;
   -webkit-transition: .4s;
   transition: .4s;
   color: green;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #ffffff;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #ffffff;
 }
 
 input:checked + .slider:before {
@@ -124,10 +131,16 @@ input:checked + .slider:before {
   height: 300px;
 }
 .container2{
-  width: 80%;
+  width: 100%;
   border: 1px solid #c9c9c9;
-  padding: 20px 10px 10px 10px;
+  /* padding: 20px 10px 10px 10px; */
 	height: 70px;
+}
+.cont{
+  margin-top: 2%;
+}
+.fas{
+  cursor: pointer;
 }
 </style>
 <script>
