@@ -1,12 +1,12 @@
  <template>
   <div>
-    <div class="system-header">
+    <div class="system-header" style="width:20%;">
       <a class="navbar-brand" v-on:click="redirect('dashboard')">
-        <img src="../../assets/img/logo_white.png" class="logo-brand">
+        <img src="../../assets/img/meatthesea_logo.png" class="logo-brand" style="margin-left:-5%">
         <label class="navbar-brand hide-on-mobile text-white" v-html="config.APP_NAME_VHTML"></label>
       </a>
     </div>
-    <nav class="header-navbar">
+    <nav class="header-navbar" style="width:50%;margin-left:50%;">
       <span class="navbar-menu-toggler-md" v-bind:class="{'active-menu': menuFlag === true}" data-toggle="collapse" data-target="#idfactory" aria-controls="idfactory" aria-expanded="false" aria-label="Toggle navigation" v-on:click="makeActive('menu')">
           <i class="fa fa-bars" aria-hidden="true"></i>
       </span>
@@ -17,7 +17,7 @@
         <div class="dropdown"> 
           <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')">
             <span>
-              <i class="fa fa-cog"></i>
+              <!-- <i class="fa fa-cog left-icons"></i> -->
             </span>
             <span class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
               <span class="dropdown-item-profile">
@@ -65,10 +65,15 @@
           </span>
         </div>
 
+  <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}"  v-on:click="logOut()">
+      <span>
+        <i class="fas fa-sign-out-alt" style="font-size:30px;margin-top:20px" title="Logout"></i>
+      </span>
+  </span>
   <div class="dropdown"> 
           <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')">
             <span>
-              <i class="fa fa-bell"></i>
+              <!-- <i class="fa fa-bell"></i> -->
             </span>
             <span class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
               <span v-for="item, index in data">
@@ -201,9 +206,9 @@ body{
 
   .system-header{
     float: left;
-    height: 50px;
+    height: 100px;
     font-size: 24px;
-    width: 18%;
+    width: 30%;
     background: $darkPrimary;
     text-align: center;
     position: fixed;
@@ -212,7 +217,7 @@ body{
   
   .header-navbar{
     background: $primary;
-    height: 50px;
+    height: 100px;
     float: left;
     width: 82%;
     position: fixed;
@@ -223,8 +228,9 @@ body{
   /*-- navbar --*/
   .system-header .navbar-brand{
     color: #fff;
-    text-transform: uppercase;
+    // text-transform: uppercase;
     line-height: 30px;
+    font-size: 30px;
   }
   
 /*---------------------------------------------
@@ -474,8 +480,9 @@ body{
 
 
 .logo-brand{
-  width: 25px;
-  height: 25px;
+  width: 80px;
+  height: 80px;
+  margin-right: 5% !important;
 }
 .left-menu-icons .account-type{
   padding: 10px 10px 10px 10px;
@@ -580,10 +587,10 @@ body{
 
  @media (min-width: 1200px){
     .system-header{
-      width: 18%;
+      width: 50% !important;
     }
     .header-navbar{
-      width: 82%;
+      width: 50% !important;
       margin-left: 18%;
     }
     .header-navbar-nav{
@@ -601,15 +608,18 @@ body{
     .nav-item{
       width: 5% !important;
     }
+    .logo-brand{
+      margin-left:-50% !important;
+    }
   }
 
  @media (max-width: 1199px){
     .system-header{
-      width: 18%;
+      width: 70% !important;
     }
     .header-navbar{
-      width: 82%;
-      margin-left: 18%;
+      width: 30% !important;
+      margin-left: 70% !important;
     }
     .header-navbar-nav{
       width: 30%;
@@ -625,6 +635,9 @@ body{
     }
     .nav-item{
       width: 10%;
+    }
+    .logo-brand{
+      margin-left:-1% !important;
     }
   }
 
@@ -652,6 +665,9 @@ body{
     }
     .nav-item{
       width: 10%;
+    }
+     .logo-brand{
+      margin-left:-1% !important;
     }
  }
 
