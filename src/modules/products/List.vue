@@ -7,11 +7,12 @@
 				</ul>
         <ul v-else>
           <li class="list" v-for="(item, i) in 10" :key="i" @click="setActive(i)">Menu Item {{i}}</li>
+          <li class="list" @click="redirectEdit">Set Meals</li>
         </ul>
 			</div>
 			<div class="column content">
 				<Menu v-if="!isEdit" @showAddForm="isEdit = true"/>
-        <EditProduct v-if="isEdit"/>
+        <EditProduct v-if="isEdit" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -39,7 +40,7 @@
 
 }
 .contents {
-  margin-top: 60px;
+  margin-top: -20px;
   margin-bottom: 2%;
 }
 .menu ul {
@@ -74,7 +75,8 @@ export default {
     return {
       isActive: false,
       hasError: false,
-      isEdit: false
+      isEdit: false,
+      bundled: false
     }
   },
   watch: {
@@ -88,7 +90,14 @@ export default {
     EditProduct
   },
   methods: {
+    redirectEdit(){
+      this.bundled = true
+      this.isEdit = false
+      // e.currentTarget.classList.add('active')
+    },
     setActive(id) {
+      this.isEdit = false
+      this.bundled = false
       let active = document.getElementsByClassName('list')
       for (var i = 0; i < active.length; i++) {
         active[i].className = active[i].className.replace('active', '')

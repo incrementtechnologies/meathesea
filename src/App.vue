@@ -231,7 +231,7 @@ export default {
     'tutorial': () => import('components/increment/generic/tutorial/Tutorial.vue'),
     'error-modal': () => import('components/increment/generic/modal/Error.vue'),
     'lazy-loading': () => import('components/increment/generic/lazy/loading.vue'),
-    'custom-header': () => import('modules/frame/Header.vue'),
+    'custom-header': () => import('modules/frame/Header2.vue'),
     'custom-sidebar': () => import('modules/frame/Sidebar.vue')
   }
 }
