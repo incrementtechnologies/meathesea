@@ -57,8 +57,29 @@ export default{
       tokenRequired: false
     }
   }, {
+    path: '/orders',
+    name: 'orders',
+    component: resolve => require(['modules/orders/orders.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
+  }, {
+    path: '/crockery',
+    name: 'crockeries',
+    component: resolve => require(['modules/crockery/crockery.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
+  }, {
     path: '/deli_products',
     name: 'deliProducts',
+    component: resolve => require(['modules/products/List.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
+  }, {
+    path: '/menu_items',
+    name: 'menuItems',
     component: resolve => require(['modules/products/List.vue'], resolve),
     meta: {
       tokenRequired: false
