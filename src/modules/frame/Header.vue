@@ -231,6 +231,7 @@ body{
     // text-transform: uppercase;
     line-height: 30px;
     font-size: 30px;
+    float:left
   }
   
 /*---------------------------------------------

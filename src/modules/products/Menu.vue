@@ -1,7 +1,7 @@
 <template>
   <div class="cont">
     <div class="container2" v-for="(item, i) in 6" :key="i">
-      <div class="row mt-3">
+      <div class="row mt-1">
         <div class="column">
           <i class="fas fa-edit" style="font-size: 2em; margin-left: 20px; margin-right: 20px;" @click="update()"></i>
         </div>
@@ -16,6 +16,7 @@
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
               <input type="checkbox" :checked="false">
+              <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>
             </label>
@@ -69,9 +70,12 @@
 .slider:before{
   position: absolute;
   font-family: "FontAwesome";
-  content: "";
-  display: inline-block;
-  font-size: 30px;
+  content: "\f00c";
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center;
+  font-weight: normal;
+  font-size: 18px;
   height: 26px;
   width: 26px;
   left: 4px;
@@ -79,7 +83,7 @@
   background-color: #7ABC87;
   -webkit-transition: .4s;
   transition: .4s;
-  color: green;
+  color: #ffffff;
 }
 
 input:checked + .slider {
@@ -96,6 +100,7 @@ input:checked + .slider:before {
   transform: translateX(26px);
   background-color: #ffffff;
   border: 1px solid #B2AFAF;
+  content: "";
 }
 
 /* Rounded sliders */
