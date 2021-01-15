@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid mt-5">
     <div class="row">
       <div class="col-sm-5" v-if="!widerView">
         <div class="row">

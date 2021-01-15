@@ -136,12 +136,6 @@
   z-index: 0;
 }
 
-.menu-holder:hover{
-  background: #FFFBDB 0% 0% no-repeat padding-box;;
-  box-shadow: 0px 7px 13px #00000047;
-  width: 100%;
-  
-}
 
 .menu-holder .visible{
   width: 1%;
