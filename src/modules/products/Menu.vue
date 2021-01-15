@@ -1,7 +1,7 @@
 <template>
   <div class="cont">
     <div class="container2" v-for="(item, i) in 6" :key="i">
-      <div class="row">
+      <div class="row mt-3">
         <div class="column">
           <i class="fas fa-edit" style="font-size: 2em; margin-left: 20px; margin-right: 20px;" @click="update()"></i>
         </div>
@@ -94,6 +94,8 @@ input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
+  background-color: #ffffff;
+  border: 1px solid #B2AFAF;
 }
 
 /* Rounded sliders */
