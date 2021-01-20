@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid cont">
     <div class="row">
       <div class="col-sm-5" v-if="!widerView">
         <div class="row">
@@ -448,6 +448,9 @@ export default {
 .popover .popover-body {
   left: 0px;
   padding: 0px 0px;
+}
+.cont{
+  margin-top: -40px
 }
 
 /* .popover .arrow::before{

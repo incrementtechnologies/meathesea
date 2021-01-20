@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid cont">
     <div class="row">
       <div class="col-sm-5" v-if="!widerView">
         <div class="row">
@@ -345,6 +345,9 @@ export default {
 }
 </script>
 <style scoped>
+.cont{
+  margin-top: -40px;
+}
 .initialHeight {
   min-height: calc(100vh - 95px - 8rem) !important;
 }
