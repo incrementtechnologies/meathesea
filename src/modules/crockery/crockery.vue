@@ -1,9 +1,9 @@
 <template>
-  <div class="container-fluid cont">
+  <div class="container-fluid">
     <div class="row">
       <div class="col-sm-5" v-if="!widerView">
         <div class="row">
-          <div class="col-sm-12 mt-5 p-0">
+          <div class="col-sm-12 p-0">
             <div class="card nav_card">
               <div class="card-header p-0 nav_header">
                 <div class="row pl-3 pr-3">
@@ -46,7 +46,7 @@
           </div>
         </div>
       </div>
-      <div :class="'mt-5 p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
+      <div :class="' p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
           <div class="card-header">
             <div class="row">
@@ -449,10 +449,6 @@ export default {
   left: 0px;
   padding: 0px 0px;
 }
-.cont{
-  margin-top: -40px
-}
-
 /* .popover .arrow::before{
   content: '';
   display: none !important;

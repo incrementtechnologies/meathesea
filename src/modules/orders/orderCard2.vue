@@ -76,6 +76,15 @@
               + Description
             </div>
           </div>
+          <div class="mt-3">
+            <b :style="'color: #0064B1'"> Other add-ons and requests: </b>
+          </div>
+          <div class="mt-2">
+            <b :style="'color: #E07700'"> Contactless delivery </b>
+          </div>
+          <div class="mt-2">
+            <b :style="'color: #E07700'"> Add cutlery </b>
+          </div>
         </div>
         <div class="col-sm-5 customerInformation" :style="(data.order_status !== 'pending') ? 'min-height: calc(100vh - 378px) !important;' : 'min-height: calc(100vh - 280px) !important;'">
           <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status === 'complete'">
@@ -122,7 +131,7 @@
                 <button class="roundButtonCommon font-weight-bold" :style="focusStyle"> ACCEPT </button>
               </div>
               <div class="mt-3">
-                <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle"> Unable to fulfill order </button>
+                <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle" data-toggle="modal" data-target="#reasonModal"> Unable to fulfill order </button>
               </div>
             </center>
           </div>
@@ -168,6 +177,37 @@
         </div>
       </div>
     </div>
+    <div class="modal fade bd-example-modal-lg reasonModalContainer" id="reasonModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg reasonModal" role="document">
+        <div class="modal-content">
+          <div class="modal-header modalHeader">
+            <b class="font-weight-bold reasonHeader"> UNABLE TO FULFILL ORDER </b>
+            <button type="button" class="xButton close" data-dismiss="modal" aria-label="Close">
+              <b>&times;</b>
+            </button>
+          </div>
+          <div class="modal-body pt-2">
+            <div class="col-sm-12">
+              <div class="row">
+                <div class="col-sm-4" v-for="(el, ndx) in rejectReasons" :key="'reason' + ndx">
+                  <div class="reasonCard">
+                    <div class="mb-2">
+                      <input type="radio" class="radio" :name="'reason' + ndx">
+                    </div>
+                    <div>
+                      <b>{{el}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer modalFooter">
+            <button class="roundButtonCommon rejectButton font-weight-bold"> REJECT ORDER </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -185,6 +225,7 @@ export default {
       unfocusStyle: 'background-color: #FFFFFF; border: 1px solid #00AF5F; color: #00AF5F; border 1px solid #00AF5F !important;',
       dangerUnfocusStyle: 'background-color: #FFFFFF; border: 1px solid #BE0000; color: #BE0000; border 1px solid #00AF5F !important;',
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
+      rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
       focusIndex: 0
     }
   },
@@ -316,5 +357,102 @@ export default {
 .meantime {
   align-items: center;
   justify-content: space-between !important;
+}
+.xButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: #FFFFFF;
+  color: #FF0045;
+  border-radius: 50%;
+  width: 27px;
+  height: 27px;
+  margin: 0 auto;
+  padding: 0;
+  padding-top: -10px !important;
+  padding-bottom: 10px !important;
+  display: table-cell;
+  vertical-align: middle;
+  opacity: 1;
+  margin-top: -10px;
+  margin-right: -10px;
+}
+.xButton:after {
+  opacity: 0.2 !important;
+}
+.xButton:focus {
+  outline: none;
+  box-shadow: none;
+}
+.modalHeader {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  border: 0px;
+  min-height: 92px;
+}
+.modalFooter {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  border: 0px;
+  min-height: 92px;
+  padding-bottom: 50px;
+  padding-top: 30px;
+}
+.reasonCard {
+  -webkit-box-shadow: 1px 1px 15px 0px rgba(0,0,0,0.19); 
+  box-shadow: 1px 1px 15px 0px rgba(0,0,0,0.19);
+  min-height: 110px;
+  padding: 15px;
+  margin-top: 7px;
+  display: block;
+  text-align: center;
+  justify-content: center;
+}
+.radio {
+  width: 19px;
+  height: 19px;
+  border: 1px solid #0064B1;
+}
+
+input[type='radio']:before {
+  width: 19px;
+  height: 19px;
+  border: 1px solid #707070 !important;
+}
+
+input[type="radio"]:checked:before {
+  background: #0064B1;
+}
+
+input[type="radio"]:checked {
+  border-color:#0064B1;
+}
+.rejectButton {
+  background-color: #BE0000;
+  color: white;
+}
+.reasonHeader {
+  color:  #BE0000;
+  font-size: 18px;
+}
+.reasonModalContainer {
+  margin-top: -50px; 
+  text-align: center;
+  padding: 0!important;
+}
+
+.reasonModalContainer:before {
+  content: '';
+  display: inline-block;
+  min-height: 100%;
+  vertical-align: middle;
+}
+
+.reasonModal {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
 }
 </style>

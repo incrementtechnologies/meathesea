@@ -3,7 +3,7 @@ let APP_EMAIL = 'support@payhiram.ph'
 export default {
   sidebarMenu: [
     // {accountType: 'ALL', showOnAdmin: true, accountStatus: 'ALL', description: 'Dashboard', icon: 'fa fa-arrow-right', path: 'dashboard', flag: false, subMenu: null}
-      {id: 1, users: 'ALL', parent_id: 0, description: 'ORDERS', icon: '', path: 'orders', flag: false, subMenu: null},
+      {id: 1, users: 'ALL', parent_id: 0, description: 'ORDERS', icon: '', path: 'orders', flag: true, subMenu: null},
       {id: 2, users: 'ALL', parent_id: 0, description: 'CROCKERY PICK UP/ RETURN', icon: '', path: 'crockery', flag: false, subMenu: null},
       {id: 3, users: 'ALL', parent_id: 0, description: 'DELI PRODUCTS', icon: '', path: 'deli_products', flag: false, subMenu: null},
       {id: 4, users: 'ALL', parent_id: 0, description: 'MENU ITEMS', icon: '', path: 'menu_items', flag: false, subMenu: null},

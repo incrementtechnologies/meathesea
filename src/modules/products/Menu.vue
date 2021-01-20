@@ -1,5 +1,5 @@
 <template>
-  <div class="cont">
+  <div>
     <div class="container2" v-for="(item, i) in 6" :key="i">
       <div class="row mt-1">
         <div class="column">
@@ -138,13 +138,11 @@ input:checked + .slider:before {
   height: 300px;
 }
 .container2{
+  padding: 0px;
   width: 100%;
   border: 1px solid #c9c9c9;
   /* padding: 20px 10px 10px 10px; */
 	height: 70px;
-}
-.cont{
-  margin-top: 2%;
 }
 .fas{
   cursor: pointer;
