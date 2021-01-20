@@ -2,6 +2,7 @@ import CONFIG from 'src/config'
 import Vue from 'vue'
 import AUTH from 'src/services/auth'
 import ROUTER from 'src/router'
+import Axios from 'axios'
 Vue.mixin({
   mounted(){
 
@@ -17,17 +18,31 @@ Vue.mixin({
       })
       return request
     },
-    APIGetRequest(link, parameter, callback, errorCallback){
+    APIGetRequest(link, callback, errorCallback){
       // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
+      console.log('url', CONFIG.API_URL + link)
+      // Axios.get(CONFIG.API_URL + link, {
+      //   headers: {
+      //     'Authorization': CONFIG.authorization,
+      //     'Access-Control-Allow-Origin': '*'
+      //   }
+      // }, response => {
+      //   console.log('response', response)
+      // })
+      jQuery.ajaxSetup({})
       let request = jQuery.get({
+        method: 'GET',
         url: CONFIG.API_URL + link,
+        beforeSend: function(request) {
+          request.setRequestHeader('Authorization', 'bearer ' + CONFIG.authorization)
+        },
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
           Authorization: 'bearer ' + CONFIG.authorization
         },
+        contentType: 'application/json',
         success: (response) => {
-          this.APISuccessRequestHandler(response, callback)
+          console.log('response', response)
+          // this.APISuccessRequestHandler(response, callback)
         },
         error: (jqXHR) => {
           this.APIFailRequestHandler(link, jqXHR, errorCallback)
