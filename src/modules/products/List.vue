@@ -18,7 +18,7 @@
 	</div>
 </template>
 
-<style lang="css">
+<style lang="css" scoped>
 * {
   box-sizing: border-box;
 }
@@ -33,14 +33,13 @@
 .menu {
   width: 25%;
   padding-left: 100px;
-  margin-top: 1.3%;
+  /* margin-top: 1.3%; */
 }
 .content {
   width: 70%;
-
 }
 .contents {
-  margin-top: -20px;
+  /* margin-top: -20px; */
   margin-bottom: 2%;
 }
 .menu ul {

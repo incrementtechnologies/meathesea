@@ -38,21 +38,24 @@
         </div>
       </div>
 
-      <div class="content-holder" v-bind:class="hide">
+      <div class="content-holder commontTopMargin" v-bind:class="hide">
         <transition >
           <router-view ></router-view>
         </transition>
       </div>
     </div>
 </template>
-<style lang="scss">
+<style scoped lang="scss">
 @import "~assets/style/colors.scss";
+.commontTopMargin {
+  padding-top: 30px;
+}
 .main-sidebar, .content-holder{  
   min-height: 200px;
   overflow: hidden;
   transition: all 1s ease 0s;
   z-index: 1;
-  margin-top: 50px;
+  margin-top: 30px;
 }
 .main-sidebar{
   overflow-y: hidden;
@@ -215,7 +218,7 @@
   }
   .content-holder{
     width: 81%;
-    margin: 60px 0px 0px 0px;
+    margin: 0px 0px 0px 0px !important;
     float: left;
   }
   /*  Change with Menu Toggled */
