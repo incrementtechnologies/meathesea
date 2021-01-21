@@ -29,25 +29,35 @@ Vue.mixin({
       // }, response => {
       //   console.log('response', response)
       // })
-      jQuery.ajaxSetup({})
-      let request = jQuery.get({
-        method: 'GET',
-        url: CONFIG.API_URL + link,
-        beforeSend: function(request) {
-          request.setRequestHeader('Authorization', 'bearer ' + CONFIG.authorization)
-        },
+      // jQuery.ajaxSetup({})
+      fetch(CONFIG.API_URL + link, {
         headers: {
-          Authorization: 'bearer ' + CONFIG.authorization
-        },
-        contentType: 'application/json',
-        success: (response) => {
-          console.log('response', response)
-          // this.APISuccessRequestHandler(response, callback)
-        },
-        error: (jqXHR) => {
-          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+          'Content-Type': 'application/json',
+          'Authorization': 'bearer ' + CONFIG.authorization
         }
+      }).then(response => {
+        return response.json()
+      }).then(response => {
+        console.log('response')
       })
+      // let request = jQuery.ajax({
+      //   method: 'POST',
+      //   url: CONFIG.API_URL + 'categories',
+      //   beforeSend: function(request) {
+      //     request.setRequestHeader('Authorization', 'bearer ' + CONFIG.authorization)
+      //   },
+      //   headers: {
+      //     Authorization: 'bearer ' + CONFIG.authorization
+      //   },
+      //   contentType: 'application/json',
+      //   success: (response) => {
+      //     console.log('response', response)
+      //     // this.APISuccessRequestHandler(response, callback)
+      //   },
+      //   error: (jqXHR) => {
+      //     this.APIFailRequestHandler(link, jqXHR, errorCallback)
+      //   }
+      // })
     },
     APIPostRequest(link, parameter, callback, errorCallback){
       // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
