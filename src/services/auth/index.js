@@ -110,34 +110,9 @@ export default {
     //   password: password,
     //   status: 'VERIFIED'
     // }
-    vue.APIGetRequest('/customerlogin' + `?Email=${username}&Password=${password}`, (response) => {
-      console.log('==========================', response)
-      this.tokenData.token = response.token
-      vue.APIRequest('authenticate/user', {}, (userInfo) => {
-        let parameter = {
-          'condition': [{
-            'value': userInfo.id,
-            'clause': '=',
-            'column': 'id'
-          }]
-        }
-        if(userInfo.account_type === 'ADMIN'){
-          vue.APIRequest('accounts/retrieve', parameter).then(response => {
-            if(response.data.length > 0){
-              this.otpDataHolder.userInfo = userInfo
-              this.otpDataHolder.data = response.data
-              this.checkOtp(response.data[0].notification_settings)
-            }
-          })
-          this.retrieveNotifications(userInfo.id)
-          this.retrieveMessages(userInfo.id, userInfo.account_type)
-          if(callback){
-            callback(userInfo)
-          }
-        }else{
-          this.deaunthenticate()
-        }
-      })
+    let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
+    vue.APIGetRequest(parameter, (response) => {
+      console.log('response', response)
     }, (response, status) => {
       if(errorCallback){
         errorCallback(response, status)

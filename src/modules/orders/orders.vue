@@ -1,9 +1,9 @@
 <template>
-  <div class="container-fluid cont">
+  <div class="container-fluid pt-0">
     <div class="row">
       <div class="col-sm-5" v-if="!widerView">
         <div class="row">
-          <div class="col-sm-12 mt-5 p-0">
+          <div class="col-sm-12 p-0">
             <div class="card nav_card">
               <div class="card-header p-0 nav_header">
                 <div class="row pl-3 pr-3">
@@ -46,7 +46,7 @@
           </div>
         </div>
       </div>
-      <div :class="'mt-5 p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
+      <div :class="'p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
           <div class="card-header">
             <div class="row">
@@ -345,9 +345,6 @@ export default {
 }
 </script>
 <style scoped>
-.cont{
-  margin-top: -40px;
-}
 .initialHeight {
   min-height: calc(100vh - 95px - 8rem) !important;
 }
