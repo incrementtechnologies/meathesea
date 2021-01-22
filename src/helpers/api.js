@@ -39,8 +39,6 @@ Vue.mixin({
         url: CONFIG.API_URL + link,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
           Authorization: 'bearer ' + CONFIG.authorization
         },
         data: JSON.stringify(parameter),
@@ -51,7 +49,6 @@ Vue.mixin({
           this.APIFailRequestHandler(link, jqXHR, errorCallback)
         }
       })
-      return request
     },
     APIAudioRequest(link, parameter, callback, errorCallback){
       let request = jQuery.ajax({
