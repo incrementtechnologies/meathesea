@@ -12,7 +12,7 @@
           <div class="col-sm-3 text-center divAsButton">
             <b v-if="data.order_status.toLowerCase() === 'processing'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
           </div>
-          <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'">
+          <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'" @click="viewReceipt(data)">
             <b> PRINT ORDER </b>
           </div>
         </div>
@@ -215,8 +215,22 @@
   </div>
 </template>
 <script>
+import pdfFonts from 'pdfmake/build/vfs_fonts'
+import PDFTemplate from 'pdfmake'
+import TemplatePdf from './PdfTemplate.js'
 export default {
   props: ['data'],
+  mounted(){
+    const {vfs} = pdfFonts.pdfMake
+    PDFTemplate.vfs = vfs
+    this.data.order_items.forEach(el => {
+      if(el.product.category_type === 0){
+        this.restaurant.push(el)
+      }else if(el.product.category_type === 1){
+        this.deliStore.push(el)
+      }
+    })
+  },
   data() {
     return {
       emptyCircle: 'margin-right: -5px; color: #FFFFFF; border: 1px solid #B2AFAF; border-radius: 20px; font-size: 27px !important; margin-top: 0px;',
@@ -231,19 +245,17 @@ export default {
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
       rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
       focusIndex: 0,
+      PdfTemplate: TemplatePdf,
       restaurant: [],
       deliStore: []
     }
   },
-  methods: {},
-  mounted() {
-    this.data.order_items.forEach(el => {
-      if(el.product.category_type === 0){
-        this.restaurant.push(el)
-      }else if(el.product.category_type === 1){
-        this.deliStore.push(el)
-      }
-    })
+  methods: {
+    viewReceipt(data){
+      console.log('data here', data)
+      this.PdfTemplate.getItem(data)
+      this.PdfTemplate.template()
+    }
   },
   watch: {
     restaurant: function(_new, old) {
