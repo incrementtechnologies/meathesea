@@ -8,8 +8,8 @@
        <!-- <system-sidebar></system-sidebar> -->
        <!-- <support-messenger></support-messenger> -->
        <system-footer></system-footer>
-       <tutorial></tutorial>
-       <guide></guide>
+       <!-- <tutorial></tutorial> -->
+       <!-- <guide></guide> -->
       </div>
       <div v-else-if="tokenData.loading === true">
         <lazy-loading></lazy-loading>
@@ -18,8 +18,8 @@
         <login-header v-if="$route.name === 'loginAccount' || $route.name === 'signup' "></login-header>
         <system-content v-if="$route.name === 'loginAccount' || $route.name === 'signup' "></system-content>
         <div v-else>
-        <custom-header></custom-header>
-        <custom-sidebar></custom-sidebar>
+        <!-- <custom-header></custom-header>
+        <custom-sidebar></custom-sidebar> -->
         </div>
         <landing-footer></landing-footer>
       </div>

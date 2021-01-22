@@ -21,7 +21,7 @@ require('assets/style/theme.css')
 require('assets/style/select2.min.css')
 require('assets/js/min/select2.full.min.js')
 import 'font-awesome/css/font-awesome.css'
-AUTH.checkAuthentication()
+// AUTH.checkAuthentication()
 // import AUTH from 'services/auth'
 // let CONFIG = require('config.js')
 let beforeEnter = (to, from, next) => {

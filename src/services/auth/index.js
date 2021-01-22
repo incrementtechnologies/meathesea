@@ -113,11 +113,23 @@ export default {
     let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
     vue.APIGetRequest(parameter, (response) => {
       console.log('response', response)
+      if(response !== null){
+        let token = response.authorization.access_token
+        this.tokenData.token = token
+        localStorage.setItem('usertoken', token)
+        this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
+        ROUTER.push('/orders')
+      }
     }, (response, status) => {
       if(errorCallback){
         errorCallback(response, status)
       }
     })
+  },
+  removeAuthentication(){
+    localStorage.removeItem('usertoken')
+    localStorage.removeItem('account_id')
+    ROUTER.push('/login')
   },
   checkAuthentication(callback, flag = false){
     this.tokenData.verifyingToken = true

@@ -33,6 +33,38 @@ Vue.mixin({
         }
       })
     },
+    APIDeleteRequest(link, parameter, callback, errorCallback){
+      let request = $.ajax({
+        method: 'DELETE',
+        url: CONFIG.API_URL + link,
+        headers: {
+          Authorization: 'bearer ' + CONFIG.authorization
+        },
+        success: (response) => {
+          this.APISuccessRequestHandler(response, callback)
+        },
+        error: (jqXHR) => {
+          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+        }
+      })
+    },
+    APIPutRequest(link, parameter, callback, errorCallback){
+      let request = $.ajax({
+        method: 'DELETE',
+        url: CONFIG.API_URL + link,
+        headers: {
+          Authorization: 'bearer ' + CONFIG.authorization
+        },
+        data: JSON.stringify(parameter),
+        success: (response) => {
+          this.APISuccessRequestHandler(response, callback)
+        },
+        error: (jqXHR) => {
+          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+        }
+      })
+    },
+
     APIPostRequest(link, parameter, callback, errorCallback){
       // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
       let request = $.ajax({

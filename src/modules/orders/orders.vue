@@ -293,7 +293,9 @@ export default {
       widerView: false
     }
   },
-  mounted() {},
+  mounted() {
+    $('#loading').css({display: 'none'})
+  },
   watch: {
     data: function(_new, old) {
       return this.data
