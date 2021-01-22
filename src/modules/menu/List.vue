@@ -1,9 +1,9 @@
 <template>
 	<div class="contents">
 		<div class="clearfix">
-			<CategoryList :data="data"/>
+			<CategoryList :type="'menu'" :data="data"/>
 			<div class="column content">
-				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
+				<ProductList v-if="!isEdit" :data="data" @showAddForm="isEdit = true"/>
         <EditProduct v-if="isEdit" :bundle="bundled"/>
 			</div>
 		</div>
@@ -83,21 +83,10 @@ export default {
         name: 'Pastas'
       }, {
         name: 'Sides'
-      }],
-      products: [{
-        name: 'Bites'
       }, {
-        name: 'Snacks'
+        name: 'Steaks'
       }, {
-        name: 'Deep Fried Snacks'
-      }, {
-        name: 'Salads / Soups'
-      }, {
-        name: 'Main couress'
-      }, {
-        name: 'Pastas'
-      }, {
-        name: 'Sides'
+        name: 'Desserts'
       }]
     }
   },

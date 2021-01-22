@@ -1,13 +1,12 @@
 <template>
-	<div class="contents">
-		<div class="clearfix">
-			<CategoryList :data="data"/>
-			<div class="column content">
-				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct v-if="isEdit" :bundle="bundled"/>
-			</div>
-		</div>
-	</div>
+  <div>
+    <div class="column menu">
+      <ul>
+        <li class="list" v-for="(item, i) in data" :key="i" @click="setActive(i)">{{item.name}}</li>
+        <li class="list" v-if="type === 'menu'" @click="setMeal(), setActive(data.length)">Set Meals</li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <style lang="css" scoped>
@@ -47,6 +46,7 @@
 	border: 1px solid #cccccc;
   padding-top: 15px;
   height: 51px;
+  cursor: pointer;
 }
 .content{
 	margin: 0% 3% 3% 0%;
@@ -59,47 +59,19 @@
 }
 </style>
 <script>
-import ProductList from 'modules/generic/products/ProductList.vue'
 import EditProduct from 'modules/generic/products/EditProduct.vue'
-import CategoryList from 'modules/generic/products/CategoryList.vue'
 export default {
+  props: ['data', 'type'],
   data() {
     return {
       isActive: false,
       hasError: false,
       isEdit: false,
-      bundled: false,
-      data: [{
-        name: 'Bites'
-      }, {
-        name: 'Snacks'
-      }, {
-        name: 'Deep Fried Snacks'
-      }, {
-        name: 'Salads / Soups'
-      }, {
-        name: 'Main couress'
-      }, {
-        name: 'Pastas'
-      }, {
-        name: 'Sides'
-      }],
-      products: [{
-        name: 'Bites'
-      }, {
-        name: 'Snacks'
-      }, {
-        name: 'Deep Fried Snacks'
-      }, {
-        name: 'Salads / Soups'
-      }, {
-        name: 'Main couress'
-      }, {
-        name: 'Pastas'
-      }, {
-        name: 'Sides'
-      }]
+      bundled: false
     }
+  },
+  components: {
+    EditProduct
   },
   watch: {
     $route(to, from){
@@ -107,16 +79,9 @@ export default {
       this.isEdit = false
     }
   },
-  components: {
-    ProductList,
-    CategoryList,
-    EditProduct
-  },
   methods: {
-    redirectEdit(){
-      this.bundled = true
-      this.isEdit = false
-      // e.currentTarget.classList.add('active')
+    setMeal(){
+      this.$parent.isEdit = true
     },
     setActive(id) {
       this.isEdit = false

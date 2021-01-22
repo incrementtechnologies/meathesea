@@ -80,7 +80,7 @@ export default{
   }, {
     path: '/menu_items',
     name: 'menuItems',
-    component: resolve => require(['modules/products/List.vue'], resolve),
+    component: resolve => require(['modules/menu/List.vue'], resolve),
     meta: {
       tokenRequired: false
     }
