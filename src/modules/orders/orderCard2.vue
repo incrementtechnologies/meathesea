@@ -13,7 +13,7 @@
             <b v-if="data.order_status !== 'processing'">{{data.order_status}}</b>
           </div>
           <div class="col-sm-3 text-center">
-            <b> PRINT ORDER </b>
+            <b @click="viewReceipt(data)" style="cursor: pointer"> PRINT ORDER </b>
           </div>
         </div>
         <div v-else-if="data.order_status === 'pending'" class="col-sm-12 text-center">
@@ -211,8 +211,15 @@
   </div>
 </template>
 <script>
+import pdfFonts from 'pdfmake/build/vfs_fonts'
+import PDFTemplate from 'pdfmake'
+import TemplatePdf from './PdfTemplate.js'
 export default {
   props: ['data'],
+  mounted(){
+    const {vfs} = pdfFonts.pdfMake
+    PDFTemplate.vfs = vfs
+  },
   data() {
     return {
       emptyCircle: 'margin-right: -5px; color: #FFFFFF; border: 1px solid #B2AFAF; border-radius: 20px; font-size: 27px !important; margin-top: 0px;',
@@ -226,10 +233,17 @@ export default {
       dangerUnfocusStyle: 'background-color: #FFFFFF; border: 1px solid #BE0000; color: #BE0000; border 1px solid #00AF5F !important;',
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
       rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
-      focusIndex: 0
+      focusIndex: 0,
+      PdfTemplate: TemplatePdf
     }
   },
-  methods: {}
+  methods: {
+    viewReceipt(data){
+      console.log('data here', data)
+      this.PdfTemplate.getItem(data)
+      this.PdfTemplate.template()
+    }
+  }
 }
 </script>
 <style scoped>
