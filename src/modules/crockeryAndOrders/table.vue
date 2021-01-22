@@ -8,7 +8,15 @@
       </thead>
       <tbody v-if="tableData.length > 0">
         <tr class="noBorder font-weight-bold" v-for="(el, index) in tableData" :key="index + 'data'">
-          <td v-for="(h, x) in headers" :key="x"> {{(h.key.toLowerCase() === 'date') ? new Date(el[h.key]).toLocaleDateString().replaceAll("/", "-") : el[h.key]}} </td>
+          <td 
+            v-for="(h, x) in headers" 
+            :key="x"
+          > 
+            {{
+              (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ? '---' :
+              (h.key.toLowerCase() === 'created_on_utc') ? new Date(el[h.key]).toLocaleDateString().replaceAll("/", "-") : el[h.key]
+            }} 
+          </td>
         </tr>
       </tbody>
     </table>
