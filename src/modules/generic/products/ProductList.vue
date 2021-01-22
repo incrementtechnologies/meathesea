@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="container2" v-for="(item, i) in 6" :key="i">
-      <div class="row mt-1">
+    <div class="container2" v-for="(item, i) in data" :key="i">
+      <div class="row mt-4">
         <div class="column">
           <i class="fas fa-edit" style="font-size: 2em; margin-left: 20px; margin-right: 20px;" @click="update()"></i>
         </div>
@@ -9,13 +9,13 @@
           <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="70" height="30">
         </div>
         <div class="column">
-          <p class="name">Product name</p>
+          <p class="name">{{item.name}}</p>
         </div>
         <div class="column available">
           <div class="right">
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
-              <input type="checkbox" :checked="false">
+              <input type="checkbox" :checked="item.status">
               <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>
@@ -150,6 +150,7 @@ input:checked + .slider:before {
 </style>
 <script>
 export default {
+  props: ['data'],
   data(){
     return {
     }
