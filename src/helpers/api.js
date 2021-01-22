@@ -21,26 +21,26 @@ Vue.mixin({
     APIGetRequest(link, callback, errorCallback){
       // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
       console.log('url', CONFIG.API_URL + link)
-      // Axios.get(CONFIG.API_URL + link, {
-      //   headers: {
-      //     'Authorization': CONFIG.authorization,
-      //     'Access-Control-Allow-Origin': '*'
-      //   }
-      // }, response => {
-      //   console.log('response', response)
-      // })
-      // jQuery.ajaxSetup({})
-      fetch(CONFIG.API_URL + link, {
+      Axios.get(CONFIG.API_URL + link, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'bearer ' + CONFIG.authorization
+          'Authorization': 'bearer ' + CONFIG.authorization,
+          'Access-Control-Allow-Origin': '*'
         }
-      }).then(response => {
-        return response.json()
-      }).then(response => {
-        console.log('response')
+      }, response => {
+        console.log('response', response)
       })
-      // let request = jQuery.ajax({
+      // jQuery.ajaxSetup({})
+      // fetch(CONFIG.API_URL + link, {
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'bearer ' + CONFIG.authorization
+      //   }
+      // }).then(response => {
+      //   return response.json()
+      // }).then(response => {
+      //   console.log('response')
+      // })
+      // let request = $.ajax({
       //   method: 'POST',
       //   url: CONFIG.API_URL + 'categories',
       //   beforeSend: function(request) {
