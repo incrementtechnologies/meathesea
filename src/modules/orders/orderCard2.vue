@@ -2,21 +2,21 @@
   <div class="card card2">
     <div class="card-header card2Header">
       <div class="row card2HeaderEl">
-        <div class="col-sm-12 d-flex justify-content-between" v-if="data.order_status === 'processing' || data.order_status === 'complete'">
-          <div class="col-sm-3 text-center">
-            <b>{{data.order_number}}</b>
+        <div class="col-sm-12 d-flex justify-content-between" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
+          <div class="col-sm-3 text-center divAsButton">
+            <b>{{data.id}}</b>
           </div>
-          <div class="col-sm-3 text-center">
+          <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'">
             <b class='font-weight-normal'>DELIVERY TIME: {{data.delivery_time}}</b>
           </div>
-          <div class="col-sm-3 text-center">
-            <b v-if="data.order_status !== 'processing'">{{data.order_status}}</b>
+          <div class="col-sm-3 text-center divAsButton">
+            <b v-if="data.order_status.toLowerCase() === 'processing'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
           </div>
-          <div class="col-sm-3 text-center">
+          <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'">
             <b> PRINT ORDER </b>
           </div>
         </div>
-        <div v-else-if="data.order_status === 'pending'" class="col-sm-12 text-center">
+        <div v-else-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 text-center">
           <b style="color: #0064B1;"> NEW ORDER REQUEST AT 12:42 </b> 
         </div>
       </div>
@@ -24,7 +24,7 @@
     <div class="card-body p-0">
       <div class="col-sm-12">
       <div class="row">
-        <div class="col-sm-7 orderInformation">
+        <div class="col-sm-7 orderInformation" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: calc(100vh - 378px) !important;' : 'height: calc(100vh - 280px) !important;'">
           <div class="row">
             <div v-if="data.order_status === 'pending'" class="col-sm-12 pt-3 pb-3 pendingCustomerInformation">
               <div class="row">
@@ -55,25 +55,25 @@
           <div class="mt-3">
             <b :style="'color: #0064B1'"> Restaurant Items: </b>
           </div>
-          <div v-for="(el) in 2" :key="el + 'test'" class="mt-2 pr-5">
+          <div v-for="(el, ndx) in restaurant" :key="'restaurant' + ndx" class="mt-2 pr-5">
             <div class="d-flex justify-content-between">
-              <b :style="'color: #E07700'"> Item name </b>
-              <b class="font-weight-normal"> HK$ XX </b>
+              <b :style="'color: #E07700'"> {{el.product.name}} </b>
+              <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} </b>
             </div>
             <div class="col-sm-12" :style="'color: #E07700'">
-              + Description
+              + {{el.product.short_description}}
             </div>
           </div>
           <div class="mt-3">
             <b :style="'color: #0064B1'"> Deli product Items: </b>
           </div>
-          <div v-for="(el) in 2" :key="el" class="mt-2 pr-5">
+          <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
             <div class="d-flex justify-content-between">
-              <b :style="'color: #E07700'"> Item name </b>
-              <b class="font-weight-normal"> HK$ XX </b>
+              <b :style="'color: #E07700'"> {{el.product.name}} </b>
+              <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} </b>
             </div>
             <div class="col-sm-12" :style="'color: #E07700'">
-              + Description
+              + {{el.product.short_description}}
             </div>
           </div>
           <div class="mt-3">
@@ -86,13 +86,13 @@
             <b :style="'color: #E07700'"> Add cutlery </b>
           </div>
         </div>
-        <div class="col-sm-5 customerInformation" :style="(data.order_status !== 'pending') ? 'min-height: calc(100vh - 378px) !important;' : 'min-height: calc(100vh - 280px) !important;'">
-          <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status === 'complete'">
+        <div class="col-sm-5 customerInformation" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: calc(100vh - 378px) !important;' : 'height: calc(100vh - 280px) !important;'">
+          <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
             <div class="mt-3">
               <b class="head"> Customer Information </b>
             </div>
             <div class="mt-2">
-              <b class="font-weight-normal"> {{ data.full_name.toUpperCase() }} </b>
+              <b class="font-weight-normal"> {{ (data.customer.first_name + ' ' + data.customer.last_name).toUpperCase() }} </b>
             </div>
             <div class="mt-1">
               <b class="text-primary"> Contact customer </b>
@@ -102,9 +102,13 @@
               <b class="head"> Address: </b>
             </div>
             <div>
-              <b class="font-weight-normal">
-                {{ data.address }}
+              <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
+                {{data.shipping_address.address1}}
               </b>
+              <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
+                {{data.shipping_address.address2}}
+              </b>
+              <i v-else> {{data.shipping_address.address1}} </i>
             </div>
             <div class="row sectionRow">
               <div class="totalSection">
@@ -113,7 +117,7 @@
                     TOTAL
                   </b>
                   <b>
-                    HK$ XXX
+                    {{data.customer_currency_code}} {{data.order_total}}
                   </b>
                 </div>
               </div>
@@ -139,7 +143,7 @@
       </div>
       </div>
     </div>
-    <div class="card-footer card2Footer" v-if="data.order_status === 'processing' || data.order_status === 'complete'">
+    <div class="card-footer card2Footer" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
       <div class="col-sm-12">
         <div class="row">
           <div class="col-sm-3 p-3" v-for="(el, ndx) in progressButtons" :key="ndx">
@@ -148,7 +152,7 @@
                 <div class="col-sm-8 p-0">
                   <b>{{el.text}}</b>
                 </div>
-                <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status === 'processing'">
+                <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'processing'">
                   <div>
                     <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'" v-if="el.status.toLowerCase() === 'yes'"></i>
                     <b v-else> {{el.status}} </b>
@@ -158,7 +162,7 @@
                     <i class="fas fa-circle switchIcon" :style="emptyCircle"  v-else></i>
                   </div>
                 </div>
-                <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status === 'complete'">
+                <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'delivered'">
                   <div class="meantime d-flex">
                     <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"></i>
                     <b class="ml-1"> Yes </b>
@@ -226,19 +230,44 @@ export default {
       dangerUnfocusStyle: 'background-color: #FFFFFF; border: 1px solid #BE0000; color: #BE0000; border 1px solid #00AF5F !important;',
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
       rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
-      focusIndex: 0
+      focusIndex: 0,
+      restaurant: [],
+      deliStore: []
     }
   },
-  methods: {}
+  methods: {},
+  mounted() {
+    this.data.order_items.forEach(el => {
+      if(el.product.category_type === 0){
+        this.restaurant.push(el)
+      }else if(el.product.category_type === 1){
+        this.deliStore.push(el)
+      }
+    })
+  },
+  watch: {
+    restaurant: function(_new, old) {
+      return _new
+    },
+    deliStore: function(_new, old) {
+      return _new
+    }
+  }
 }
 </script>
 <style scoped>
+.divAsButton {
+  cursor: pointer;
+}
 .customerInformation {
   padding-bottom: 50px !important;
   border: 1px solid #707070;
 }
 .orderInformation {
   border: 1px solid #707070;
+  /* height: calc(100vh - 378px) !important; */
+  overflow-y: scroll;
+  padding-bottom: 50px;
 }
 .card2 {
   border: none;
@@ -454,5 +483,21 @@ input[type="radio"]:checked {
   display: inline-block;
   text-align: left;
   vertical-align: middle;
+}
+.orderInformation::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+	background-color: #F5F5F5;
+}
+.orderInformation::-webkit-scrollbar
+{
+  width: 7px;
+	background-color: #F5F5F5;
+}
+.orderInformation::-webkit-scrollbar-thumb
+{
+	background-color: #707070;
+	border: 0px;
+  border-radius: 10px;
 }
 </style>
