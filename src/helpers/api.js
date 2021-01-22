@@ -19,45 +19,19 @@ Vue.mixin({
       return request
     },
     APIGetRequest(link, callback, errorCallback){
-      // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
-      console.log('url', CONFIG.API_URL + link)
-      Axios.get(CONFIG.API_URL + link, {
+      let request = $.ajax({
+        method: 'GET',
+        url: CONFIG.API_URL + link,
         headers: {
-          'Authorization': 'bearer ' + CONFIG.authorization,
-          'Access-Control-Allow-Origin': '*'
+          Authorization: 'bearer ' + CONFIG.authorization
+        },
+        success: (response) => {
+          this.APISuccessRequestHandler(response, callback)
+        },
+        error: (jqXHR) => {
+          this.APIFailRequestHandler(link, jqXHR, errorCallback)
         }
-      }, response => {
-        console.log('response', response)
       })
-      // jQuery.ajaxSetup({})
-      // fetch(CONFIG.API_URL + link, {
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': 'bearer ' + CONFIG.authorization
-      //   }
-      // }).then(response => {
-      //   return response.json()
-      // }).then(response => {
-      //   console.log('response')
-      // })
-      // let request = $.ajax({
-      //   method: 'POST',
-      //   url: CONFIG.API_URL + 'categories',
-      //   beforeSend: function(request) {
-      //     request.setRequestHeader('Authorization', 'bearer ' + CONFIG.authorization)
-      //   },
-      //   headers: {
-      //     Authorization: 'bearer ' + CONFIG.authorization
-      //   },
-      //   contentType: 'application/json',
-      //   success: (response) => {
-      //     console.log('response', response)
-      //     // this.APISuccessRequestHandler(response, callback)
-      //   },
-      //   error: (jqXHR) => {
-      //     this.APIFailRequestHandler(link, jqXHR, errorCallback)
-      //   }
-      // })
     },
     APIPostRequest(link, parameter, callback, errorCallback){
       // let tokenStringParam = (AUTH.tokenData.token) ? '?token=' + AUTH.tokenData.token : ''
