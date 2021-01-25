@@ -7,12 +7,12 @@ let beforeEnter = (to, from, next) => {
   let token = localStorage.getItem('usertoken')
   if(token !== null && userID > 0){
     if(to.path === '/' || to.meta.tokenRequired === false){
-      next({path: '/requests'})
+      next({path: '/orders'})
     }else{
       next()
     }
   }else if(to.meta.tokenRequired === true){
-    next({path: '/'})
+    next({path: '/login'})
   }else{
     next()
   }

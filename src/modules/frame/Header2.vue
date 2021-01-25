@@ -23,7 +23,7 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right ml-auto">
-        <li>
+        <li @click="logout()">
           <i
             class="fas fa-sign-out-alt"
             style="font-size: 30px; color: white"
@@ -40,10 +40,16 @@
 </template>
 <script>
 import CONFIG from '../../config.js'
+import AUTH from '../../services/auth'
 export default {
   data: () => ({
     config: CONFIG
-  })
+  }),
+  methods: {
+    logout(){
+      AUTH.removeAuthentication()
+    }
+  }
 }
 </script>
 
