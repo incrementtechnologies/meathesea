@@ -38,7 +38,7 @@ export default{
   }, {
     path: '/login',
     name: 'loginAccount',
-    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
+    component: resolve => require(['components/increment/basic/Login.vue'], resolve),
     meta: {
       tokenRequired: false
     }
@@ -87,7 +87,7 @@ export default{
   }, {
     path: '/menu_items',
     name: 'menuItems',
-    component: resolve => require(['modules/products/List.vue'], resolve),
+    component: resolve => require(['modules/menu/List.vue'], resolve),
     meta: {
       tokenRequired: true
     }

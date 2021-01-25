@@ -1,5 +1,5 @@
 <template>
-  <div class="container2 mt-3">
+  <div class="container2">
     <div class="row">
       <div class="column col-.5">
         <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 20px; margin-right: 20px; margin-top: 1%; color: #0064B1;" @click="back()"></i>

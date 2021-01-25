@@ -159,7 +159,7 @@ export default {
           shorterView: true,
           column: 'col-sm-5',
           focusedBackground: '#0064B1',
-          wholeViewColumn: 'col-sm-6',
+          wholeViewColumn: 'col-sm-8',
           changeDate: false
         }
       ],
@@ -358,7 +358,7 @@ export default {
   font-weight: bold;
 }
 .navs:hover {
-  cursor: default;
+  cursor: pointer;
 }
 .nav_header {
   min-height: 52px;
@@ -440,7 +440,7 @@ export default {
 }
 .smallerView {
   color: #0064B1;
-  cursor: default;
+  cursor: pointer;
   font-size: 48px;
 }
 </style>

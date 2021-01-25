@@ -15,7 +15,7 @@
                   >
                     {{nav.name}}
                     <div class="notifications ml-3" v-if="nav.isNotification" :style="'background-color: ' + nav.notificationColor">
-                      <b :style="'color :' + nav.notificationTextColor">{{data[focusIndex].length}}</b>
+                      <b :style="'color :' + nav.notificationTextColor">{{data[ndx].length}}</b>
                     </div>
                   </div>
                 </div>
@@ -33,7 +33,7 @@
                     class="d-flex justify-content-between crockeries"
                     :style="(selectedDataIndex === ndx) ? 'background-color: ' + navs[focusIndex].background : '; background-color: white;'"
                   >
-                    <div v-if="!returnHeaderElements[typeIndex].changeDate && !returnHeaderElements[typeIndex].changeDate">{{el.order_number}}</div>
+                    <div v-if="!returnHeaderElements[typeIndex].changeDate && !returnHeaderElements[typeIndex].changeDate">{{el.id}}</div>
                     <div>
                       {{
                         returnDate(el)
@@ -90,6 +90,7 @@
 import card1 from '../crockery/orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
+import dummy from './data.js'
 export default {
   components: {
     card1,
@@ -99,15 +100,15 @@ export default {
   data() {
     return {
       tableHeaders: [
-        {text: 'Order date/time', key: 'date'},
-        {text: 'Order number', key: 'order_number'},
+        {text: 'Order date/time', key: 'created_on_utc'},
+        {text: 'Order number', key: 'id'},
         {text: 'Order Status', key: 'order_status'},
         {text: 'Plate returned', key: 'returned'}
       ],
       navs: [
         {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1'},
         {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1'},
-        {name: 'RETURNED', background: '#E1E1E1', color: '#878787'}
+        {name: 'DELIVERED', background: '#E1E1E1', color: '#878787'}
       ],
       headerElements: [
         {
@@ -177,113 +178,7 @@ export default {
           changeDate: false
         }
       ],
-      data: [
-        [
-          {
-            id: 1,
-            order_number: 123,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 234,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 345,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          }
-        ],
-        [
-          {
-            id: 1,
-            order_number: 754,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 567,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 231,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          }
-        ],
-        [
-          {
-            id: 1,
-            order_number: 342,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 125,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2021-01-14T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 515,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2021-01-13T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          }
-        ]
-      ],
+      data: [],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
       focusIndex: 0,
@@ -293,12 +188,27 @@ export default {
       widerView: false
     }
   },
-  mounted() {
-    $('#loading').css({display: 'none'})
+  // created() {},
+  created() {
+    let pending = []
+    let processing = []
+    let delivered = []
+    dummy.orders.forEach(el => {
+      if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
+        pending.push(el)
+      }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+        processing.push(el)
+      }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
+        delivered.push(el)
+      }
+    })
+    this.data.push(pending)
+    this.data.push(processing)
+    this.data.push(delivered)
   },
   watch: {
     data: function(_new, old) {
-      return this.data
+      return this._new
     }
   },
   computed: {
@@ -321,13 +231,13 @@ export default {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
       let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
       if(!this.returnHeaderElements[this.typeIndex].changeDate) {
-        return new Date(el.date).toLocaleTimeString()
-      }else if(new Date(el.date).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
+        return new Date(el.created_on_utc).toLocaleTimeString()
+      }else if(new Date(el.created_on_utc).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
         return 'Today'
-      }else if(new Date(el.date).toLocaleDateString().replaceAll('/', '-') === yesterday) {
+      }else if(new Date(el.created_on_utc).toLocaleDateString().replaceAll('/', '-') === yesterday) {
         return 'Yesterday'
       }else {
-        return new Date(el.date).toLocaleDateString().replaceAll('/', '-')
+        return new Date(el.created_on_utc).toLocaleDateString().replaceAll('/', '-')
       }
     },
     change(ndx) {
@@ -374,7 +284,7 @@ export default {
   font-weight: bold;
 }
 .navs:hover {
-  cursor: default;
+  cursor: pointer;
 }
 .nav_header {
   min-height: 52px;
@@ -456,7 +366,7 @@ export default {
 }
 .smallerView {
   color: #0064B1;
-  cursor: default;
+  cursor: pointer;
   font-size: 48px;
 }
 </style>
