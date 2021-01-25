@@ -23,6 +23,7 @@ require('assets/style/select2.min.css')
 require('assets/js/min/select2.full.min.js')
 import 'font-awesome/css/font-awesome.css'
 // AUTH.checkAuthentication()
+AUTH.customCheckAuthentication()
 Vue.use(BootstrapVue)
 Vue.use(Router)
 export default new Router({

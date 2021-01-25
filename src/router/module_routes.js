@@ -5,6 +5,7 @@ let beforeEnter = (to, from, next) => {
   AUTH.currentPath = to.path
   let userID = parseInt(localStorage.getItem('account_id'))
   let token = localStorage.getItem('usertoken')
+  console.log(window.location.href)
   if(token !== null && userID > 0){
     if(to.path === '/' || to.meta.tokenRequired === false){
       next({path: '/orders'})
