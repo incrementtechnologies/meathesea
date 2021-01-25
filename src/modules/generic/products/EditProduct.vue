@@ -1,27 +1,27 @@
 <template>
-  <div class="container2">
+  <div class="container2" v-if="data">
     <div class="row">
       <div class="column col-.5">
         <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 20px; margin-right: 20px; margin-top: 1%; color: #0064B1;" @click="back()"></i>
       </div>
       <div class="column col-2.5">
-        <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="185px" height="142px">
+        <img :src="data ? data.images[0].src : ''" alt="Girl in a jacket" width="185px" height="142px">
       </div>
       <div class="col-9">
         <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
         <button class="buttons">Change picture</button>
         <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
-        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="title" placeholder="Type product title here...">
+        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="data.localized_names[0].localized_name" placeholder="Type product title here...">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE DESCRIPTION' : 'PRODUCT DESCRIPTION'}}</b></p>
-        <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="description" placeholder="Type product description here..."></textarea>
+        <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="data.full_description" placeholder="Type product description here..."></textarea>
         <div class="row" style="margin-top: 3%;">
           <div class="col-6">
-            <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE PRICE' : 'REGULAR PRICE'}}</b></p>
-            <input type="number" class="w-100 form-control form-control-custom" placeholder="Input Regular Price">
+            <p class="name" style="margin-left: 0%;"><b>{{bundle === true ? 'BUNDLE PRICE' : 'REGULAR PRICE'}}</b></p>
+            <input type="number" class="w-100 form-control form-control-custom" v-model="data.price" placeholder="Input Regular Price">
           </div>
           <div class="col-6">
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
-            <input type="number" class="w-100 form-control form-control-custom" placeholder="Input Special Offer Price">
+            <input type="number" class="w-100 form-control form-control-custom" v-model="data.special_price" placeholder="Input Special Offer Price">
           </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: 1</b></p>
@@ -49,9 +49,9 @@
         <label for="setTime" style="width:45%">Set Time</label>
         <div v-if="setTime === 'setTime'" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
           <label for="appt-time"><b>From: </b></label>
-          <input id="appt-time" type="time" name="appt-time" step="2">&nbsp;-
+          <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
           <label for="appt-time"><b>Until: </b></label>
-          <input id="appt-time" type="time" name="appt-time" step="2">
+          <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 5%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
         <input type="radio" value="loc" v-model="setLocation" class="in">
@@ -171,16 +171,13 @@
 <script>
 import VueTagsInput from '@johmun/vue-tags-input'
 export default {
-  props: ['bundle'],
+  props: ['bundle', 'data'],
   data(){
     return {
       checked: true,
-      // bundle: true,
       setTime: null,
       clickSetTime: false,
       setLocation: null,
-      title: null,
-      description: null,
       category: '',
       categories: '',
       CategoryTags: [],
@@ -240,7 +237,6 @@ export default {
   methods: {
     back() {
       this.$parent.isEdit = false
-      this.bundle = false
     }
   }
 }
