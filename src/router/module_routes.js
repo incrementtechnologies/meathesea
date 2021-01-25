@@ -27,7 +27,7 @@ let routes = [
   {
     path: '/',
     name: 'home',
-    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
+    component: resolve => require(['components/increment/basic/LoginWithoutRegister.vue'], resolve),
     beforeEnter: beforeEnter
   }
 ]
