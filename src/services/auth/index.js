@@ -130,14 +130,15 @@ export default {
         // this.removeAuthentication()
         // ROUTER.push('/login')
       }
-      return response
+      if(callback){
+        callback(response)
+      }
     }, (response, status) => {
       if(errorCallback){
         errorCallback(response, status)
         this.tokenData.loading = false
         this.tokenData.verifyingToken = false
       }
-      return response
     })
   },
   customCheckAuthentication(callback, flag = false){
