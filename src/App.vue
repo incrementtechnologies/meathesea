@@ -186,9 +186,9 @@ import AUTH from './services/auth'
 import global from './helpers/global'
 export default {
   name: 'app',
-  mounted(){
-    console.log(this.$route.name)
-  },
+  // mounted(){
+  //   console.log(this.$route.name)
+  // },
   created(){
     // this.validate()
   },

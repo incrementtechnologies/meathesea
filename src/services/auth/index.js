@@ -112,24 +112,71 @@ export default {
     // }
     let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
     vue.APIGetRequest(parameter, (response) => {
-      console.log('response', response)
-      if(response !== null){
+      this.tokenData.loading = false
+      this.tokenData.verifyingToken = false
+      if(typeof response !== 'string'){
         let token = response.authorization.access_token
         this.tokenData.token = token
         localStorage.setItem('usertoken', token)
+        localStorage.setItem('email', username)
+        localStorage.setItem('password', password)
         this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
         ROUTER.push('/orders')
+        $('#loading').css({'display': 'none'})
+      }else{
+        $('#loading').css({'display': 'none'})
+        this.tokenData.loading = false
+        this.tokenData.verifyingToken = false
+        // this.removeAuthentication()
+        // ROUTER.push('/login')
+      }
+      if(callback){
+        callback(response)
       }
     }, (response, status) => {
       if(errorCallback){
         errorCallback(response, status)
+        this.tokenData.loading = false
+        this.tokenData.verifyingToken = false
       }
     })
   },
+  customCheckAuthentication(callback, flag = false){
+    this.tokenData.verifyingToken = true
+    let token = localStorage.getItem('usertoken')
+    if(token){
+      if(flag === false){
+        this.tokenData.loading = true
+      }
+      this.setToken(token)
+      let vue = new Vue()
+      let username = localStorage.getItem('email')
+      let password = localStorage.getItem('password')
+
+      let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
+      vue.APIGetRequest(parameter, response => {
+        this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
+        this.tokenData.verifyingToken = false
+        this.tokenData.loading = false
+        let location = window.location.href
+        if(this.currentPath){
+          // ROUTER.push(this.currentPath)
+        }else{
+          window.location.href = location
+        }
+      })
+      return true
+    }else{
+      this.tokenData.verifyingToken = false
+      this.setUser(null)
+      return false
+    }
+  },
   removeAuthentication(){
-    localStorage.removeItem('usertoken')
-    localStorage.removeItem('account_id')
-    ROUTER.push('/login')
+    localStorage.clear()
+    this.tokenData.token = null
+    this.setUser(null)
+    ROUTER.go('/')
   },
   checkAuthentication(callback, flag = false){
     this.tokenData.verifyingToken = true

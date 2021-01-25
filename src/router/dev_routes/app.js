@@ -38,14 +38,14 @@ export default{
   }, {
     path: '/login',
     name: 'loginAccount',
-    component: resolve => require(['components/increment/basic/Login.vue'], resolve),
+    component: resolve => require(['components/increment/basic/LoginWithoutRegister.vue'], resolve),
     meta: {
       tokenRequired: false
     }
   }, {
     path: '/',
-    name: 'loginAccounts',
-    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
+    name: 'loginAccount',
+    component: resolve => require(['components/increment/basic/LoginWithoutRegister.vue'], resolve),
     meta: {
       tokenRequired: false
     }
