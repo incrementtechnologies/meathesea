@@ -1,10 +1,10 @@
 <template>
 	<div class="contents">
 		<div class="clearfix">
-			<CategoryList :type="'menu'" :data="data"/>
+			<CategoryList :type="'menu'" :data="categories"/>
 			<div class="column content">
-				<ProductList v-if="!isEdit" :data="data" @showAddForm="isEdit = true"/>
-        <EditProduct v-if="isEdit" :bundle="bundled"/>
+				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
+        <EditProduct v-if="isEdit" :data="data" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -24,7 +24,6 @@
 }
 .menu {
   width: 25%;
-  padding-left: 100px;
   /* margin-top: 1.3%; */
 }
 .content {
@@ -54,7 +53,6 @@
 .column1{
 	float: left;
   width: 50%;
-  padding: 10px;
   height: 300px;
 }
 </style>
@@ -62,32 +60,19 @@
 import ProductList from 'modules/generic/products/ProductList.vue'
 import EditProduct from 'modules/generic/products/EditProduct.vue'
 import CategoryList from 'modules/generic/products/CategoryList.vue'
+import axios from 'axios'
 export default {
   data() {
     return {
       isActive: false,
       hasError: false,
       isEdit: false,
+      data: null,
       bundled: false,
-      data: [{
-        name: 'Bites'
-      }, {
-        name: 'Snacks'
-      }, {
-        name: 'Deep Fried Snacks'
-      }, {
-        name: 'Salads / Soups'
-      }, {
-        name: 'Main couress'
-      }, {
-        name: 'Pastas'
-      }, {
-        name: 'Sides'
-      }, {
-        name: 'Steaks'
-      }, {
-        name: 'Desserts'
-      }]
+      categories: null,
+      products: null,
+      firstRetrieve: true,
+      token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2MDQ1NjEwNDEsImV4cCI6MTkxOTkyMTA0MSwiaXNzIjoiaHR0cHM6Ly9tdHNiYWNrZW5kZGV2LmF6dXJld2Vic2l0ZXMubmV0IiwiYXVkIjpbImh0dHBzOi8vbXRzYmFja2VuZGRldi5henVyZXdlYnNpdGVzLm5ldC9yZXNvdXJjZXMiLCJub3BfYXBpIl0sImNsaWVudF9pZCI6IjkzZTZjNDNlLTJjOTUtNGY3Yi04YzJiLWEwMTA5YmExODFiYyIsInN1YiI6IjkzZTZjNDNlLTJjOTUtNGY3Yi04YzJiLWEwMTA5YmExODFiYyIsImF1dGhfdGltZSI6MTYwNDU2MTAzOSwiaWRwIjoibG9jYWwiLCJzY29wZSI6WyJub3BfYXBpIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbInB3ZCJdfQ.qRvEbcmpAPO-qhMBJqk0jDCNbl_BsmBdVStz76P2uLQi37uS6SoitQ5AV31M8PijiOaLbJQQ4uddRpI7P45virWUseq7wq1Xi9KDpKduo9bnRKFHu3UwBJJo_Wmgl86V_tNiJpey7Xdswr80E6rWFCL-Nneh9kfcs9ka-Igg2cwLb0Hlt1BHd42IB-700S9g5SIQir4vcWPbWkotMyik2NORXwjS7lnta_lXlTnxC4xWMREMpBwt4x6J9eLLunmy9Dj6LypLWt20C-JEiCvBHEjDff0QviVEIcnsqys0CucZUQ-jCD3-jHoFPCC79-PmSFojcmXVG-M0FcON8iLArw'
     }
   },
   watch: {
@@ -96,6 +81,9 @@ export default {
       this.isEdit = false
     }
   },
+  mounted() {
+    this.retrieveCategories()
+  },
   components: {
     ProductList,
     CategoryList,
@@ -103,18 +91,64 @@ export default {
   },
   methods: {
     redirectEdit(){
-      this.bundled = true
       this.isEdit = false
       // e.currentTarget.classList.add('active')
     },
     setActive(id) {
       this.isEdit = false
-      this.bundled = false
       let active = document.getElementsByClassName('list')
       for (var i = 0; i < active.length; i++) {
         active[i].className = active[i].className.replace('active', '')
       }
       active[id].classList.add('active')
+    },
+    retrieveCategories() {
+      $('#loading').css({'display': 'block'})
+      axios.get('https://mtsbackenddev.azurewebsites.net/api/get_restaurant_categories?storeId=1', {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      }).then(response => {
+        $('#loading').css({'display': 'none'})
+        if(response.data !== null) {
+          this.categories = response.data.categories
+          if(this.firstRetrieve === true) {
+            this.retrieveProducts(this.categories[0].id)
+            this.firstRetrieve = false
+          }
+        }
+      })
+    },
+    retrieveProducts(id) {
+      console.log(this.bundled)
+      $('#loading').css({'display': 'block'})
+      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products?CategoryId=${id}`, {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      }).then(response => {
+        if(response.data !== null) {
+          this.products = response.data.products
+          $('#loading').css({'display': 'none'})
+        } else {
+          $('#loading').css({'display': 'none'})
+        }
+      })
+    },
+    retrieveOneProduct(id) {
+      $('#loading').css({'display': 'block'})
+      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      }).then(response => {
+        $('#loading').css({'display': 'none'})
+        if(response.data !== null) {
+          this.data = response.data.products[0]
+        } else {
+          this.data = null
+        }
+      })
     }
   }
 }

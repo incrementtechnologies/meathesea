@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="column menu">
+    <div class="column menu" v-if="data">
       <ul>
-        <li class="list" v-for="(item, i) in data" :key="i" @click="setActive(i)">{{item.name}}</li>
-        <li class="list" v-if="type === 'menu'" @click="setMeal(), setActive(data.length)">Set Meals</li>
+        <li class="list" v-for="(item, i) in data" :key="i" @click="retrieve(item.id, i)">{{item.name}}</li>
+        <li class="list" v-if="type === 'menu'" @click="retrieve(data[0].id, data.length), setActive(data.length)">Set Meals</li>
       </ul>
     </div>
   </div>
@@ -23,8 +23,6 @@
 }
 .menu {
   width: 25%;
-  padding-left: 100px;
-  /* margin-top: 1.3%; */
 }
 .content {
   width: 70%;
@@ -54,7 +52,6 @@
 .column1{
 	float: left;
   width: 50%;
-  padding: 10px;
   height: 300px;
 }
 </style>
@@ -73,16 +70,7 @@ export default {
   components: {
     EditProduct
   },
-  watch: {
-    $route(to, from){
-      console.log(to)
-      this.isEdit = false
-    }
-  },
   methods: {
-    setMeal(){
-      this.$parent.isEdit = true
-    },
     setActive(id) {
       this.isEdit = false
       this.bundled = false
@@ -91,6 +79,16 @@ export default {
         active[i].className = active[i].className.replace('active', '')
       }
       active[id].classList.add('active')
+    },
+    retrieve(id, i) {
+      if(i === this.data.length) {
+        this.$parent.bundled = true
+      } else {
+        this.$parent.bundled = false
+      }
+      this.setActive(i)
+      this.$parent.retrieveProducts(id)
+      this.$parent.isEdit = false
     }
   }
 }
