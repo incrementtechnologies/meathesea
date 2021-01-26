@@ -3,7 +3,7 @@
     <div class="container2" v-for="(item, i) in data" :key="i">
       <div class="row mt-4">
         <div class="column">
-          <i class="fas fa-edit" style="font-size: 2em; margin-left: 20px; margin-right: 20px;" @click="update()"></i>
+          <i class="fas fa-edit" style="font-size: 2em; margin-left: 40px; margin-right: 20px;" @click="retrieve(item)"></i>
         </div>
         <div class="column">
           <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="70" height="30">
@@ -15,7 +15,7 @@
           <div class="right">
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
-              <input type="checkbox" :checked="item.status">
+              <input type="checkbox" :checked="!item.available_for_pre_order">
               <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>
@@ -128,13 +128,10 @@ input:checked + .slider:before {
 .name{
 	margin-left: 20px;
 }
-.content{
-	margin: 0% 3% 3% 0%;
-}
+
 .column1{
 	float: left;
   width: 50%;
-  padding: 10px;
   height: 300px;
 }
 .container2{
@@ -156,7 +153,8 @@ export default {
     }
   },
   methods: {
-    update() {
+    retrieve(item) {
+      this.$parent.retrieveOneProduct(item.id)
       this.$parent.isEdit = true
     }
   }
