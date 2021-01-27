@@ -275,6 +275,7 @@ export default {
   },
   methods: {
     viewReceipt(data){
+      console.log('data', this.data.order_items)
       this.dataPdf = data
       this.dataRes = []
       this.dataDel = []
