@@ -247,12 +247,26 @@ export default {
       focusIndex: 0,
       PdfTemplate: TemplatePdf,
       restaurant: [],
-      deliStore: []
+      deliStore: [],
+      dataPdf: [],
+      dataRes: [],
+      dataDel: []
     }
   },
   methods: {
     viewReceipt(data){
-      console.log('data here', data)
+      this.dataPdf = data
+      this.dataRes = []
+      this.dataDel = []
+      this.dataPdf.order_items.map(key => {
+        if(key.product.category_type === 0){
+          this.dataRes.push(key)
+          this.PdfTemplate.getData(this.dataRes)
+        }else if(key.product.category_type === 1){
+          this.dataDel.push(key)
+          this.PdfTemplate.getDel(this.dataDel)
+        }
+      })
       this.PdfTemplate.getItem(data)
       this.PdfTemplate.template()
     }
