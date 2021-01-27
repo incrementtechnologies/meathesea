@@ -1,13 +1,14 @@
 <template>
   <div class="container-fluid pt-0">
-    <div class="row">
-      <div class="col-sm-5" v-if="!widerView">
+    <div class="row" :style="!widerView ? 'border: 1px solid #707070;' : 'border: none;'">
+      <div class="col-sm-5 cardbodyborder initialHeight" v-if="!widerView">
         <div class="row">
           <div class="col-sm-12 p-0">
             <div class="card nav_card">
               <div class="card-header p-0 nav_header">
                 <div class="row pl-3 pr-3">
-                  <div class="col-sm-4 navs" 
+                  <div 
+                    class="col-sm-4 navs" 
                     v-for="(nav, ndx) in navs" 
                     :key="ndx + 'navs'" 
                     @click="change(ndx)" 
@@ -15,12 +16,12 @@
                   >
                     {{nav.name}}
                     <div class="notifications ml-3" v-if="nav.isNotification" :style="'background-color: ' + nav.notificationColor">
-                      <b :style="'color :' + nav.notificationTextColor">{{data[ndx].length}}</b>
+                      <b :style="'color :' + nav.notificationTextColor">{{(data[ndx] !== undefined) ? data[ndx].length : 0}}</b>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="card-body initialHeight p-0">
+              <div class="card-body p-0">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
                   v-for="(el, ndx) in data[focusIndex]" 
@@ -41,6 +42,14 @@
                     </div>
                   </div>
                 </div>
+                <div v-if="data[focusIndex].length === 0" class="notFoundContainer">
+                  <div class="notFound text-center">
+                    <img :src="require('src/assets/img/logo_white.png')" style="width: 20%; height: auto;"/>
+                    <div class="mt-2">
+                      <b class="font-weight-normal"> 404 | No data yet</b>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -48,15 +57,16 @@
       </div>
       <div :class="'p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
-          <div class="card-header">
+          <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
-              <div class="col-sm-1" v-if="widerView">
-                <i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i>
+              <div class="mt-1" v-if="widerView" style="width: 7%;">
+                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i></center>
               </div>
               <div
                 v-for="(el, ndx) in returnHeaderElements"
                 :key="String(ndx) + el.text"
-                :class="((!widerView) ? el.column : el.wholeViewColumn) + ' elWrapper'"
+                class="elWrapper p-1"
+                :style="'width: ' + ((!widerView) ? el.column : el.wholeViewColumn) + (widerView ? '!important;' : '')"
               >
                 <button 
                   class="buttonel" 
@@ -78,7 +88,7 @@
           </div>
           <div class="card-body p-0">
             <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
-            <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/>
+            <card2 :data="(data[focusIndex] !== undefined && data[focusIndex].length > 0) ? data[focusIndex][selectedDataIndex] : {}" v-if="componentType === 'card'"/>
             <dataTable v-else-if="componentType === 'table'" :headers="tableHeaders" :tableData="data[focusIndex]"/>
           </div>
         </div>
@@ -91,6 +101,8 @@ import card1 from '../crockery/orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
 import dummy from './data.js'
+import { APIGetRequest } from 'src/helpers/api'
+import AUTH from 'src/services/auth'
 export default {
   components: {
     card1,
@@ -121,7 +133,7 @@ export default {
           unfocusedColor: '#000000',
           wholeView: false,
           shorterView: true,
-          column: 'col-sm-2',
+          column: '20%',
           changeDate: false
         },
         {
@@ -134,7 +146,7 @@ export default {
           unfocusedColor: '#000000',
           wholeView: false,
           shorterView: true,
-          column: 'col-sm-2',
+          column: '20%',
           changeDate: true
         },
         {
@@ -147,8 +159,8 @@ export default {
           unfocusedColor: '#BE0000',
           wholeView: true,
           shorterView: false,
-          column: 'col-sm-2',
-          wholeViewColumn: 'col-sm-2',
+          column: '20%',
+          wholeViewColumn: '25%',
           changeDate: false
         },
         {
@@ -161,8 +173,8 @@ export default {
           unfocusedColor: '#000000',
           wholeView: true,
           shorterView: true,
-          column: 'col-sm-2',
-          wholeViewColumn: 'col-sm-2',
+          column: '20%',
+          wholeViewColumn: '25%',
           changeDate: false
         },
         {
@@ -172,13 +184,13 @@ export default {
           componentTocall: 'table',
           wholeView: true,
           shorterView: true,
-          column: 'col-sm-6',
+          column: '40%',
           focusedBackground: '#0064B1',
-          wholeViewColumn: 'col-sm-7',
+          wholeViewColumn: '42%',
           changeDate: false
         }
       ],
-      data: [],
+      data: [[], [], []],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
       focusIndex: 0,
@@ -190,25 +202,11 @@ export default {
   },
   // created() {},
   created() {
-    let pending = []
-    let processing = []
-    let delivered = []
-    dummy.orders.forEach(el => {
-      if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
-        pending.push(el)
-      }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
-        processing.push(el)
-      }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
-        delivered.push(el)
-      }
-    })
-    this.data.push(pending)
-    this.data.push(processing)
-    this.data.push(delivered)
+    this.retrieveOrders()
   },
   watch: {
     data: function(_new, old) {
-      return this._new
+      return _new
     }
   },
   computed: {
@@ -227,6 +225,24 @@ export default {
     }
   },
   methods: {
+    retrieveOrders () {
+      const { user } = AUTH
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest('/orders/' + user.userID, response => {
+        $('#loading').css({'display': 'none'})
+        response.orders.forEach(el => {
+          if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
+            this.data[0].push(el)
+          }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+            this.data[1].push(el)
+          }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
+            this.data[2].push(el)
+          }
+        })
+      }, error => {
+        console.log(error, ' <-=---------- ERROR <-|->')
+      })
+    },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
       let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
@@ -257,8 +273,19 @@ export default {
 }
 </script>
 <style scoped>
+.notFoundContainer {
+  min-height: 80vh;
+}
+.notFound {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+}
 .initialHeight {
-  min-height: calc(100vh - 95px - 8rem) !important;
+  min-height: 80vh;
 }
 .nav_container{
   border: 1px solid gray;
@@ -280,8 +307,10 @@ export default {
   height: 72px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  overflow-wrap: unset;
   font-weight: bold;
+  padding-right: 20px !important;
+  padding-left: 10px !important;
 }
 .navs:hover {
   cursor: pointer;
@@ -292,7 +321,8 @@ export default {
   background-color: white;
 }
 .nav_card {
-  border: 1px solid gray;
+  border: none;
+  /* border: 1px solid gray; */
 }
 .crockeries {
   align-items: center;
@@ -352,6 +382,16 @@ export default {
 .infoCard {
   border: 0px;
 }
+.infoCardHeader {
+  border-top: 1px solid #FFFFFF !important;
+  border-left: 1px solid #707070;
+  border-right: 1px solid white !important;
+  border-bottom: 1px solid #707070;
+  margin-top: -1px;
+  margin-right: -1px;
+  background-color: #FFFFFF;
+  border-radius: 0px;
+}
 .notifications {
   width: 16px;
   height: 16px;
@@ -363,11 +403,30 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: absolute !important;
+  right: 0;
+  margin-right: 5px;
+  top: 0;
+  top: 50%;
+  transform: translate(0, -50%);
 }
 .smallerView {
   color: #0064B1;
   cursor: pointer;
   font-size: 48px;
+}
+.cardbodyborder {
+  border-right: 1px solid #707070;
+}
+@media (max-width: 1450px) {
+  .elWrapper {
+    font-size: 12px;
+  }
+}
+@media (max-width: 1300px) {
+  .elWrapper {
+    width: 100% !important;
+  }
 }
 </style>
 <style>

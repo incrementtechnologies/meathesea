@@ -62,8 +62,8 @@ export default {
 <style scoped>
 .card1 {
   border: 1px solid #707070;
-  width: 365px;
-  min-height: calc(100vh - 205px) !important;
+  width: 365px !important;
+  /* min-height: calc(100vh - 205px) !important; */
 }
 .car1Header {
   background-color: #FFFFFF;

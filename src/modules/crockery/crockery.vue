@@ -48,15 +48,16 @@
       </div>
       <div :class="' p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
-          <div class="card-header">
+          <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
-              <div class="col-sm-1" v-if="widerView">
-                <i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i>
+              <div class="mt-1" v-if="widerView" style="width: 7%;">
+                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i></center>
               </div>
               <div
-                v-for="(el, ndx) in headerElements"
+                v-for="(el, ndx) in returnHeaderElements"
                 :key="String(ndx) + el.text"
-                :class="((!widerView) ? el.column : el.wholeViewColumn) + ' elWrapper'"
+                class="elWrapper p-1"
+                :style="'width: ' + ((!widerView) ? el.column : el.wholeViewColumn) + (widerView ? '!important;' : '')"
               >
                 <button 
                   class="buttonel" 
@@ -76,10 +77,14 @@
               </div>
             </div>
           </div>
-          <div class="card-body p-0">
+          <div class="card-body p-0 initialHeight tableArea">
             <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/>
             <!-- <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card' && $route.path === '/orders'"/> -->
-            <dataTable v-else-if="componentType === 'table'" :headers="tableHeaders" :tableData="data[focusIndex]"/>
+            <div 
+              v-else-if="componentType === 'table'"
+            >
+              <dataTable :headers="tableHeaders" :tableData="data[focusIndex]"/>
+            </div>
           </div>
         </div>
       </div>
@@ -120,7 +125,7 @@ export default {
           unfocusedColor: '#000000',
           wholeView: false,
           shorterView: true,
-          column: 'col-sm-2',
+          column: '20%',
           changeDate: false
         },
         {
@@ -133,7 +138,7 @@ export default {
           unfocusedColor: '#000000',
           wholeView: false,
           shorterView: true,
-          column: 'col-sm-2',
+          column: '20%',
           changeDate: true
         },
         {
@@ -146,8 +151,8 @@ export default {
           unfocusedColor: '#BE0000',
           wholeView: true,
           shorterView: true,
-          column: 'col-sm-3',
-          wholeViewColumn: 'col-sm-3',
+          column: '20%',
+          wholeViewColumn: '20%',
           changeDate: false
         },
         {
@@ -157,9 +162,9 @@ export default {
           componentTocall: 'table',
           wholeView: true,
           shorterView: true,
-          column: 'col-sm-5',
+          column: '40%',
           focusedBackground: '#0064B1',
-          wholeViewColumn: 'col-sm-8',
+          wholeViewColumn: '70%',
           changeDate: false
         }
       ],
@@ -331,8 +336,13 @@ export default {
 }
 </script>
 <style scoped>
+.tableArea {
+  border: none;
+  min-height: calc(80vh - 5px) !important;
+}
 .initialHeight {
-  min-height: calc(100vh - 95px - 8rem) !important;
+  min-height: 80vh;
+  /* min-height: calc(100vh - 95px - 8rem) !important; */
 }
 .nav_container{
   border: 1px solid gray;
@@ -426,6 +436,17 @@ export default {
 .infoCard {
   border: 0px;
 }
+.infoCardHeader {
+  border-top: 1px solid #FFFFFF !important;
+  border-left: 1px solid #707070;
+  border-right: 1px solid white !important;
+  border-bottom: 1px solid white !important;
+  margin-top: -1px;
+  margin-right: -1px;
+  margin-bottom: -1px;
+  background-color: #FFFFFF;
+  border-radius: 0px;
+}
 .notifications {
   width: 16px;
   height: 16px;
@@ -442,6 +463,16 @@ export default {
   color: #0064B1;
   cursor: pointer;
   font-size: 48px;
+}
+@media (max-width: 1450px) {
+  .elWrapper {
+    font-size: 12px;
+  }
+}
+@media (max-width: 1300px) {
+  .elWrapper {
+    width: 100% !important;
+  }
 }
 </style>
 <style>
