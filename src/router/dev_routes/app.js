@@ -85,9 +85,12 @@ export default{
       tokenRequired: true
     }
   }, {
-    path: '/*',
+    path: '*',
     name: 'notfound',
-    component: resolve => require(['modules/pagenotfound/PageNotFound.vue'], resolve)
+    component: resolve => require(['modules/pagenotfound/PageNotFound.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
   }
   ]
 }
