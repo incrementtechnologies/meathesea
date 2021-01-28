@@ -13,7 +13,7 @@ let beforeEnter = (to, from, next) => {
       next()
     }
   }else if(to.meta.tokenRequired === true){
-    next({path: '/login'})
+    next({path: '/'})
   }else{
     next()
   }
