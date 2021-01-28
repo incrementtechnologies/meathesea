@@ -27,7 +27,8 @@ for(let x = 0; x < devRoutes.length; x++){
 let routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'login',
+    redirect: '/login',
     component: resolve => require(['components/increment/basic/LoginWithoutRegister.vue'], resolve),
     beforeEnter: beforeEnter
   }
