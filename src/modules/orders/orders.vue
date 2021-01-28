@@ -21,7 +21,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body p-0">
+              <div class="card-body p-0 crockeriesBody">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
                   v-for="(el, ndx) in data[focusIndex]" 
@@ -88,8 +88,13 @@
           </div>
           <div class="card-body p-0">
             <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
-            <card2 :data="(data[focusIndex] !== undefined && data[focusIndex].length > 0) ? data[focusIndex][selectedDataIndex] : {}" v-if="componentType === 'card'"/>
-            <dataTable v-else-if="componentType === 'table'" :headers="tableHeaders" :tableData="data[focusIndex]"/>
+            <card2 
+              :data="(data[focusIndex] !== undefined && data[focusIndex].length > 0) ? data[focusIndex][selectedDataIndex] : {}" 
+              v-if="componentType === 'card' && reRender"
+              :restaurant="restaurant"
+              :deliStore="deliStore"
+            />
+            <dataTable v-else-if="componentType === 'table' && reRenderTable" :headers="tableHeaders" :tableData="data[focusIndex]"/>
           </div>
         </div>
       </div>
@@ -197,7 +202,12 @@ export default {
       selectedDataIndex: 0,
       typeIndex: 0,
       componentType: 'card',
-      widerView: false
+      widerView: false,
+      restaurant: [],
+      deliStore: [],
+      reRender: true,
+      reRenderTable: true,
+      tableData: []
     }
   },
   // created() {},
@@ -206,6 +216,9 @@ export default {
   },
   watch: {
     data: function(_new, old) {
+      return _new
+    },
+    reRender: function(_new, old) {
       return _new
     }
   },
@@ -228,7 +241,7 @@ export default {
     retrieveOrders () {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest('/orders/' + user.userID, response => {
+      this.APIGetRequest(`/orders/customer/${user.userID}?customerId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
         response.orders.forEach(el => {
           if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
@@ -258,16 +271,42 @@ export default {
     },
     change(ndx) {
       this.focusIndex = ndx
+      this.reRender = false
+      this.restaurant = []
+      this.deliStore = []
+      if(this.data[this.focusIndex] !== undefined && this.data[this.focusIndex].length > 0){
+        this.data[this.focusIndex][this.selectedDataIndex].order_items.forEach(el => {
+          if(el.product.category_type === 0){
+            this.restaurant.push(el)
+          }else if(el.product.category_type === 1){
+            this.deliStore.push(el)
+          }
+        })
+      }
+      this.reRender = true
     },
     selectData(ndx, popId) {
-      this.$root.$emit('bv::hide::popover')
-      this.$root.$emit('bv::show::popover', popId)
       this.selectedDataIndex = ndx
+      this.reRender = false
+      this.restaurant = []
+      this.deliStore = []
+      if(this.data[this.focusIndex] !== undefined && this.data[this.focusIndex].length > 0){
+        this.data[this.focusIndex][this.selectedDataIndex].order_items.forEach(el => {
+          if(el.product.category_type === 0){
+            this.restaurant.push(el)
+          }else if(el.product.category_type === 1){
+            this.deliStore.push(el)
+          }
+        })
+      }
+      this.reRender = true
     },
     switchComponent(component, ndx) {
       this.widerView = this.returnHeaderElements[ndx].wholeView
+      this.reRenderTable = false
       this.typeIndex = ndx
       this.componentType = component
+      this.reRenderTable = true
     }
   }
 }
@@ -427,6 +466,27 @@ export default {
   .elWrapper {
     width: 100% !important;
   }
+}
+.crockeriesBody {
+  height: 80vh !important;
+  max-height: 100vh;
+  overflow-y: scroll;
+}
+.crockeriesBody::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+	background-color: #F5F5F5;
+}
+.crockeriesBody::-webkit-scrollbar
+{
+  width: 5px;
+	background-color: #F5F5F5;
+}
+.crockeriesBody::-webkit-scrollbar-thumb
+{
+	background-color: #707070;
+	border: 0px;
+  border-radius: 10px;
 }
 </style>
 <style>

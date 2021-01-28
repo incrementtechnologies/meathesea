@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card card2" v-if="Object.keys(data).length > 0">
+    <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)">
       <div class="card-header card2Header">
         <div class="row card2HeaderEl">
           <div class="col-sm-12 d-flex justify-content-between headerActions" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
@@ -230,6 +230,7 @@
         <img :src="require('src/assets/img/logo_white.png')" style="width: 20%; height: auto;"/>
         <div class="mt-2">
           <b class="font-weight-normal"> 404 | No data yet</b>
+          <p>{{'restaurant length: ' + restaurant.length}}</p>
         </div>
       </div>
     </div>
@@ -245,11 +246,28 @@ export default {
     data: {
       default: {},
       type: Object
+    },
+    restaurant: {
+      default: [],
+      type: Array
+    },
+    deliStore: {
+      default: [],
+      type: Array
     }
   },
   mounted(){
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
+    // if(!_.isEmpty(this.data)){
+    //   this.data.order_items.forEach(el => {
+    //     if(el.product.category_type === 3){
+    //       this.restaurant.push(el)
+    //     }else if(el.product.category_type === 1){
+    //       this.deliStore.push(el)
+    //     }
+    //   })
+    // }
   },
   data() {
     return {
@@ -293,24 +311,14 @@ export default {
     }
   },
   watch: {
-    restaurant: function(_new, old) {
-      return _new
+    restaurant: function(newVal, oldVal) {
+      return newVal
     },
-    deliStore: function(_new, old) {
-      return _new
+    deliStore: function(newVal, oldVal) {
+      return newVal
     }
   },
-  updated() {
-    if(!_.isEmpty(this.data)){
-      this.data.order_items.forEach(el => {
-        if(el.product.category_type === 0){
-          this.restaurant.push(el)
-        }else if(el.product.category_type === 1){
-          this.deliStore.push(el)
-        }
-      })
-    }
-  }
+  updated() {}
 }
 </script>
 <style scoped>
