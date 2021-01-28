@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="tableContainer">
     <table class="table table-striped dataTable" v-if="headers.length && tableData.length > 0">
       <thead>
         <tr class="tableHead">
@@ -38,13 +38,14 @@ export default {
   },
   watch: {
     headers: function(_new, old) {
-      return this.headers
+      return _new
     },
     tableData: function(_new, old) {
-      return this.tableData
+      return _new
     }
   },
-  mounted() {}
+  mounted() {},
+  updated() {}
 }
 </script>
 <style scoped>
@@ -60,10 +61,6 @@ export default {
   display: inline-block;
 }
 .dataTable {
-  border-top: 1px solid #707070;
-  border-bottom: 1px solid #707070;
-  border-left: 1px solid #707070;
-  border-right: 1px solid #707070;
   color: #4D4E4F;
 }
 .noBorder td{
@@ -72,5 +69,29 @@ export default {
 .tableHead th{
   border-top: 1px solid #707070 !important;
   border-bottom: 1px solid #707070 !important;
+}
+.tableContainer {
+  height: 80vh;
+  border-top: 1px solid #707070;
+  border-bottom: 1px solid #707070;
+  border-left: 1px solid #707070;
+  border-right: 1px solid #707070;
+  overflow-y: scroll;
+}
+.tableContainer::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+	background-color: #F5F5F5;
+}
+.tableContainer::-webkit-scrollbar
+{
+  width: 5px;
+	background-color: #F5F5F5;
+}
+.tableContainer::-webkit-scrollbar-thumb
+{
+	background-color: #707070;
+	border: 0px;
+  border-radius: 10px;
 }
 </style>
