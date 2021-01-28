@@ -104,14 +104,10 @@ export default {
     },
     retrieveCategories() {
       $('#loading').css({'display': 'block'})
-      axios.get('https://mtsbackenddev.azurewebsites.net/api/get_restaurant_categories?storeId=1', {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
+      this.APIGetRequest('/get_restaurant_categories?storeId=1', response => {
         $('#loading').css({'display': 'none'})
-        if(response.data !== null) {
-          this.categories = response.data.categories
+        if(response.categories.length > 0) {
+          this.categories = response.categories
           if(this.firstRetrieve === true) {
             this.retrieveProducts(this.categories[0].id)
             this.firstRetrieve = false
@@ -120,15 +116,10 @@ export default {
       })
     },
     retrieveProducts(id) {
-      console.log(this.bundled)
       $('#loading').css({'display': 'block'})
-      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products?CategoryId=${id}`, {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
-        if(response.data !== null) {
-          this.products = response.data.products
+      this.APIGetRequest(`/products?CategoryId=${id}`, response => {
+        if(response.products.length > 0) {
+          this.products = response.products
           $('#loading').css({'display': 'none'})
         } else {
           $('#loading').css({'display': 'none'})
@@ -137,14 +128,10 @@ export default {
     },
     retrieveOneProduct(id) {
       $('#loading').css({'display': 'block'})
-      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
+      this.APIGetRequest(`/products/${id}`, response => {
         $('#loading').css({'display': 'none'})
-        if(response.data !== null) {
-          this.data = response.data.products[0]
+        if(response.products.length > 0) {
+          this.data = response.products[0]
         } else {
           this.data = null
         }

@@ -104,14 +104,10 @@ export default {
     },
     retrieveCategories() {
       $('#loading').css({'display': 'block'})
-      axios.get('https://mtsbackenddev.azurewebsites.net/api/get_deli_shop_categories?storeId=1', {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
+      this.APIGetRequest('/get_deli_shop_categories?storeId=' + 1, response => {
         $('#loading').css({'display': 'none'})
-        if(response.data !== null) {
-          this.categories = response.data.categories
+        if(response.categories.length > 0) {
+          this.categories = response.categories
           if(this.firstRetrieve === true) {
             this.retrieveProducts(this.categories[0].id)
             this.firstRetrieve = false
@@ -123,14 +119,10 @@ export default {
     },
     retrieveProducts(id) {
       $('#loading').css({'display': 'block'})
-      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products?CategoryId=${id}`, {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
+      this.APIGetRequest(`/products?CategoryId=${id}`, response => {
         $('#loading').css({'display': 'none'})
-        if(response.data !== null) {
-          this.products = response.data.products
+        if(response.products.length > 0) {
+          this.products = response.products
         } else {
           this.products = null
         }
