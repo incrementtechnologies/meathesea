@@ -1,13 +1,13 @@
 <template>
   <div class="container2" v-if="data">
     <div class="row">
-      <div class="column col-1">
+      <div class="columns">
         <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 0px; margin-right: 0px; margin-top: 1%; color: #0064B1;" @click="back()"></i>
       </div>
-      <div class="column col-2">
+      <div class="column">
         <img :src="data ? data.images[0].src : ''" width="150px" height="142px">
       </div>
-      <div class="col-9">
+      <div class="main">
         <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
         <button class="buttons">Change picture</button>
         <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
@@ -68,7 +68,42 @@
     </div>
   </div>
 </template>
-<style lang="css">
+<style lang="css" scoped>
+@media (max-width: 1400px) {
+  .main{
+    margin-left: 20px !important;
+    margin-top: 21px !important;
+    width: 90% !important;
+  }
+  .fas fa-trash{
+    margin-top: -161px !important;
+    margin-right: 3px !important;
+  }
+  .buttonCommon{
+    background-color: rgb(183, 246, 217);
+    border-color: rgb(183, 246, 217);
+    margin-top: 20px !important;
+    margin-left: 90px !important;
+  }
+  .column{
+    margin-left: 12%;
+    width: 15%;
+  }
+}
+.column{
+  width: 5%;
+}
+.columns{
+  width: 10%;
+}
+.main{
+  margin-left: 12%;
+  width: 70%;
+}
+.fa-arrow-alt-circle-left:before {
+    content: "\f359";
+    margin-left: 30px;
+}
 .vue-tags-input[data-v-61d92e31] {
   /* max-width: 491px; */
   max-width: none !important;
@@ -120,16 +155,6 @@
 }
 * {
   box-sizing: border-box;
-}
-.available {
-  flex-grow: 1;
-}
-.right{
-  float: right;
-  margin-right: 25px;
-}
-.column {
-  float: left;
 }
 .name{
 	margin-left: 20px;
