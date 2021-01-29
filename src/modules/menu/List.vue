@@ -1,4 +1,9 @@
 <template>
+<div>
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems'" @click="$emit('showAddForm', true)"><b>add new</b></button>
+  <div>
+    <br><br>
+  </div>
 	<div class="contents">
 		<div class="clearfix">
 			<CategoryList :type="'menu'" :data="categories"/>
@@ -8,6 +13,7 @@
 			</div>
 		</div>
 	</div>
+</div>
 </template>
 
 <style lang="css" scoped>
