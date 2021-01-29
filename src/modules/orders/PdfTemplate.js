@@ -1,51 +1,146 @@
 import PDFTemplate from 'pdfmake'
 
 export default {
-  getItem(data) {
-    this.address = data.address
-    this.contact_number = data.contact_number
-    this.date = '01-03-21'
-    this.full_name = data.full_name
-    this.order_number = data.order_number
-    this.order_status = data.order_status
-    this.pickup_time = data.pickup_time
-    this.returned = data.returned
-    this.process = 'Delivery'
+  dataContainer: [],
+  dataContainerDel: [],
+  encode: function (url) {
+    return new Promise((resolve) => {
+      // URL.createObjectURL('src/assets/img/meatthesealogo_black_and_white.png')
+      var img = new Image()
+      img.setAttribute('crossOrigin', 'anonymous')
+      img.onload = function () {
+      // URL.revokeObjectURL(url)
+        var canvas = document.createElement('canvas')
+        canvas.width = this.width
+        canvas.height = this.height
+        var ctx = canvas.getContext('2d')
+        ctx.drawImage(this, 0, 0)
+        var dataURL = canvas.toDataURL('image/png')
+        resolve(dataURL)
+      }
+      img.src = url
+    })
   },
-  // getData(data) {
-  //   this.dataContainer = data
-  // },
+  getItem(data) {
+    let sub = []
+    this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
+    this.contact_number = data.shipping_address.phone_number
+    this.date = data.created_on_utc
+    this.name = data.customer.first_name + ' ' + data.customer.last_name
+    this.order_number = data.id
+    this.total = data.order_total
+    // this.logo = data.order_items[0].product.images[0].src,
+    this.currency = data.customer_currency_code
+    this.purpose = 'Delivery'
+    this.deliveryTime = '9:15'
+    this.deliveryDate = '01/05/2021'
+    this.time = '9:00' // data.created_on_utc
+    data.order_items.forEach(element => {
+      sub.push(element.product.price * element.quantity)
+    })
+    this.subTotal = sub.reduce(function (a, b) {
+      return a + b
+    }, 0)
+    this.logo = '../assets/img/meatthesealogo_black_and_white.png'
+    this.encode({uri: this.logo}).then(res => {
+      console.log('sadfasdf', this.logo, res)
+      this.pdfLogo = res // this is the logo
+    })
+  },
+  getData(retrieve) {
+    this.dataContainer = retrieve
+  },
+  getDel(retrieveDel) {
+    this.dataContainerDel = retrieveDel
+  },
   template() {
-    var data = []
-    data.push(
+    var retrieve = []
+    var retrieveDel = []
+    retrieve.push(
       [
-        { text: 'Qty', fontSize: 10, bold: true },
-        { text: 'Product', fontSize: 10, bold: true, alignment: 'center' },
-        { text: 'Price', fontSize: 10, bold: true },
-        { text: 'Total', fontSize: 10, bold: true }
+        {
+          text: 'Item',
+          margin: [0, 0, 0, 0],
+          fontSize: 10,
+          bold: true,
+          decoration: 'underline',
+          border: [false, false, false, false]
+        },
+        {
+          text: 'Qty',
+          margin: [70, 0, 0, 0],
+          fontSize: 10,
+          bold: true,
+          decoration: 'underline',
+          border: [false, false, false, false]
+        },
+        {
+          text: 'Amount',
+          decoration: 'underline',
+          bold: true,
+          border: [false, false, false, false],
+          margin: [0, 0, 20, 0],
+          fontSize: 10,
+          alignment: 'right'
+        }
       ]
     )
-    // this.dataContainer.map(key => {
-    //   data.push([
-    //     { text: key.qty, fontSize: 10, margin: [0, 0, 0, 10] },
-    //     { text: key.title, fontSize: 10, margin: [0, 0, 0, 10] },
-    //     { text: key.price, fontSize: 10, margin: [0, 0, 0, 10] },
-    //     { text: (key.price * key.qty), fontSize: 10, margin: [0, 0, 0, 10] }
-    //   ])
-    // })
+    retrieveDel.push(
+      [
+        {
+          text: 'Item',
+          margin: [0, 0, 0, 0],
+          fontSize: 10,
+          bold: true,
+          decoration: 'underline',
+          border: [false, false, false, false]
+        },
+        {
+          text: 'Qty',
+          margin: [70, 0, 0, 0],
+          fontSize: 10,
+          bold: true,
+          decoration: 'underline',
+          border: [false, false, false, false]
+        },
+        {
+          text: 'Amount',
+          decoration: 'underline',
+          bold: true,
+          border: [false, false, false, false],
+          margin: [0, 0, 20, 0],
+          fontSize: 10,
+          alignment: 'right'
+        }
+      ]
+    )
+    this.dataContainer.map(key => {
+      retrieve.push([
+        { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
+        { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        // { text: (key.price * key.qty), fontSize: 10, margin: [0, 0, 0, 10] }
+      ])
+    })
+    this.dataContainerDel.map(key => {
+      retrieveDel.push([
+        { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
+        { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        // { text: (key.price * key.qty), fontSize: 10, margin: [0, 0, 0, 10] }
+      ])
+    })
     var docDefinition = {
-      pageMargins: [ 20, 30, 20, 20 ],
+      pageMargins: [20, 30, 20, 20],
       pageSize: {
         width: 300,
         height: 'auto'
       },
       content: [
         {
-          text: 'Image',
-          fontSize: 10,
-          style: 'header',
-          alignment: 'center',
-          bold: true
+          image: this.pdfLogo,
+          fit: [100, 100],
+          alignment: 'center'
         },
         {
           text: 'Meat The Sea',
@@ -57,152 +152,188 @@ export default {
         {
           style: 'tableExample',
           table: {
-            headerRows: 1,
             body: [
-              [{text: '#' + this.order_number, style: 'tableHeader'},
-              {text: '', style: 'tableHeader'},
-              {text: this.date, style: 'tableHeader'},
-              {text: this.pickup_time, style: 'tableHeader', border: [false, false, false, true]}],
-              ['Order for:' + this.process, '', '', 'Time:' + this.date]
+              [
+                {
+                  text: '#' + this.order_number,
+                  border: [false, false, false, true]
+                },
+                {
+                  text: ' ',
+                  margin: [0, 0, 21, 0],
+                  border: [false, false, false, true]
+                },
+                {
+                  text: this.date,
+                  border: [false, false, false, true]
+                },
+                {
+                  text: this.time,
+                  border: [false, false, false, true],
+                  alignment: 'right'
+                }
+              ]
             ]
-          },
-          layout: 'headerLineOnly'
+          }
+        },
+        {
+          text: 'Cust. Name: ' + this.name,
+          fontSize: 10,
+          style: 'subheader',
+          alignment: 'left',
+          margin: [0, 7]
+        },
+        {
+          text: 'Customer #: ' + this.contact_number,
+          fontSize: 10,
+          style: 'subheader',
+          alignment: 'left'
+        },
+        {
+          text: 'Address: ' + this.address,
+          fontSize: 10,
+          style: 'subheader',
+          alignment: 'left',
+          margin: [0, 7]
+        },
+        {
+          text: 'Order for: ' + this.purpose,
+          fontSize: 11,
+          alignment: 'center',
+          bold: true
+        },
+        {
+          text: 'Delivery Time:\n\n',
+          fontSize: 11,
+          alignment: 'center',
+          margin: [0, 7, 0, 0]
+        },
+        {
+          columns: [
+            { width: '*', text: '' },
+            {
+              width: 'auto',
+              table: {
+                body: [
+                  [{
+                    text: '',
+                    border: [false, false, false, false]
+                  },
+                  {
+                    text: this.deliveryDate + '\n' + this.deliveryTime,
+                    alignment: 'center',
+                    bold: true
+                  },
+                  {
+                    text: '',
+                    border: [false, false, false, false]
+                  }]
+                ]
+              }
+            },
+            { width: '*', text: '' }
+          ]
+        },
+        {
+          text: '________________________________________________'
+        },
+        {
+          text: 'RESTAURANT ITEMS',
+          fontSize: 10,
+          style: 'header',
+          alignment: 'left',
+          bold: true,
+          margin: [0, 7, 0, 0],
+          border: [false, true, false, false]
+        },
+        {
+          style: 'tableExample',
+          table: {
+            headerRows: 1,
+            border: [false, false, false, false],
+            widths: ['*', '*', '*'],
+            body: retrieve
+          }
+        },
+        {
+          text: '________________________________________________'
         },
         {
           text: 'DELI-SHOP ITEMS',
           fontSize: 10,
           style: 'header',
           alignment: 'left',
-          bold: true
+          bold: true,
+          margin: [0, 7, 0, 0],
+          border: [false, true, false, false]
         },
         {
           style: 'tableExample',
           table: {
             headerRows: 1,
-            widths: [ '*', '*', '*' ],
-            body: [
-              [
-                {
-                  text: 'Item',
-                  margin: [0, 10, 0, 0],
-                  fontSize: 10,
-                  bold: true,
-                  border: [false, true, false, false]
-                },
-                {
-                  text: 'Qty',
-                  margin: [0, 10, 0, 0],
-                  fontSize: 10,
-                  bold: true,
-                  border: [false, true, false, false]
-                },
-                {
-                  text: 'Amount',
-                  bold: true,
-                  margin: [0, 10, 0, 0],
-                  fontSize: 10,
-                  alignment: 'right',
-                  border: [false, true, false, false]
-                }
-              ]
-              // [
-              //   {
-              //     text: 'Tax',
-              //     bold: true,
-              //     fontSize: 10,
-              //     border: [false, false, false, false]
-              //   },
-              //   {
-              //     text: this.tax + '\n',
-              //     bold: true,
-              //     fontSize: 10,
-              //     alignment: 'right',
-              //     border: [false, false, false, false]
-              //   }
-              // ],
-              // [
-              //   {
-              //     text: 'Delivery Fee',
-              //     bold: true,
-              //     fontSize: 10,
-              //     border: [false, false, false, false]
-              //   },
-              //   {
-              //     text: this.deliveryFee + '\n',
-              //     bold: true,
-              //     fontSize: 10,
-              //     alignment: 'right',
-              //     border: [false, false, false, false]
-              //   }
-              // ],
-              // [
-              //   {
-              //     text: 'Discount',
-              //     bold: true,
-              //     fontSize: 10,
-              //     border: [false, false, false, true],
-              //     margin: [0, 0, 0, 10]
-              //   },
-              //   {
-              //     text: this.discount + '\n',
-              //     bold: true,
-              //     fontSize: 10,
-              //     alignment: 'right',
-              //     margin: [0, 0, 0, 10],
-              //     border: [false, false, false, true]
-              //   }
-              // ]
-            ]
+            widths: ['*', '*', '*'],
+            body: retrieveDel
           }
         },
         {
+          text: '________________________________________________'
+        },
+        {
+          text: 'Note: ADD CUTLERY',
+          alignment: 'left',
+          fontSize: 10,
+          margin: [0, 5, 0, -5],
+          bold: true
+        },
+        {
+          text: '________________________________________________'
+        },
+        {
           style: 'tableExample',
           table: {
             headerRows: 1,
-            widths: [ '*', '*' ],
+            widths: ['*', '*'],
             body: [
+              [
+                {
+                  text: 'Subtotal',
+                  margin: [0, 10, 0, 0],
+                  fontSize: 11,
+                  border: [false, false, false, false]
+                },
+                {
+                  text: this.currency + ' ' + this.subTotal + '\n',
+                  bold: true,
+                  fontSize: 11,
+                  margin: [0, 10, 0, 0],
+                  alignment: 'right',
+                  border: [false, false, false, false]
+                }
+              ],
+              [
+                {
+                  text: 'VAT',
+                  fontSize: 11,
+                  border: [false, false, false, false]
+                },
+                {
+                  text: '-----',
+                  bold: true,
+                  fontSize: 11,
+                  alignment: 'right',
+                  border: [false, false, false, false]
+                }
+              ],
               [
                 {
                   text: 'Total',
-                  bold: true,
-                  margin: [0, 10, 0, 0],
-                  fontSize: 11,
-                  border: [false, true, false, false]
-                },
-                {
-                  text: this.total + '\n',
-                  bold: true,
-                  fontSize: 11,
-                  margin: [0, 10, 0, 0],
-                  alignment: 'right',
-                  border: [false, true, false, false]
-                }
-              ],
-              [
-                {
-                  text: 'Cash',
-                  fontSize: 11,
-                  bold: true,
-                  border: [false, false, false, false]
-                },
-                {
-                  text: this.money + '\n',
-                  bold: true,
-                  fontSize: 11,
-                  alignment: 'right',
-                  border: [false, false, false, false]
-                }
-              ],
-              [
-                {
-                  text: 'Change',
                   fontSize: 11,
                   bold: true,
                   border: [false, false, false, false],
                   margin: [0, 0, 0, 10]
                 },
                 {
-                  text: this.changed + '\n',
+                  text: this.currency + ' ' + this.total + '\n',
                   bold: true,
                   fontSize: 11,
                   alignment: 'right',
@@ -212,17 +343,6 @@ export default {
               ]
             ]
           }
-        },
-        {
-          text: '********************Thank You!********************\n\n',
-          fontSize: 11,
-          alignment: 'center',
-          bold: true
-        },
-        {
-          text: this.dates,
-          fontSize: 11,
-          alignment: 'center'
         }
       ]
     }

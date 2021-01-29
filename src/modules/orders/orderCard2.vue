@@ -282,14 +282,29 @@ export default {
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
       rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
       focusIndex: 0,
-      PdfTemplate: TemplatePdf
-      // restaurant: [],
-      // deliStore: []
+      PdfTemplate: TemplatePdf,
+      restaurant: [],
+      deliStore: [],
+      dataPdf: [],
+      dataRes: [],
+      dataDel: []
     }
   },
   methods: {
     viewReceipt(data){
-      console.log('data here', data)
+      console.log('data', this.data.order_items)
+      this.dataPdf = data
+      this.dataRes = []
+      this.dataDel = []
+      this.dataPdf.order_items.map(key => {
+        if(key.product.category_type === 0){
+          this.dataRes.push(key)
+          this.PdfTemplate.getData(this.dataRes)
+        }else if(key.product.category_type === 1){
+          this.dataDel.push(key)
+          this.PdfTemplate.getDel(this.dataDel)
+        }
+      })
       this.PdfTemplate.getItem(data)
       this.PdfTemplate.template()
     }
