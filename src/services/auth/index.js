@@ -127,19 +127,21 @@ export default {
         $('#loading').css({'display': 'none'})
         this.tokenData.loading = false
         this.tokenData.verifyingToken = false
-        // this.removeAuthentication()
-        // ROUTER.push('/login')
+        this.removeAuthentication()
+        ROUTER.push('/login')
       }
       if(callback){
         callback(response)
       }
-    }, (response, status) => {
+    },
+    (response, status) => {
       if(errorCallback){
         errorCallback(response, status)
         this.tokenData.loading = false
         this.tokenData.verifyingToken = false
       }
-    })
+    }
+    )
   },
   customCheckAuthentication(callback, flag = false){
     this.tokenData.verifyingToken = true
@@ -176,7 +178,8 @@ export default {
     localStorage.clear()
     this.tokenData.token = null
     this.setUser(null)
-    ROUTER.go('/')
+    $('#loading').css({'display': 'none'})
+    ROUTER.push('/')
   },
   checkAuthentication(callback, flag = false){
     this.tokenData.verifyingToken = true
