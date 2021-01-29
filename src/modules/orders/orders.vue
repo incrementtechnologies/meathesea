@@ -243,6 +243,7 @@ export default {
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/orders/customer/${user.userID}?customerId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
+        response.orders[4].order_status = 'processing'
         response.orders.forEach(el => {
           if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
             this.data[0].push(el)

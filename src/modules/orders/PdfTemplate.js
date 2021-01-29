@@ -9,7 +9,7 @@ export default {
       var img = new Image()
       img.setAttribute('crossOrigin', 'anonymous')
       img.onload = function () {
-        // URL.revokeObjectURL(url)
+      // URL.revokeObjectURL(url)
         var canvas = document.createElement('canvas')
         canvas.width = this.width
         canvas.height = this.height
@@ -21,20 +21,6 @@ export default {
       img.src = url
     })
   },
-  // readImage(url, callback) {
-  //   var request = new
-  //     XMLHttpRequest()
-  //   request.onload = function () {
-  //     var file = new FileReader()
-  //     file.onloadend = function () {
-  //       callback(file.result)
-  //     }
-  //     file.readAsDataURL(request.response)
-  //   }
-  //   request.open('GET', url)
-  //   request.responseType = 'blob'
-  //   request.send()
-  // },
   getItem(data) {
     let sub = []
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
@@ -43,6 +29,7 @@ export default {
     this.name = data.customer.first_name + ' ' + data.customer.last_name
     this.order_number = data.id
     this.total = data.order_total
+    // this.logo = data.order_items[0].product.images[0].src,
     this.currency = data.customer_currency_code
     this.purpose = 'Delivery'
     this.deliveryTime = '9:15'
@@ -54,12 +41,9 @@ export default {
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
-    // this.logo = data.order_items[0].product.images[0].src
-    this.logo = 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
-    // this.readImage(this.logo, function (base64) {
-      // console.info(base64)
-    // })
-    this.encode(this.logo).then(res => {
+    this.logo = '../assets/img/meatthesealogo_black_and_white.png'
+    this.encode({uri: this.logo}).then(res => {
+      console.log('sadfasdf', this.logo, res)
       this.pdfLogo = res // this is the logo
     })
   },
@@ -154,7 +138,7 @@ export default {
       },
       content: [
         {
-          image: this.logo,
+          image: this.pdfLogo,
           fit: [100, 100],
           alignment: 'center'
         },
