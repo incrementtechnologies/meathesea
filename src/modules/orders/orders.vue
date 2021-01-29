@@ -240,6 +240,7 @@ export default {
   methods: {
     retrieveOrders () {
       const { user } = AUTH
+      this.reRender = false
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/orders/customer/${user.userID}?customerId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
@@ -252,6 +253,7 @@ export default {
             this.data[2].push(el)
           }
         })
+        this.reRender = true
       }, error => {
         console.log(error, ' <-=---------- ERROR <-|->')
       })
