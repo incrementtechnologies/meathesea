@@ -29,7 +29,7 @@ Vue.mixin({
           this.APISuccessRequestHandler(response, callback)
         },
         error: (jqXHR) => {
-          this.APIFailRequestHandler(link, jqXHR, errorCallback)
+          this.CustomAPIFailRequestHandler(link, jqXHR, errorCallback)
         }
       })
     },
@@ -122,6 +122,28 @@ Vue.mixin({
         case 400:
           $('#connectionError').modal('show')
           AUTH.deaunthenticate()
+          break
+        case 401: // Unauthorized
+          if(link === 'authenticate' || 'authenticate/user'){ // if error occured during authentication request
+            if(errorCallback){
+              errorCallback(jqXHR.responseJSON, jqXHR.status * 1)
+            }
+          }else{
+            ROUTER.push('login')
+          }
+          break
+        default:
+          if(errorCallback){
+            errorCallback(jqXHR.responseJSON, jqXHR.status * 1)
+          }
+          $('#connectionError').modal('show')
+      }
+    },
+    CustomAPIFailRequestHandler(link, jqXHR, errorCallback){
+      switch(jqXHR.status){
+        case 400:
+          AUTH.removeAuthentication()
+          errorCallback(jqXHR.responseJSON, jqXHR.status * 1)
           break
         case 401: // Unauthorized
           if(link === 'authenticate' || 'authenticate/user'){ // if error occured during authentication request
