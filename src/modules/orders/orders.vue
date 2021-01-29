@@ -89,8 +89,8 @@
           <div class="card-body p-0">
             <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
             <card2 
-              :data="(data[focusIndex] !== undefined && data[focusIndex].length > 0) ? data[focusIndex][selectedDataIndex] : {}" 
-              v-if="componentType === 'card' && reRender"
+              :data="(returnFocusedData !== undefined && data[focusIndex].length > 0) ? returnCardData : {}" 
+              v-if="data[focusIndex].length > 0 && componentType === 'card' && reRender"
               :restaurant="restaurant"
               :deliStore="deliStore"
             />
@@ -214,6 +214,10 @@ export default {
   created() {
     this.retrieveOrders()
   },
+  mounted() {
+    this.reRenderTable = false
+    this.reRender = false
+  },
   watch: {
     data: function(_new, old) {
       return _new
@@ -235,12 +239,18 @@ export default {
         })
       }
       return a
+    },
+    returnCardData() {
+      return this.data[this.focusIndex][this.selectedDataIndex]
+    },
+    returnFocusedData() {
+      return this.data[this.focusIndex]
     }
   },
   methods: {
     retrieveOrders () {
       const { user } = AUTH
-      this.reRender = false
+      this.reRender = true
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/orders/customer/${user.userID}?customerId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
@@ -253,7 +263,9 @@ export default {
             this.data[2].push(el)
           }
         })
+        this.selectData(this.selectedDataIndex, 0)
         this.reRender = true
+        this.reRenderTable = true
       }, error => {
         console.log(error, ' <-=---------- ERROR <-|->')
       })
