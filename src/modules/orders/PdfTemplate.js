@@ -137,11 +137,11 @@ export default {
         height: 'auto'
       },
       content: [
-        {
-          image: this.pdfLogo,
-          fit: [100, 100],
-          alignment: 'center'
-        },
+        // {
+        //   image: this.pdfLogo,
+        //   fit: [100, 100],
+        //   alignment: 'center'
+        // },
         {
           text: 'Meat The Sea',
           fontSize: 15,
