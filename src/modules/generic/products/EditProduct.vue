@@ -1,11 +1,11 @@
 <template>
   <div class="container2" v-if="data">
     <div class="row">
-      <div class="column col-.5">
-        <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 20px; margin-right: 20px; margin-top: 1%; color: #0064B1;" @click="back()"></i>
+      <div class="column col-1">
+        <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 0px; margin-right: 0px; margin-top: 1%; color: #0064B1;" @click="back()"></i>
       </div>
-      <div class="column col-2.5">
-        <img :src="data ? data.images[0].src : ''" alt="Girl in a jacket" width="185px" height="142px">
+      <div class="column col-2">
+        <img :src="data ? data.images[0].src : ''" width="150px" height="142px">
       </div>
       <div class="col-9">
         <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
@@ -44,9 +44,9 @@
         />
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
         <input type="radio" value="allDay" v-model="setTime" class="all">
-        <label for="allDay" style="width:45%">All Day</label>
+        <label for="allDay" style="width:40%">All Day</label>
         <input type="radio" value="setTime" v-model="setTime" class="all">
-        <label for="setTime" style="width:45%">Set Time</label>
+        <label for="setTime" style="width:40%">Set Time</label>
         <div v-if="setTime === 'setTime'" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
           <label for="appt-time"><b>From: </b></label>
           <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
@@ -60,7 +60,7 @@
         <label for="location" class="on">Location 2</label>
         <input type="radio" value="allLocations" v-model="setLocation" class="in">
         <label for="allLocations" class="on">All Locations</label>
-        <div style="bottom: 0; margin-left: 15%; margin-top: 15%; margin-right: 15%;">
+        <div style="bottom: 0; margin-left: 10%; margin-top: 15%; margin-right: 10%;">
           <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;">SAVE</button>
           <button class="buttonCommon pull-right">DISCARD</button>
         </div>
