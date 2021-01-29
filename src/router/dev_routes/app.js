@@ -43,13 +43,6 @@ export default{
       tokenRequired: false
     }
   }, {
-    path: '/',
-    name: 'loginAccount',
-    component: resolve => require(['components/increment/basic/LoginWithoutRegister.vue'], resolve),
-    meta: {
-      tokenRequired: false
-    }
-  }, {
     path: '/request_reset_password',
     name: 'requestResetPassword',
     component: resolve => require(['components/increment/basic/RequestResetPassword.vue'], resolve),
@@ -90,6 +83,13 @@ export default{
     component: resolve => require(['modules/menu/List.vue'], resolve),
     meta: {
       tokenRequired: true
+    }
+  }, {
+    path: '*',
+    name: 'notfound',
+    component: resolve => require(['modules/pagenotfound/PageNotFound.vue'], resolve),
+    meta: {
+      tokenRequired: false
     }
   }
   ]
