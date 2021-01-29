@@ -230,7 +230,6 @@
         <img :src="require('src/assets/img/logo_white.png')" style="width: 20%; height: auto;"/>
         <div class="mt-2">
           <b class="font-weight-normal"> 404 | No data yet</b>
-          <p>{{'restaurant length: ' + restaurant.length}}</p>
         </div>
       </div>
     </div>
