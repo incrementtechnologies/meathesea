@@ -1,21 +1,21 @@
 <template>
   <div>
     <div class="container2" v-for="(item, i) in data" :key="i">
-      <div class="row mt-4">
+      <div class="row mt-2">
         <div class="column">
-          <i class="fas fa-edit" style="font-size: 2em; margin-left: 40px; margin-right: 20px;" @click="retrieve(item)"></i>
+          <i class="fas fa-edit" style="font-size: 2em; margin-left: 40px; margin-right: 20px; margin-top: 10px" @click="retrieve(item)"></i>
         </div>
         <div class="column">
-          <img :src="require('assets/img/sample.png')" alt="Girl in a jacket" width="70" height="30">
+          <img :src="item.images[0].src" alt="Girl in a jacket" width="100" height="55">
         </div>
-        <div class="column">
+        <div class="column" style="margin-top: 15px">
           <p class="name">{{item.name}}</p>
         </div>
-        <div class="column available">
+        <div class="column available" style="margin-top: 10px">
           <div class="right">
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
-              <input type="checkbox" :checked="!item.available_for_pre_order">
+              <input type="checkbox" :checked="!item.visible_individually">
               <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>
@@ -24,7 +24,6 @@
         </div>
       </div>
     </div><br>
-    <button class="btn btn-outline-primary addBtn" v-if="$route.name === 'menuItems'" @click="$emit('showAddForm', true)"><b>add new</b></button>
   </div>
 </template>
 <style lang="css" scoped>
