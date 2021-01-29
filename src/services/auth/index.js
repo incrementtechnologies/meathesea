@@ -4,6 +4,7 @@ import ROUTER from 'src/router'
 import {Howl} from 'howler'
 import Vue from 'vue'
 import Echo from 'laravel-echo'
+import COMMON from 'src/common.js'
 import Pusher from 'pusher-js'
 import Config from 'src/config.js'
 export default {
@@ -122,6 +123,7 @@ export default {
         localStorage.setItem('password', password)
         this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
         ROUTER.push('/orders')
+        COMMON.setFag('/orders')
         $('#loading').css({'display': 'none'})
       }else{
         $('#loading').css({'display': 'none'})
