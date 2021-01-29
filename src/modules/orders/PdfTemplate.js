@@ -9,7 +9,6 @@ export default {
       var img = new Image()
       img.setAttribute('crossOrigin', 'anonymous')
       img.onload = function () {
-      // URL.revokeObjectURL(url)
         var canvas = document.createElement('canvas')
         canvas.width = this.width
         canvas.height = this.height
@@ -25,16 +24,15 @@ export default {
     let sub = []
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
-    this.date = data.created_on_utc
+    this.date = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.name = data.customer.first_name + ' ' + data.customer.last_name
     this.order_number = data.id
     this.total = data.order_total
-    // this.logo = data.order_items[0].product.images[0].src,
     this.currency = data.customer_currency_code
     this.purpose = 'Delivery'
     this.deliveryTime = '9:15'
     this.deliveryDate = '01/05/2021'
-    this.time = '9:00' // data.created_on_utc
+    this.time = new Date(data.created_on_utc).toLocaleTimeString()
     data.order_items.forEach(element => {
       sub.push(element.product.price * element.quantity)
     })
@@ -119,7 +117,6 @@ export default {
         { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
         { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
         { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
-        // { text: (key.price * key.qty), fontSize: 10, margin: [0, 0, 0, 10] }
       ])
     })
     this.dataContainerDel.map(key => {
@@ -127,7 +124,6 @@ export default {
         { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
         { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
         { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
-        // { text: (key.price * key.qty), fontSize: 10, margin: [0, 0, 0, 10] }
       ])
     })
     var docDefinition = {
@@ -160,7 +156,7 @@ export default {
                 },
                 {
                   text: ' ',
-                  margin: [0, 0, 21, 0],
+                  margin: [0, 0, 83, 0],
                   border: [false, false, false, true]
                 },
                 {
