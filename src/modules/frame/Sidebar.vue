@@ -438,6 +438,8 @@ export default {
   },
   methods: {
     setActive(index){
+      let data = this.menu.filter(el => el.flag === true)
+      this.menu[this.menu.indexOf(data[0])].flag = false
       if(this.prevMenu !== index){
         this.menu[this.prevMenu].flag = false
         this.menu[index].flag = true
