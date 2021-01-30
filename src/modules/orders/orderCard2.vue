@@ -35,7 +35,10 @@
                         <b> Customer Information </b>
                       </div>
                       <div>
-                        <b class="font-weight-normal"> JOHN DOE </b>
+                        <b class="font-weight-normal"> {{
+                          ((data.customer.first_name !== '' || data.customer.first_name !== NULL) ? data.customer.first_name  : '--' )
+                            + ' ' + 
+                          ((data.customer.last_name !== '' || data.customer.last_name !== NULL) ? data.customer.last_name : '--')}} </b>
                       </div>
                       <div>
                         <b style="color: #0064B1;"> Contact number </b>
@@ -48,7 +51,13 @@
                         </b>
                       </div>
                       <div>
-                        <b class="font-weight-normal"> Center Stage Tower 1 (101 Hollywood road, Central) Floor 1, unit C </b>
+                        <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
+                          {{data.shipping_address.address1}}
+                        </b>
+                        <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
+                          {{data.shipping_address.address2}}
+                        </b>
+                        <i v-else> {{data.shipping_address.address1}} </i>
                       </div>
                     </div>
                   </div>
