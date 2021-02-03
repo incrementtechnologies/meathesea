@@ -2,7 +2,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import CONFIG from '../config'
-import COMMON from '../common'
 import AUTH from 'services/auth/index'
 import ModuleRoutes from './module_routes'
 import Helpers from './helpers'
@@ -25,8 +24,7 @@ require('assets/js/min/select2.full.min.js')
 import 'font-awesome/css/font-awesome.css'
 // AUTH.checkAuthentication()
 AUTH.customCheckAuthentication()
-console.log('===>>>>', window.location.pathname)
-COMMON.setFag(window.location.pathname)
+
 Vue.use(BootstrapVue)
 Vue.use(Router)
 export default new Router({
