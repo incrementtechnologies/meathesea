@@ -32,22 +32,74 @@
         </li>
       </ul>
     </nav>
-    <div class="notificationBar" v-if="$route.path === '/orders'">
-      <b> NEW ORDER REQUEST (1)</b>
-      <b class="xNotification">&times;</b>
+    <div class="notificationBar" v-if="notificationMessage.length > 0">
+      <b> {{notificationTitle}} ({{notificationMessage.length}})</b>
+      <b class="xNotification" @click="notificationMessage = []; notificationTitle = ''">&times;</b>
     </div>
+    <PushNotification
+      ref="pushNotification"
+      :currentToken="userToken"
+      @update-token="onUpdateToken"
+      @new-message="onNewMessage" />
   </div>
 </template>
 <script>
 import CONFIG from '../../config.js'
 import AUTH from '../../services/auth'
+import PushNotification from '../../components/notification/pushNotification'
+import api from '../../services/api'
 export default {
+  components: {
+    PushNotification
+  },
   data: () => ({
-    config: CONFIG
+    config: CONFIG,
+    firebaseServerKey: 'AAAA90v0ZcI:APA91bFA9GVRjtUD_6CxxCrlQeiQobv-BUL_PSZ6fpsOD6Or-TSjXZvvKdi2a66HPp23ScdVcJHsQz8HreVxeKRDH5Lvv-_yeFk9kflygasbVjVwHnfs7Vjsu4i68bmTN6H9YfC9u9lY',
+    userProfile: {},
+    askForPermission: false,
+    userToken: null,
+    notificationMessage: [],
+    notificationTitle: ''
   }),
+  created () {
+    var userLoggedId = 1
+    // check if user has a token
+    api.user_profile(userLoggedId).then((response) => {
+      this.userProfile = response.data
+      this.userToken = this.userProfile.push_notification.ask_for_permission.token
+      if (this.userProfile.push_notification.ask_for_permission) {
+        setTimeout(() => {
+          // Simulate it wont ask for permission in the first user access
+          this.askForPermission = true
+        }, 4000)
+        this.enableNotifications()
+      }
+    })
+  },
   methods: {
     logout(){
       AUTH.removeAuthentication()
+    },
+    enableNotifications () {
+      this.$refs.pushNotification.askForPermission()
+    },
+    onUpdateToken (newToken) {
+      this.userToken = newToken
+      // send token to the server
+      api.update_token(this.userProfile, this.userToken)
+    },
+    onNewMessage (message) {
+      switch(message.data.topic.toLowerCase()) {
+        case 'acceptorder':
+          this.notificationTitle = 'NEW ORDER REQUEST'
+          break
+        case 'crockery':
+          this.notificationTitle = 'NEW CROCKERY REQUEST'
+          break
+      }
+      if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
+        this.notificationMessage.push(message.notification.body)
+      }
     }
   }
 }
@@ -77,7 +129,7 @@ export default {
   height: 60px;
 }
 .xNotification {
-  cursor: default;
+  cursor: pointer;
   background-color: #FFFFFF;
   color: #FF0045;
   font-size: 24px;
