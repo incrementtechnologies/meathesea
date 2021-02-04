@@ -292,8 +292,6 @@ export default {
       rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
       focusIndex: 0,
       PdfTemplate: TemplatePdf,
-      restaurant: [],
-      deliStore: [],
       dataPdf: [],
       dataRes: [],
       dataDel: []
