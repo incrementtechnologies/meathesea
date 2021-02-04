@@ -32,6 +32,8 @@ export default {
     this.sidebarMenu.map(item => {
       if(`/${item.path}` === currentPath){
         item.flag = true
+      }else{
+        item.flag = false
       }
     })
   }
