@@ -3,7 +3,10 @@
   </div>
 </template>
 <script>
+/* eslint-disable */
 import firebase from '../../services/firebase'
+import USER from '../../services/auth'
+// import firebase from 'firebase'
 export default {
   props: ['currentToken'],
   data () {
@@ -16,7 +19,6 @@ export default {
   },
   methods: {
     initialize () {
-      console.log('Asking for permission...', navigator)
       if (!('serviceWorker' in navigator)) {
         console.warn('serviceWorker not working')
         return
@@ -36,26 +38,50 @@ export default {
       navigator.serviceWorker.register('./static/firebase-messaging-sw.js')
         .then((registration) => {
 
-          console.log('Firebase registration: ', registration)
-
           firebase.messaging.useServiceWorker(registration)
 
           firebase.messaging.requestPermission().then(() => {
+
             firebase.messaging.getToken().then((token) => {
-              console.log('token: ', token)
               if (token !== this.currentToken) {
+                console.log('token ', token)
                 this.$emit('update-token', token)
+                  let topic = 'MeatTheSea'
+
+                  fetch('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/' + topic, {
+                    method: 'POST',
+                    headers: new Headers({
+                      'Authorization': 'key=AAAA90v0ZcI:APA91bFA9GVRjtUD_6CxxCrlQeiQobv-BUL_PSZ6fpsOD6Or-TSjXZvvKdi2a66HPp23ScdVcJHsQz8HreVxeKRDH5Lvv-_yeFk9kflygasbVjVwHnfs7Vjsu4i68bmTN6H9YfC9u9lY'
+                    })
+                  }).then(response => {
+                    if (response.status < 200 || response.status >= 400) {
+                      throw 'Error subscribing to topic: '+response.status + ' - ' + response.text();
+                    }
+                    console.log('Subscribed to "'+topic+'"');
+                  }).catch(error => {
+                    console.error(error);
+                  })
               }
             }).catch((err) => console.log('--- token error:', err))
+
           }).catch(function (err) {
             console.log('Unable to get permission to notify.', err)
           })
+
         }).catch(err => {
           console.log('error register', err)
         })
 
       firebase.messaging.onMessage((payload) => {
-        console.log(payload, ' :--------- testing')
+        console.log('notification ', payload)
+        switch(payload.data.topic.toLowerCase()) {
+          case 'acceptorder':
+            USER.setNotificationOrders(payload)
+            break
+          case 'crockery':
+            USER.setNotificationCrockery(payload)
+            break
+        }
         this.$emit('new-message', payload)
       })
     }

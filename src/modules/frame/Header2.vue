@@ -32,9 +32,9 @@
         </li>
       </ul>
     </nav>
-    <div class="notificationBar" v-if="$route.path === '/orders'">
-      <b> {{notificationMessage}} (1)</b>
-      <b class="xNotification">&times;</b>
+    <div class="notificationBar" v-if="notificationMessage.length > 0">
+      <b> {{notificationTitle}} ({{notificationMessage.length}})</b>
+      <b class="xNotification" @click="notificationMessage = []; notificationTitle = ''">&times;</b>
     </div>
     <PushNotification
       ref="pushNotification"
@@ -58,13 +58,13 @@ export default {
     userProfile: {},
     askForPermission: false,
     userToken: null,
-    notificationMessage: ''
+    notificationMessage: [],
+    notificationTitle: ''
   }),
   created () {
     var userLoggedId = 1
     // check if user has a token
     api.user_profile(userLoggedId).then((response) => {
-      console.log('Notification test: ', response.data)
       this.userProfile = response.data
       this.userToken = this.userProfile.push_notification.ask_for_permission.token
       if (this.userProfile.push_notification.ask_for_permission) {
@@ -89,15 +89,17 @@ export default {
       api.update_token(this.userProfile, this.userToken)
     },
     onNewMessage (message) {
-      // var snackbarContainer = document.querySelector('#snackbar-message')
-      // var data = {
-      //   message: message.notification.title + ': ' + message.notification.body,
-      //   timeout: 10000,
-      //   actionText: 'OK'
-      // }
-      // snackbarContainer.MaterialSnackbar.showSnackbar(data)
-      console.log('New message: ', message.notification.body)
-      this.notificationMessage = message.notification.body
+      switch(message.data.topic.toLowerCase()) {
+        case 'acceptorder':
+          this.notificationTitle = 'NEW ORDER REQUEST'
+          break
+        case 'crockery':
+          this.notificationTitle = 'NEW CROCKERY REQUEST'
+          break
+      }
+      if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
+        this.notificationMessage.push(message.notification.body)
+      }
     }
   }
 }
@@ -127,7 +129,7 @@ export default {
   height: 60px;
 }
 .xNotification {
-  cursor: default;
+  cursor: pointer;
   background-color: #FFFFFF;
   color: #FF0045;
   font-size: 24px;

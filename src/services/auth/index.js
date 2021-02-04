@@ -65,6 +65,16 @@ export default {
   echo: null,
   currentPath: false,
   attachmentValue: null,
+  notification: {
+    order: [],
+    crockery: []
+  },
+  setNotificationOrders(payload) {
+    this.notification.order.push(payload)
+  },
+  setNotificationCrockery(payload) {
+    this.notification.crockery.push(payload)
+  },
   setUser(userID, username, email, type, status, profile, notifSetting, subAccount, code){
     if(userID === null){
       username = null

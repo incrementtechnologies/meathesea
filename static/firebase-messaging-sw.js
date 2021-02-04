@@ -1,6 +1,7 @@
 /* eslint-disable */
-importScripts('https://www.gstatic.com/firebasejs/7.8.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/7.8.0/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.2.5/firebase-messaging.js');
+
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -14,27 +15,10 @@ const firebaseConfig = {
   measurementId: 'G-9QVGTT3QWV'
 };
 
-self.addEventListener('notificationclick', function (event) {
-  const url = event.currentTarget.location.origin
-  event.waitUntil(
-    clients.matchAll({includeUncontrolled: true, type: 'window'}).then( windowClients => {
-      // Check if there is already a window/tab open with the target URL
-      for (var i = 0; i < windowClients.length; i++) {
-        var client = windowClients[i];
-        console.log('::: ', client)
-        // If so, just focus it.
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // If not, then open the target URL in a new window/tab.
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
-);
-})
-
-firebase.initializeApp(firebaseConfig)
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); // if already initialized, use that one
+}
 
 const messaging = firebase.messaging()

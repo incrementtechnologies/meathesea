@@ -1,17 +1,7 @@
 {
     "name": "meatthesea",
     "short_name": "mts",
-    "gcm_sender_id": "1062131230146",
-    "icons": [
-      {
-        "src": "/static/img/icons/logo.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      }
-    ],
+    // "gcm_sender_id": "1062131230146",
     "start_url": "/",
-    "display": "fullscreen",
-    "orientation": "portrait",
-    "background_color": "#2196f3",
-    "theme_color": "#2196f3"
+    "display": "fullscreen"
   }
