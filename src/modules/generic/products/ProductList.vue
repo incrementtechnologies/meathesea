@@ -30,6 +30,9 @@
 * {
   box-sizing: border-box;
 }
+img{
+  image-rendering: -webkit-optimize-contrast
+}
 .switch {
   position: relative;
   display: inline-block;
