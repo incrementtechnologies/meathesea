@@ -6,7 +6,7 @@
           <i class="fas fa-edit" style="font-size: 2em; margin-left: 40px; margin-right: 20px; margin-top: 10px" @click="retrieve(item)"></i>
         </div>
         <div class="column">
-          <img :src="item.images[0].src" alt="Girl in a jacket" width="100" height="55">
+          <img :src="item.images[0].src" class="images" width="80" height="55">
         </div>
         <div class="column" style="margin-top: 15px">
           <p class="name">{{item.name}}</p>
@@ -35,6 +35,10 @@
   display: inline-block;
   width: 60px;
   height: 34px;
+}
+
+.images {
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .switch input { 
