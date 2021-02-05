@@ -6,6 +6,7 @@
 /* eslint-disable */
 import firebase from '../../services/firebase'
 import USER from '../../services/auth'
+import CONFIG from 'src/config'
 // import firebase from 'firebase'
 export default {
   props: ['currentToken'],
@@ -34,7 +35,7 @@ export default {
         return
       }
       // console.firebase | project settins | cloud message | web config | Key pair
-      firebase.messaging.usePublicVapidKey('BORWl5rgguH_-RdktF2efsF9_TgSTrIQ34lR2Bxn1-YoJScH6ir5AfxLQqlFxrDxlR13cdgJdJf7__7f8Ub3Pm0')
+      firebase.messaging.usePublicVapidKey(CONFIG.vapidKey)
       navigator.serviceWorker.register('./static/firebase-messaging-sw.js')
         .then((registration) => {
 
@@ -46,12 +47,12 @@ export default {
               if (token !== this.currentToken) {
                 console.log('token ', token)
                 this.$emit('update-token', token)
-                  let topic = 'MeatTheSea'
+                  let topic = 'MeatTheSea-' + USER.user.userID
 
                   fetch('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/' + topic, {
                     method: 'POST',
                     headers: new Headers({
-                      'Authorization': 'key=AAAA90v0ZcI:APA91bFA9GVRjtUD_6CxxCrlQeiQobv-BUL_PSZ6fpsOD6Or-TSjXZvvKdi2a66HPp23ScdVcJHsQz8HreVxeKRDH5Lvv-_yeFk9kflygasbVjVwHnfs7Vjsu4i68bmTN6H9YfC9u9lY'
+                      'Authorization': `key=${CONFIG.firebaseServerKey}`
                     })
                   }).then(response => {
                     if (response.status < 200 || response.status >= 400) {

@@ -54,7 +54,7 @@ export default {
   },
   data: () => ({
     config: CONFIG,
-    firebaseServerKey: 'AAAA90v0ZcI:APA91bFA9GVRjtUD_6CxxCrlQeiQobv-BUL_PSZ6fpsOD6Or-TSjXZvvKdi2a66HPp23ScdVcJHsQz8HreVxeKRDH5Lvv-_yeFk9kflygasbVjVwHnfs7Vjsu4i68bmTN6H9YfC9u9lY',
+    firebaseServerKey: CONFIG.firebaseServerKey,
     userProfile: {},
     askForPermission: false,
     userToken: null,
@@ -89,16 +89,18 @@ export default {
       api.update_token(this.userProfile, this.userToken)
     },
     onNewMessage (message) {
-      switch(message.data.topic.toLowerCase()) {
-        case 'acceptorder':
-          this.notificationTitle = 'NEW ORDER REQUEST'
-          break
-        case 'crockery':
-          this.notificationTitle = 'NEW CROCKERY REQUEST'
-          break
-      }
-      if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
-        this.notificationMessage.push(message.notification.body)
+      if (message.data.topic !== undefined || message.data.topic !== null) {
+        switch(message.data.topic.toLowerCase()) {
+          case 'acceptorder':
+            this.notificationTitle = 'NEW ORDER REQUEST'
+            break
+          case 'crockery':
+            this.notificationTitle = 'NEW CROCKERY REQUEST'
+            break
+        }
+        if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
+          this.notificationMessage.push(message.notification.body)
+        }
       }
     }
   }
