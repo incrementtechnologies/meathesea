@@ -1,11 +1,12 @@
 import AUTH from 'services/auth'
+import COMMON from '../common'
 let CONFIG = require('config.js')
 let beforeEnter = (to, from, next) => {
   // TODO Redirect if no token when token is required in meta.tokenRequired
   AUTH.currentPath = to.path
   let userID = parseInt(localStorage.getItem('account_id'))
   let token = localStorage.getItem('usertoken')
-  console.log(window.location.href)
+  COMMON.setFag(to.path)
   if(token !== null && userID > 0){
     if(to.path === '/' || to.meta.tokenRequired === false){
       next({path: '/orders'})
