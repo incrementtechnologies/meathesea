@@ -79,6 +79,7 @@
                 <input 
                   type="text" 
                   class="buttonel"
+                  v-model="search"
                   :style="el.style + ' padding: 15px;'"
                   :placeholder="el.text" 
                   v-else-if="el.type.toLowerCase() === 'input'"
@@ -108,6 +109,7 @@ import dataTable from '../crockeryAndOrders/table'
 import dummy from './data.js'
 import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
+import LogInVue from '../../components/increment/basic/LogIn.vue'
 export default {
   components: {
     card1,
@@ -207,12 +209,17 @@ export default {
       deliStore: [],
       reRender: true,
       reRenderTable: true,
-      tableData: []
+      tableData: [],
+      createdAtMin: null,
+      createdAtMax: null,
+      currentDate: new Date(),
+      currentIndex: 0,
+      search: ''
     }
   },
   // created() {},
   created() {
-    this.retrieveOrders()
+    this.getDate('day')
   },
   mounted() {
     this.reRenderTable = false
@@ -245,25 +252,37 @@ export default {
     },
     returnFocusedData() {
       return this.data[this.focusIndex]
+    },
+    filteredOrders(){
+      return this.data[this.currentIndex].filter(el => {
+        if(el.order_number.includes(this.search) || el.created_on_utc.includes(this.search) || el.order_status.toLowerCase().includes(this.search.toLowerCase())){
+          return el
+        }
+      })
     }
   },
   methods: {
     retrieveOrders () {
       const { user } = AUTH
       this.reRender = true
+      this.data = [[], [], []]
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/customer/${user.userID}?customerId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
-        response.orders[4].order_status = 'processing'
+        console.log(response.orders)
         response.orders.forEach(el => {
           if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
+            this.currentIndex = 0
             this.data[0].push(el)
           }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+            this.currentIndex = 1
             this.data[1].push(el)
           }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
+            this.currentIndex = 2
             this.data[2].push(el)
           }
         })
+        console.log(this.data)
         this.selectData(this.selectedDataIndex, 0)
         this.reRender = true
         this.reRenderTable = true
@@ -317,11 +336,39 @@ export default {
       this.reRender = true
     },
     switchComponent(component, ndx) {
+      if(ndx === 0){
+        this.getDate('day')
+      }else if(ndx === 1){
+        this.getDate('week')
+      }else{
+        this.getDate('month')
+      }
       this.widerView = this.returnHeaderElements[ndx].wholeView
       this.reRenderTable = false
       this.typeIndex = ndx
       this.componentType = component
       this.reRenderTable = true
+    },
+    getDate(date){
+      if(date === 'day'){
+        var start = new Date()
+        start.setHours(0, 0, 0, 0)
+        var end = new Date(start.getTime())
+        end.setHours(23, 59, 59, 999)
+        this.createdAtMin = start.toISOString()
+        this.createdAtMax = end.toISOString()
+        // console.log(start.toISOString() + ':' + end.toISOString())
+      }else if(date === 'week'){
+        let first = this.currentDate.getDate() - this.currentDate.getDay()
+        let firstDay = new Date(this.currentDate.setDate(first))
+        let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
+        this.createdAtMin = firstDay.toISOString()
+        this.createdAtMax = lastDay.toISOString()
+      }else{
+        console.log(date)
+      }
+      console.log('day', this.currentDate.getTime())
+      this.retrieveOrders()
     }
   }
 }
