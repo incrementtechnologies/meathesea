@@ -122,6 +122,7 @@ export default {
       this.APIGetRequest(`/products?CategoryId=${id}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
+          console.log('retrieveProducts', response.products)
           this.products = response.products
         } else {
           this.products = null
@@ -135,6 +136,7 @@ export default {
           'Authorization': `Bearer ${this.token}`
         }
       }).then(response => {
+        console.log('retrieve one', response)
         $('#loading').css({'display': 'none'})
         if(response.data !== null) {
           this.data = response.data.products[0]

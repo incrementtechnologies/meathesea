@@ -9,7 +9,7 @@
 			<CategoryList :type="'menu'" :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct v-if="isEdit" :data="data" :bundle="bundled"/>
+        <EditProduct v-if="isEdit" :data="data" @onSave="save($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -74,6 +74,7 @@ export default {
       hasError: false,
       isEdit: false,
       data: null,
+      detail: null,
       bundled: false,
       categories: null,
       products: null,
@@ -138,9 +139,25 @@ export default {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
           this.data = response.products[0]
+          // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
+          console.log('here', this.data)
         } else {
           this.data = null
         }
+      })
+    },
+    save(id) {
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`/products/${id}`, response => {
+        $('#loading').css({'display': 'none'})
+        console.log(response)
+        // if(response.products.length > 0) {
+        //   this.data = response.products[0]
+        //   // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
+        //   console.log('here', this.data)
+        // } else {
+        //   this.data = null
+        // }
       })
     }
   }
