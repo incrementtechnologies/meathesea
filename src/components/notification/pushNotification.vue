@@ -46,7 +46,7 @@ export default {
               if (token !== this.currentToken) {
                 console.log('token ', token)
                 this.$emit('update-token', token)
-                  let topic = 'MeatTheSea'
+                  let topic = 'MeatTheSea-1'
 
                   fetch('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/' + topic, {
                     method: 'POST',
