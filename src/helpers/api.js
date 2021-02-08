@@ -50,7 +50,7 @@ Vue.mixin({
     },
     APIPutRequest(link, parameter, callback, errorCallback){
       let request = $.ajax({
-        method: 'DELETE',
+        method: 'PUT',
         url: CONFIG.API_URL + link,
         headers: {
           Authorization: 'bearer ' + CONFIG.authorization

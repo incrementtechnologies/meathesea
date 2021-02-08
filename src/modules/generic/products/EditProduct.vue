@@ -61,8 +61,8 @@
         <input type="radio" value="allLocations" v-model="setLocation" class="in">
         <label for="allLocations" class="on">All Locations</label>
         <div style="bottom: 0; margin-left: 10%; margin-top: 15%; margin-right: 10%;">
-          <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;">SAVE</button>
-          <button class="buttonCommon pull-right">DISCARD</button>
+          <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;" @click="onSave(data)">SAVE</button>
+          <button class="buttonCommon pull-right" @click="cancel()">DISCARD</button>
         </div>
       </div>
     </div>
@@ -192,6 +192,9 @@
 .fas{
   cursor: pointer;
 }
+img{
+  image-rendering: -webkit-optimize-contrast
+}
 </style>
 <script>
 import VueTagsInput from '@johmun/vue-tags-input'
@@ -262,6 +265,12 @@ export default {
   methods: {
     back() {
       this.$parent.isEdit = false
+    },
+    cancel(){
+      this.$parent.isEdit = false
+    },
+    onSave(data){
+      this.$emit('onSave', data)
     }
   }
 }
