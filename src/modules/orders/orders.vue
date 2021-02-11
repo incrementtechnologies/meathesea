@@ -16,7 +16,7 @@
                   >
                     {{nav.name}}
                     <div class="notifications ml-3" v-if="nav.isNotification" :style="'background-color: ' + nav.notificationColor">
-                      <b :style="'color :' + nav.notificationTextColor">{{(data[ndx] !== undefined) ? data[ndx].length : 0}}</b>
+                      <b :style="'color :' + nav.notificationTextColor">{{(data[ndx] !== undefined) ? returnData[ndx].length : 0}}</b>
                     </div>
                   </div>
                 </div>
@@ -24,7 +24,7 @@
               <div class="card-body p-0 crockeriesBody">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
-                  v-for="(el, ndx) in data[focusIndex]" 
+                  v-for="(el, ndx) in returnData[returnfocusIndex]" 
                   :key="ndx + 'body'" 
                   :id="String(ndx) + navs[focusIndex]"
                   :style="'background-color: ' + navs[focusIndex].background"
@@ -60,7 +60,7 @@
           <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
               <div class="mt-1" v-if="widerView" style="width: 7%;">
-                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i></center>
+                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView; switchComponent('card', 0)"></i></center>
               </div>
               <div
                 v-for="(el, ndx) in returnHeaderElements"
@@ -70,7 +70,7 @@
               >
                 <button 
                   class="buttonel" 
-                  :style="el.style + 'background-color: ' + ((typeIndex === ndx || widerView ) ? el.focusedBackground + ';color: ' + el.focusedColor: '#FFFFFF; color: ' + el.unfocusedColor)"
+                  :style="el.style + 'background-color: ' + ((typeIndex === ndx || (widerView && typeIndex === ndx) ) ? el.focusedBackground + ';color: ' + el.focusedColor: '#FFFFFF; color: ' + el.unfocusedColor)"
                   v-if="el.type.toLowerCase() === 'button' && (!widerView || el.wholeView)"
                   @click="switchComponent(el.componentTocall.toLowerCase(), ndx)"
                 >
@@ -90,12 +90,17 @@
           <div class="card-body p-0">
             <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
             <card2 
-              :data="(returnFocusedData !== undefined && data[focusIndex].length > 0) ? returnCardData : {}" 
-              v-if="data[focusIndex].length > 0 && componentType === 'card' && reRender"
+              :data="(returnFocusedData !== undefined && returnData[returnfocusIndex].length > 0) ? returnCardData : {}" 
+              v-if="data[returnfocusIndex].length > 0 && componentType === 'card' && returnReRender"
               :restaurant="restaurant"
               :deliStore="deliStore"
+              @orderProcessed="acceptOrder"
             />
-            <dataTable v-else-if="componentType === 'table' && reRenderTable" :headers="tableHeaders" :tableData="data[focusIndex]"/>
+            <dataTable 
+              v-else-if="componentType === 'table' && reRenderTable"
+              :headers="tableHeaders"
+              :tableData="(this.widerView && this.typeIndex === 1) ? allOrders : data[focusIndex]"
+            />
           </div>
         </div>
       </div>
@@ -214,7 +219,8 @@ export default {
       createdAtMax: null,
       currentDate: new Date(),
       currentIndex: 0,
-      search: ''
+      search: '',
+      allOrders: []
     }
   },
   // created() {},
@@ -226,10 +232,13 @@ export default {
     this.reRender = false
   },
   watch: {
-    data: function(_new, old) {
+    data: function(_new) {
       return _new
     },
-    reRender: function(_new, old) {
+    reRender: function(_new) {
+      return _new
+    },
+    focusIndex: function(_new) {
       return _new
     }
   },
@@ -248,7 +257,7 @@ export default {
       return a
     },
     returnCardData() {
-      return this.data[this.focusIndex][this.selectedDataIndex]
+      return this.data[this.returnfocusIndex][this.returnSelectedDataIndex]
     },
     returnFocusedData() {
       return this.data[this.focusIndex]
@@ -259,6 +268,18 @@ export default {
           return el
         }
       })
+    },
+    returnfocusIndex() {
+      return this.focusIndex
+    },
+    returnData() {
+      return this.data
+    },
+    returnReRender() {
+      return this.reRender
+    },
+    returnSelectedDataIndex() {
+      return this.selectedDataIndex
     }
   },
   methods: {
@@ -266,29 +287,55 @@ export default {
       const { user } = AUTH
       this.reRender = true
       this.data = [[], [], []]
-      $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`, response => {
-        $('#loading').css({'display': 'none'})
-        console.log(response.orders)
-        response.orders.forEach(el => {
-          if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
-            this.currentIndex = 0
-            this.data[0].push(el)
-          }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
-            this.currentIndex = 1
-            this.data[1].push(el)
-          }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
-            this.currentIndex = 2
-            this.data[2].push(el)
-          }
+      if(!this.widerView){
+        $('#loading').css({'display': 'block'})
+        this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`, response => {
+          $('#loading').css({'display': 'none'})
+          response.orders.forEach(el => {
+            if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
+              this.currentIndex = 0
+              this.data[0].push(el)
+            }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+              this.currentIndex = 1
+              this.data[1].push(el)
+            }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
+              this.currentIndex = 2
+              this.data[2].push(el)
+            }
+          })
+          console.log(this.data)
+          this.selectData(this.selectedDataIndex, 0)
+          this.reRender = true
+          this.reRenderTable = true
+        }, error => {
+          console.log(error, ' <-=---------- ERROR <-|->')
         })
-        console.log(this.data)
-        this.selectData(this.selectedDataIndex, 0)
-        this.reRender = true
-        this.reRenderTable = true
-      }, error => {
-        console.log(error, ' <-=---------- ERROR <-|->')
-      })
+      }else if(this.widerView) {
+        console.log('wider view all ')
+        if(this.typeIndex === 0){
+          $('#loading').css({'display': 'block'})
+          this.reRenderTable = false
+          this.APIGetRequest(`orders?Status=50&Status=60&Status=70&StoreId=${user.userID}`, response => {
+            console.log('Rejected data : ', response)
+            $('#loading').css({'display': 'none'})
+            this.allOrders = response.orders
+            this.reRenderTable = true
+          }, error => {
+            console.log('Retrieving All Orders ERROR: ', error)
+          })
+        }else if(this.typeIndex === 1) {
+          $('#loading').css({'display': 'block'})
+          this.reRenderTable = false
+          this.APIGetRequest(`orders?StoreId=${user.userID}`, response => {
+            console.log('All Orders : ', response)
+            $('#loading').css({'display': 'none'})
+            this.allOrders = response.orders
+            this.reRenderTable = true
+          }, error => {
+            console.log('Retrieving All Orders ERROR: ', error)
+          })
+        }
+      }
     },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
@@ -305,6 +352,7 @@ export default {
     },
     change(ndx) {
       this.focusIndex = ndx
+      console.log('nav index: ', ndx)
       this.reRender = false
       this.restaurant = []
       this.deliStore = []
@@ -336,16 +384,22 @@ export default {
       this.reRender = true
     },
     switchComponent(component, ndx) {
-      if(ndx === 0){
-        this.getDate('day')
-      }else if(ndx === 1){
-        this.getDate('week')
-      }else{
-        this.getDate('month')
-      }
+      console.log('testing --->>>  ')
       this.widerView = this.returnHeaderElements[ndx].wholeView
       this.reRenderTable = false
       this.typeIndex = ndx
+      if(ndx === 0 && !this.widerView){
+        console.log('daily ', ndx)
+        this.getDate('day')
+      }else if(ndx === 1 && !this.widerView){
+        console.log('weekly ', ndx)
+        this.getDate('week')
+      }else if(this.widerView){
+        ndx = ndx > 1 ? 1 : ndx
+        console.log('index ', ndx)
+        this.typeIndex = ndx
+        this.getDate('month')
+      }
       this.componentType = component
       this.reRenderTable = true
     },
@@ -355,8 +409,10 @@ export default {
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        this.createdAtMin = start.toISOString()
-        this.createdAtMax = end.toISOString()
+        // this.createdAtMin = start.toISOString()
+        this.createdAtMin = ''
+        // this.createdAtMax = end.toISOString()
+        this.createdAtMax = ''
         // console.log(start.toISOString() + ':' + end.toISOString())
       }else if(date === 'week'){
         let first = this.currentDate.getDate() - this.currentDate.getDay()
@@ -365,10 +421,33 @@ export default {
         this.createdAtMin = firstDay.toISOString()
         this.createdAtMax = lastDay.toISOString()
       }else{
-        console.log(date)
+        this.createdAtMin = ''
+        this.createdAtMax = ''
+        console.log('monthly data: ', date)
       }
-      console.log('day', this.currentDate.getTime())
       this.retrieveOrders()
+    },
+    acceptOrder(data) {
+      let temp = this.data[this.focusIndex]
+      let temp2 = this.data
+      let temp3 = {}
+      temp = temp.filter(el => {
+        if(el.id === data.id && data.process === 'accepted') {
+          console.log(el)
+          temp3 = el
+        }
+        return el.id !== data.id
+      })
+      temp2[1].push(temp3)
+      temp2[this.focusIndex] = temp
+      this.data = temp2
+      if(this.selectedDataIndex - 1 >= 0) {
+        this.selectedDataIndex -= 1
+      }else {
+        this.selectedDataIndex += 1
+        this.selectedDataIndex -= 1
+      }
+      this.selectData(this.selectedDataIndex, 0)
     }
   }
 }
