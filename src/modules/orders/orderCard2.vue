@@ -50,15 +50,16 @@
                           Deliver to:
                         </b>
                       </div>
-                      <div>
+                      <div v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
                         <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
                           {{data.shipping_address.address1}}
                         </b>
                         <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
                           {{data.shipping_address.address2}}
                         </b>
-                        <i v-else> {{data.shipping_address.address1}} </i>
+                        <i v-else> No shipment address </i>
                       </div>
+                      <i v-else> No shipment address </i>
                     </div>
                   </div>
                 </div>
@@ -115,15 +116,16 @@
               <div class="mt-5">
                 <b class="head"> Address: </b>
               </div>
-              <div>
+              <div v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
                 <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
                   {{data.shipping_address.address1}}
                 </b>
                 <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
                   {{data.shipping_address.address2}}
                 </b>
-                <i v-else> {{data.shipping_address.address1}} </i>
+                <i v-else> No shipment address </i>
               </div>
+              <i v-else> No shipment address </i>
               <div class="row sectionRow">
                 <div class="totalSection">
                   <div class="d-flex justify-content-between">
@@ -146,7 +148,7 @@
                   <button class="squareButtonCommon" @click="focusIndex = ndx" :style="(focusIndex != ndx) ? unfocusStyle : focusStyle"> {{el}} </button>
                 </div>
                 <div class="mt-5">
-                  <button class="roundButtonCommon font-weight-bold" :style="focusStyle"> ACCEPT </button>
+                  <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept(data.id)"> ACCEPT </button>
                 </div>
                 <div class="mt-3">
                   <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle" data-toggle="modal" data-target="#reasonModal"> Unable to fulfill order </button>
@@ -207,7 +209,7 @@
           <div class="modal-content">
             <div class="modal-header modalHeader">
               <b class="font-weight-bold reasonHeader"> UNABLE TO FULFILL ORDER </b>
-              <button type="button" class="xButton close" data-dismiss="modal" aria-label="Close">
+              <button type="button" ref="xButton" class="xButton close" data-dismiss="modal" aria-label="Close">
                 <b>&times;</b>
               </button>
             </div>
@@ -217,10 +219,10 @@
                   <div class="col-sm-4" v-for="(el, ndx) in rejectReasons" :key="'reason' + ndx">
                     <div class="reasonCard">
                       <div class="mb-2">
-                        <input type="radio" class="radio" :name="'reason' + ndx">
+                        <input type="radio" class="radio" :name="'reason'" v-model="rejectionReason"  :value="el.id">
                       </div>
                       <div>
-                        <b>{{el}}</b>
+                        <b>{{el.text}}</b>
                       </div>
                     </div>
                   </div>
@@ -228,7 +230,7 @@
               </div>
             </div>
             <div class="modal-footer modalFooter">
-              <button class="roundButtonCommon rejectButton font-weight-bold"> REJECT ORDER </button>
+              <button class="roundButtonCommon rejectButton font-weight-bold" @click="reject(data.id)"> REJECT ORDER </button>
             </div>
           </div>
         </div>
@@ -289,12 +291,26 @@ export default {
       unfocusStyle: 'background-color: #FFFFFF; border: 1px solid #00AF5F; color: #00AF5F; border 1px solid #00AF5F !important;',
       dangerUnfocusStyle: 'background-color: #FFFFFF; border: 1px solid #BE0000; color: #BE0000; border 1px solid #00AF5F !important;',
       times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
-      rejectReasons: ['Item unavailable', 'Too busy to process order', 'Too late to take order'],
+      rejectReasons: [
+        {
+          id: 50,
+          text: 'Item unavailable'
+        },
+        {
+          id: 60,
+          text: 'Too busy to process order'
+        },
+        {
+          id: 70,
+          text: 'Too late to take order'
+        }
+      ],
       focusIndex: 0,
       PdfTemplate: TemplatePdf,
       dataPdf: [],
       dataRes: [],
-      dataDel: []
+      dataDel: [],
+      rejectionReason: null
     }
   },
   methods: {
@@ -314,6 +330,29 @@ export default {
       })
       this.PdfTemplate.getItem(data)
       this.PdfTemplate.template()
+    },
+    accept(id) {
+      console.log('order ID: ', id)
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20`, {}, response => {
+        console.log('Accept order response: ', response)
+        $('#loading').css({'display': 'none'})
+        this.$emit('orderProcessed', {id: id, process: 'accepted'})
+      }, error => {
+        console.log('Accepting order error: ', error)
+      })
+    },
+    reject(id) {
+      console.log('reject reason index : ', id)
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=${this.rejectionReason}`, {}, response => {
+        console.log('Reject order response: ', response)
+        $('#loading').css({'display': 'none'})
+        this.$refs['xButton'].click()
+        this.$emit('orderProcessed', {id: id, process: 'reject'})
+      }, error => {
+        console.log('Accepting order error: ', error)
+      })
     }
   },
   watch: {
@@ -324,7 +363,9 @@ export default {
       return newVal
     }
   },
-  updated() {}
+  updated() {
+    console.log('data ', this.data)
+  }
 }
 </script>
 <style scoped>
@@ -461,6 +502,7 @@ export default {
   padding-right: 20px;
   border-radius: 10px;
   border: 0px;
+  cursor: pointer;
 }
 .squareButtonCommon:focus {
   outline: none;
@@ -473,7 +515,7 @@ export default {
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 50px;
-  cursor: default;
+  cursor: pointer;
   border: 0px;
 }
 .roundButtonCommon:focus {
