@@ -44,10 +44,10 @@
   </div>
 </template>
 <script>
-import CONFIG from '../../config.js'
-import AUTH from '../../services/auth'
-import PushNotification from '../../components/notification/pushNotification'
-import api from '../../services/api'
+import CONFIG from 'src/config.js'
+import AUTH from 'src/services/auth'
+import PushNotification from 'src/components/notification/pushNotification'
+import api from 'src/services/api'
 export default {
   components: {
     PushNotification
@@ -64,17 +64,17 @@ export default {
   created () {
     var userLoggedId = 1
     // check if user has a token
-    // api.user_profile(userLoggedId).then((response) => {
-    //   this.userProfile = response.data
-    //   this.userToken = this.userProfile.push_notification.ask_for_permission.token
-    //   if (this.userProfile.push_notification.ask_for_permission) {
-    //     setTimeout(() => {
-    //       // Simulate it wont ask for permission in the first user access
-    //       this.askForPermission = true
-    //     }, 4000)
-    //     this.enableNotifications()
-    //   }
-    // })
+    api.user_profile(userLoggedId).then((response) => {
+      this.userProfile = response.data
+      this.userToken = this.userProfile.push_notification.ask_for_permission.token
+      if (this.userProfile.push_notification.ask_for_permission) {
+        setTimeout(() => {
+          // Simulate it wont ask for permission in the first user access
+          this.askForPermission = true
+        }, 4000)
+        this.enableNotifications()
+      }
+    })
   },
   methods: {
     logout(){
