@@ -64,17 +64,17 @@ export default {
   created () {
     var userLoggedId = 1
     // check if user has a token
-    // api.user_profile(userLoggedId).then((response) => {
-    //   this.userProfile = response.data
-    //   this.userToken = this.userProfile.push_notification.ask_for_permission.token
-    //   if (this.userProfile.push_notification.ask_for_permission) {
-    //     setTimeout(() => {
-    //       // Simulate it wont ask for permission in the first user access
-    //       this.askForPermission = true
-    //     }, 4000)
-    //     this.enableNotifications()
-    //   }
-    // })
+    api.user_profile(userLoggedId).then((response) => {
+      this.userProfile = response.data
+      this.userToken = this.userProfile.push_notification.ask_for_permission.token
+      if (this.userProfile.push_notification.ask_for_permission) {
+        setTimeout(() => {
+          // Simulate it wont ask for permission in the first user access
+          this.askForPermission = true
+        }, 4000)
+        this.enableNotifications()
+      }
+    })
   },
   methods: {
     logout(){
