@@ -3,9 +3,8 @@ import PDFTemplate from 'pdfmake'
 export default {
   dataContainer: [],
   dataContainerDel: [],
-  encode: function (url) {
+  encode: function (url) { // converting image to base 64
     return new Promise((resolve) => {
-      // URL.createObjectURL('src/assets/img/meatthesealogo_black_and_white.png')
       var img = new Image()
       img.setAttribute('crossOrigin', 'anonymous')
       img.onload = function () {
@@ -39,9 +38,8 @@ export default {
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
-    this.logo = '../assets/img/meatthesealogo_black_and_white.png'
-    this.encode({uri: this.logo}).then(res => {
-      console.log('sadfasdf', this.logo, res)
+    this.logo = 'https://mtsbackenddev.azurewebsites.net/images/mts-logo.png'
+    this.encode(this.logo).then(res => {
       this.pdfLogo = res // this is the logo
     })
   },
@@ -133,11 +131,11 @@ export default {
         height: 'auto'
       },
       content: [
-        // {
-        //   image: this.pdfLogo,
-        //   fit: [100, 100],
-        //   alignment: 'center'
-        // },
+        {
+          image: this.pdfLogo,
+          fit: [100, 100],
+          alignment: 'center'
+        },
         {
           text: 'Meat The Sea',
           fontSize: 15,
@@ -342,6 +340,9 @@ export default {
         }
       ]
     }
+    // docDefinition.dom = JSON.stringify(docDefinition)
+    // docDefinition.dom = JSON.parse(docDefinition.dom)
+    // PDFTemplate.createPdf(docDefinition.dom).open()
     PDFTemplate.createPdf(docDefinition).open()
   }
 }
