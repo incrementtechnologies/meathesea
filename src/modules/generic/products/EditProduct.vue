@@ -11,7 +11,7 @@
         <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
         <button class="buttons">Change picture</button>
         <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
-        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="data.localized_names[0].localized_name" placeholder="Type product title here...">
+        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="data.name" placeholder="Type product title here...">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE DESCRIPTION' : 'PRODUCT DESCRIPTION'}}</b></p>
         <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="data.full_description" placeholder="Type product description here..."></textarea>
         <div class="row" style="margin-top: 3%;">
