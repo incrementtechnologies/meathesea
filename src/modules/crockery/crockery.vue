@@ -23,17 +23,17 @@
               <div class="card-body initialHeight p-0">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
-                  v-for="(el, ndx) in data[focusIndex]" 
+                  v-for="(el, ndx) in returnData[returnFocusIndex]" 
                   :key="ndx + 'body'" 
                   :id="String(ndx) + navs[focusIndex]"
-                  :style="'background-color: ' + navs[focusIndex].background"
-                  @click='selectData(ndx, String(ndx) + navs[focusIndex])'
+                  :style="'background-color: ' + navs[returnFocusIndex].background"
+                  @click='selectData(ndx, String(ndx) + navs[returnFocusIndex])'
                 >
                   <div 
                     class="d-flex justify-content-between crockeries"
-                    :style="(selectedDataIndex === ndx) ? 'background-color: ' + navs[focusIndex].background : '; background-color: white;'"
+                    :style="(selectedDataIndex === ndx) ? 'background-color: ' + navs[returnFocusIndex].background : '; background-color: white;'"
                   >
-                    <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">{{el.order_number}}</div>
+                    <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div>
                       {{
                         returnDate(el)
@@ -78,12 +78,12 @@
             </div>
           </div>
           <div class="card-body p-0 initialHeight tableArea">
-            <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/>
+            <card1 :data="(data[returnFocusIndex][returnSelectedIndex] !== undefined) ? data[returnFocusIndex][returnSelectedIndex] : {}" v-if="componentType === 'card' && returnCardRender"/>
             <!-- <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card' && $route.path === '/orders'"/> -->
             <div 
               v-else-if="componentType === 'table'"
             >
-              <dataTable :headers="tableHeaders" :tableData="data[focusIndex]"/>
+              <dataTable :headers="tableHeaders" :tableData="data[returnFocusIndex]"/>
             </div>
           </div>
         </div>
@@ -95,6 +95,7 @@
 import card1 from './orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
+import AUTH from 'src/services/auth'
 export default {
   components: {
     card1,
@@ -104,9 +105,9 @@ export default {
   data() {
     return {
       tableHeaders: [
-        {text: 'Order date/time', key: 'date'},
-        {text: 'Order number', key: 'order_number'},
-        {text: 'Order Status', key: 'order_status'},
+        {text: 'Order date/time', key: 'created_date_utc'},
+        {text: 'Order number', key: 'order_id'},
+        {text: 'Order Status', key: 'crockery_status'},
         {text: 'Plate returned', key: 'returned'}
       ],
       navs: [
@@ -169,111 +170,9 @@ export default {
         }
       ],
       data: [
-        [
-          {
-            id: 1,
-            order_number: 123,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 234,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 345,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'pending',
-            returned: 'Yes'
-          }
-        ],
-        [
-          {
-            id: 1,
-            order_number: 754,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 567,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 231,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'processing',
-            returned: 'Yes'
-          }
-        ],
-        [
-          {
-            id: 1,
-            order_number: 342,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2020-10-03T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          },
-          {
-            id: 2,
-            order_number: 125,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2021-01-14T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          },
-          {
-            id: 3,
-            order_number: 515,
-            pickup_time: 'ASAP',
-            full_name: 'John Doe',
-            contact_number: '+639123456789',
-            address: 'Center Stage Tower 1(108 Hollywood road, Central) Floor 1, unit C',
-            date: '2021-01-13T05:32:01.883953',
-            order_status: 'complete',
-            returned: 'Yes'
-          }
-        ]
+        [],
+        [],
+        []
       ],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
@@ -281,15 +180,16 @@ export default {
       selectedDataIndex: 0,
       typeIndex: 0,
       componentType: 'card',
-      widerView: false
+      widerView: false,
+      orders: [],
+      cardRedered: true
     }
   },
   mounted() {},
-  watch: {
-    data: function(_new, old) {
-      return this.data
-    }
+  created() {
+    this.retrieveOrders()
   },
+  watch: {},
   computed: {
     returnHeaderElements() {
       let a = []
@@ -303,6 +203,21 @@ export default {
         })
       }
       return a
+    },
+    returnFocusIndex () {
+      return this.focusIndex
+    },
+    returnSelectedIndex () {
+      return this.selectedDataIndex
+    },
+    returnData() {
+      return this.data
+    },
+    returnTypeIndex() {
+      return this.typeIndex
+    },
+    returnCardRender() {
+      return this.cardRedered
     }
   },
   methods: {
@@ -310,17 +225,19 @@ export default {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
       let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
       if(!this.headerElements[this.typeIndex].changeDate) {
-        return new Date(el.date).toLocaleTimeString()
-      }else if(new Date(el.date).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
+        return new Date(el.created_date_utc).toLocaleTimeString()
+      }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
         return 'Today'
-      }else if(new Date(el.date).toLocaleDateString().replaceAll('/', '-') === yesterday) {
+      }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === yesterday) {
         return 'Yesterday'
       }else {
-        return new Date(el.date).toLocaleDateString().replaceAll('/', '-')
+        return new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-')
       }
     },
     change(ndx) {
+      this.cardRedered = false
       this.focusIndex = ndx
+      this.cardRedered = true
     },
     selectData(ndx, popId) {
       this.$root.$emit('bv::hide::popover')
@@ -331,6 +248,48 @@ export default {
       this.widerView = this.headerElements[ndx].wholeView
       this.typeIndex = ndx
       this.componentType = component
+    },
+    retrieveCrockery() {
+      const { user } = AUTH
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
+        // console.log('RETRIEVING CROCKERY RESPONSE: ', response)
+        $('#loading').css({'display': 'none'})
+        response.crockery.forEach((el, ndx) => {
+          if(el.crockery_status.toLowerCase() === 'pending') {
+            let orderDetails1 = this.orders.filter(t => {
+              return t.id === el.order_id
+            })
+            el['order_details'] = orderDetails1[0]
+            this.data[0].push(el)
+          }else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
+            let orderDetails2 = this.orders.filter(t => {
+              return t.id === el.order_id
+            })
+            el['order_details'] = orderDetails2[0]
+            this.data[1].push(el)
+          }else if(el.crockery_status.toLowerCase() === 'complete') {
+            let orderDetails3 = this.orders.filter(t => {
+              return t.id === el.order_id
+            })
+            el['order_details'] = orderDetails3[0]
+            this.data[2].push(el)
+          }
+        })
+      }, error => {
+        console.log('RETRIEVING CROCKERY ERROR: ', error)
+      })
+    },
+    retrieveOrders() {
+      const { user } = AUTH
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`orders?StoreId=${user.userID}`, response => {
+        $('#loading').css({'display': 'none'})
+        this.orders = response.orders
+        this.retrieveCrockery()
+      }, error => {
+        console.log('Retrieving All Orders ERROR: ', error)
+      })
     }
   }
 }
@@ -338,7 +297,7 @@ export default {
 <style scoped>
 .tableArea {
   border: none;
-  min-height: calc(80vh - 5px) !important;
+  height: calc(80vh - 5px) !important;
 }
 .initialHeight {
   min-height: 80vh;

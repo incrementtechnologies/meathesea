@@ -298,7 +298,7 @@ export default {
             }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
               this.currentIndex = 1
               this.data[1].push(el)
-            }else if(el.order_status.toLowerCase() === 'delivered' && el !== undefined){
+            }else if(el.order_status.toLowerCase() === 'complete' && el !== undefined){
               this.currentIndex = 2
               this.data[2].push(el)
             }
