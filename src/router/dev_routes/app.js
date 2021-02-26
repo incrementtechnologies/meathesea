@@ -91,6 +91,13 @@ export default{
     meta: {
       tokenRequired: false
     }
+  }, {
+    path: '/analytics',
+    name: 'analytics',
+    component: resolve => require(['modules/analytics/index.vue'], resolve),
+    meta: {
+      tokenRequired: true
+    }
   }
   ]
 }
