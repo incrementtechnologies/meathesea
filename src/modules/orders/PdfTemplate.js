@@ -3,22 +3,7 @@ import PDFTemplate from 'pdfmake'
 export default {
   dataContainer: [],
   dataContainerDel: [],
-  encode: function (url) { // converting image to base 64
-    return new Promise((resolve) => {
-      var img = new Image()
-      img.setAttribute('crossOrigin', 'anonymous')
-      img.onload = function () {
-        var canvas = document.createElement('canvas')
-        canvas.width = this.width
-        canvas.height = this.height
-        var ctx = canvas.getContext('2d')
-        ctx.drawImage(this, 0, 0)
-        var dataURL = canvas.toDataURL('image/png')
-        resolve(dataURL)
-      }
-      img.src = url
-    })
-  },
+  imageLogo: [],
   getItem(data) {
     let sub = []
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
@@ -38,10 +23,9 @@ export default {
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
-    this.logo = 'https://mtsbackenddev.azurewebsites.net/images/mts-logo.png'
-    this.encode(this.logo).then(res => {
-      this.pdfLogo = res // this is the logo
-    })
+  },
+  getImage(image) {
+    this.imageLogo = image
   },
   getData(retrieve) {
     this.dataContainer = retrieve
@@ -125,16 +109,17 @@ export default {
       ])
     })
     var docDefinition = {
-      pageMargins: [20, 30, 20, 20],
+      pageMargins: [20, 20, 20, 20],
       pageSize: {
         width: 300,
         height: 'auto'
       },
       content: [
         {
-          image: this.pdfLogo,
+          image: this.imageLogo,
           fit: [100, 100],
           alignment: 'center'
+          // margin: [ 5, 5, 5, 5 ]
         },
         {
           text: 'Meat The Sea',
@@ -154,7 +139,7 @@ export default {
                 },
                 {
                   text: ' ',
-                  margin: [0, 0, 83, 0],
+                  margin: [0, 0, 97, 0],
                   border: [false, false, false, true]
                 },
                 {
@@ -171,30 +156,29 @@ export default {
           }
         },
         {
-          text: 'Cust. Name: ' + this.name,
+          text: [ { text: 'Cust. Name: ' }, { text: this.name, bold: true } ],
           fontSize: 10,
           style: 'subheader',
           alignment: 'left',
           margin: [0, 7]
         },
         {
-          text: 'Customer #: ' + this.contact_number,
+          text: [ { text: 'Customer #: ' }, { text: this.contact_number, bold: true } ],
           fontSize: 10,
           style: 'subheader',
           alignment: 'left'
         },
         {
-          text: 'Address: ' + this.address,
+          text: [ { text: 'Address: ' }, { text: this.address, bold: true } ],
           fontSize: 10,
           style: 'subheader',
           alignment: 'left',
           margin: [0, 7]
         },
         {
-          text: 'Order for: ' + this.purpose,
+          text: [ {text: 'Order for: '}, { text: this.purpose, bold: true } ],
           fontSize: 11,
-          alignment: 'center',
-          bold: true
+          alignment: 'center'
         },
         {
           text: 'Delivery Time:\n\n',
@@ -273,7 +257,7 @@ export default {
           text: '________________________________________________'
         },
         {
-          text: 'Note: ADD CUTLERY',
+          text: [ { text: 'Note:', italics: true }, { text: 'ADD CUTLERY' } ],
           alignment: 'left',
           fontSize: 10,
           margin: [0, 5, 0, -5],
@@ -340,9 +324,6 @@ export default {
         }
       ]
     }
-    // docDefinition.dom = JSON.stringify(docDefinition)
-    // docDefinition.dom = JSON.parse(docDefinition.dom)
-    // PDFTemplate.createPdf(docDefinition.dom).open()
     PDFTemplate.createPdf(docDefinition).open()
   }
 }
