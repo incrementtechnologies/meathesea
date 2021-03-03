@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)">
+  <div style="height: 100% !important;">
+    <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)" style="overflow: hidden;position: relative;width: 100%;">
       <div class="card-header card2Header">
         <div class="row card2HeaderEl">
           <div class="col-sm-12 d-flex justify-content-between headerActions" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body p-0">
+      <div class="card-body p-0" >
         <div class="col-sm-12">
         <div class="row">
           <div class="col-sm-7 p-0">
@@ -269,7 +269,6 @@ export default {
   mounted(){
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
-    this.getImage()
     // if(!_.isEmpty(this.data)){
     //   this.data.order_items.forEach(el => {
     //     if(el.product.category_type === 3){
@@ -311,20 +310,12 @@ export default {
       dataPdf: [],
       dataRes: [],
       dataDel: [],
-      rejectionReason: null,
-      image: null
+      rejectionReason: null
     }
   },
   methods: {
-    getImage() {
-      this.APIGetRequest('get_mts_logo_base64', response => {
-        this.image = response
-      }, error => {
-        console.log(error, ' <-=---------- ERROR <-|->')
-      })
-    },
     viewReceipt(data){
-      this.PdfTemplate.getImage(this.image)
+      console.log('data', this.data.order_items)
       this.dataPdf = data
       this.dataRes = []
       this.dataDel = []

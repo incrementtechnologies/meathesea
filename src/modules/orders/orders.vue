@@ -99,7 +99,7 @@
             <dataTable 
               v-else-if="componentType === 'table' && reRenderTable"
               :headers="tableHeaders"
-              :tableData="(this.widerView && this.typeIndex === 1) ? allOrders : data[focusIndex]"
+              :tableData="allOrders"
             />
           </div>
         </div>
@@ -280,6 +280,9 @@ export default {
     },
     returnSelectedDataIndex() {
       return this.selectedDataIndex
+    },
+    returnTypeIndex() {
+      return this.typeIndex
     }
   },
   methods: {
