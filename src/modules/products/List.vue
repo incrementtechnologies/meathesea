@@ -135,7 +135,6 @@ export default {
           'Authorization': `Bearer ${this.token}`
         }
       }).then(response => {
-        console.log('rtireve', response.data)
         $('#loading').css({'display': 'none'})
         if(response.data !== null) {
           this.data = response.data.products[0]
@@ -152,8 +151,8 @@ export default {
             Id: product.id,
             name: product.name,
             full_description: product.full_description,
-            price: product.price
-            // special_price: product.special_price
+            price: product.price,
+            special_price: product.special_price
           }
         }
         this.APIPostRequest(`products/${product.id}?Product[Id]=${product.id}&Product[SpecialPrice]=${product.special_price}`,
