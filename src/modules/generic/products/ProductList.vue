@@ -160,7 +160,6 @@ export default {
   },
   methods: {
     retrieve(item) {
-      console.log('[item]', item)
       this.$parent.retrieveOneProduct(item.id)
       this.$parent.isEdit = true
     }

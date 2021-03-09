@@ -120,7 +120,6 @@ export default {
     retrieveProducts(id) {
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/products?CategoryId=${id}`, response => {
-        console.log('[retrieveProducts]', response)
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
           this.products = response.products
@@ -136,7 +135,6 @@ export default {
           'Authorization': `Bearer ${this.token}`
         }
       }).then(response => {
-        console.log('rtireve', response)
         $('#loading').css({'display': 'none'})
         if(response.data !== null) {
           this.data = response.data.products[0]
@@ -153,8 +151,8 @@ export default {
             Id: product.id,
             name: product.name,
             full_description: product.full_description,
-            price: product.price
-            // special_price: product.special_price
+            price: product.price,
+            special_price: product.special_price
           }
         }
         this.APIPostRequest(`products/${product.id}?Product[Id]=${product.id}&Product[SpecialPrice]=${product.special_price}`,
