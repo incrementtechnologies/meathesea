@@ -21,7 +21,7 @@
           </div>
           <div class="col-6">
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
-            <input type="number" class="w-100 form-control form-control-custom" v-model="data.special_price" placeholder="Input Special Offer Price">
+            <input type="number" class="w-100 form-control form-control-custom" v-model="data.old_price" placeholder="Input Special Offer Price">
           </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: 1</b></p>
