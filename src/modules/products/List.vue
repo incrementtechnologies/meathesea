@@ -144,7 +144,7 @@ export default {
       })
     },
     update(product){
-      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.special_price !== '' && product.special_price !== null){
+      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null){
         $('#loading').css({'display': 'block'})
         let Prod = {
           product: {
@@ -152,14 +152,12 @@ export default {
             name: product.name,
             full_description: product.full_description,
             price: product.price,
-            special_price: product.special_price
+            old_price: product.old_price
           }
         }
-        this.APIPostRequest(`products/${product.id}?Product[Id]=${product.id}&Product[SpecialPrice]=${product.special_price}`,
+        this.APIPutRequest(`products/${product.id}`,
         Prod
         , response => {
-          $('#loading').css({'display': 'block'})
-          console.log('updated here', response)
           $('#loading').css({'display': 'none'})
         })
       }
