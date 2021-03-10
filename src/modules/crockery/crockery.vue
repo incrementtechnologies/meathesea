@@ -51,7 +51,7 @@
           <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
               <div class="mt-1" v-if="widerView" style="width: 7%;">
-                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="widerView = !widerView"></i></center>
+                <center><i class="fas fa-arrow-alt-circle-left smallerView" @click="() => {widerView = !widerView; switchComponent('card', 0)}"></i></center>
               </div>
               <div
                 v-for="(el, ndx) in returnHeaderElements"

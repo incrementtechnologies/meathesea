@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="navigationBar">
     <nav class="navbar navbar-expand-sm">
       <!-- Brand/logo -->
       <a class="navbar-brand" href="#">
@@ -109,6 +109,12 @@ export default {
 
 <style scoped lang="scss">
 @import "~assets/style/colors.scss";
+.navigationBar {
+  width: 100%;
+	position: fixed;
+	top: 0;
+  z-index: 100;
+}
 .navbar {
   background-color: $primary;
 }

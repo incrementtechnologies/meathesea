@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <div class="content-holder commontTopMargin LeftRightPadding" v-bind:class="hide">
+      <div class="content-holder commontTopMargin LeftRightPadding contentH" v-bind:class="hide">
         <transition >
           <router-view ></router-view>
         </transition>
@@ -47,6 +47,12 @@
 </template>
 <style scoped lang="scss">
 @import "~assets/style/colors.scss";
+.contentH {
+  padding-top: 150px !important;
+}
+.sidebar {
+  padding-top: 123px !important;
+}
 .LeftRightPadding {
   padding-left: 5%;
   padding-right: 5%;
