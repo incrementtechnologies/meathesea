@@ -269,6 +269,7 @@ export default {
   mounted(){
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
+    this.getImage()
     // if(!_.isEmpty(this.data)){
     //   this.data.order_items.forEach(el => {
     //     if(el.product.category_type === 3){
@@ -310,12 +311,20 @@ export default {
       dataPdf: [],
       dataRes: [],
       dataDel: [],
-      rejectionReason: null
+      rejectionReason: null,
+      image: null
     }
   },
   methods: {
+    getImage() {
+      this.APIGetRequest('get_mts_logo_base64', response => {
+        this.image = response
+      }, error => {
+        console.log(error, ' <-=---------- ERROR <-|->')
+      })
+    },
     viewReceipt(data){
-      console.log('data', this.data.order_items)
+      this.PdfTemplate.getImage(this.image)
       this.dataPdf = data
       this.dataRes = []
       this.dataDel = []
