@@ -387,19 +387,15 @@ export default {
       this.reRender = true
     },
     switchComponent(component, ndx) {
-      console.log('testing --->>>  ')
       this.widerView = this.returnHeaderElements[ndx].wholeView
       this.reRenderTable = false
       this.typeIndex = ndx
       if(ndx === 0 && !this.widerView){
-        console.log('daily ', ndx)
         this.getDate('day')
       }else if(ndx === 1 && !this.widerView){
-        console.log('weekly ', ndx)
         this.getDate('week')
       }else if(this.widerView){
         ndx = ndx > 1 ? 1 : ndx
-        console.log('index ', ndx)
         this.typeIndex = ndx
         this.getDate('month')
       }

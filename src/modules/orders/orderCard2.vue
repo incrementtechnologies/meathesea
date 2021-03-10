@@ -175,7 +175,7 @@
                       <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"></i>
                       <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                     </div>
-                    <div v-else-if="el.status.toLowerCase() === 'no'">
+                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="updateStatus($event, el.text)">
                       <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                       <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
                     </div>
@@ -362,6 +362,11 @@ export default {
       }, error => {
         console.log('Accepting order error: ', error)
       })
+    },
+    updateStatus(e, status) {
+      if(status.toLowerCase() === 'out for delivery') {
+        console.log('<------- =========== --------->', e)
+      }
     }
   },
   watch: {
