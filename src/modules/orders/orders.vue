@@ -58,13 +58,13 @@
 
       <div :class="'p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
-          <navbar v-bind:buttons="[
+          <!-- <navbar v-bind:buttons="[
           { text: 'TODAY', colorLine: 'blue', type: 'button', componentTocall: 'card', wholeView: 'false', shorterView: 'true' },
           { text: 'THIS WEEK', colorLine: 'blue', type: 'button', componentTocall: 'table', wholeView: 'false', shorterView: 'true' },
           { text: 'ALL ORDERS', colorLine: 'red', type: 'button', componentTocall: 'table', wholeView: 'true', shorterView: 'true' }
           ]"
           @btnClick="sample"
-          />
+          /> -->
           <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
               <div class="mt-1" v-if="widerView" style="width: 7%;">
@@ -123,10 +123,10 @@ import dummy from './data.js'
 import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
-import navbar from '../../components/increment/generic/frame/Navbar.vue'
+// import navbar from '../../components/increment/generic/frame/Navbar.vue'
 export default {
   components: {
-    navbar,
+    // navbar,
     card1,
     card2,
     dataTable
