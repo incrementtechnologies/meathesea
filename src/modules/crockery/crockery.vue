@@ -73,6 +73,7 @@
                   :style="el.style + ' padding: 15px;'"
                   :placeholder="el.text" 
                   v-else-if="el.type.toLowerCase() === 'input'"
+                  v-on:change="handleSearchChange"
                 >
               </div>
             </div>
@@ -170,24 +171,26 @@ export default {
         }
       ],
       data: [
-        [],
-        [],
-        []
+        [], // new
+        [], // in progress
+        [] // returned
       ],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
-      focusIndex: 0,
-      selectedDataIndex: 0,
-      typeIndex: 0,
+      focusIndex: 0, // new, in progress, returned
+      selectedDataIndex: 0, // side menu
+      typeIndex: 0, // today, this week, all outstanding
       componentType: 'card',
       widerView: false,
       orders: [],
-      cardRedered: true
+      cardRedered: true,
+      searchValue: '2'
     }
   },
   mounted() {},
   created() {
     this.retrieveOrders()
+    this.retrieveOrderId()
   },
   watch: {},
   computed: {
@@ -240,6 +243,7 @@ export default {
       this.cardRedered = true
     },
     selectData(ndx, popId) {
+      console.log('SIDE MENU CLICKED: ', ndx)
       this.$root.$emit('bv::hide::popover')
       this.$root.$emit('bv::show::popover', popId)
       this.selectedDataIndex = ndx
@@ -289,6 +293,23 @@ export default {
         this.retrieveCrockery()
       }, error => {
         console.log('Retrieving All Orders ERROR: ', error)
+      })
+    },
+    handleSearchChange(event) {
+      this.searchValue = event.target.value
+      console.log('TESTING !!!: ', this.searchValue)
+      const { user } = AUTH
+      let val = Number(this.searchValue)
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
+        $('#loading').css({'display': 'none'})
+        console.log('sample_Data:', response)
+        console.log('test:', val)
+        response.crockery.forEach((el, ndx) => {
+          if(el.id === val){
+            console.log('customer_id:', el)
+          }
+        })
       })
     }
   }
