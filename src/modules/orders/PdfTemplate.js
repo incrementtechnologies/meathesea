@@ -13,7 +13,7 @@ export default {
     this.order_number = data.id
     this.total = data.order_total
     this.currency = data.customer_currency_code
-    this.purpose = 'Delivery'
+    this.purpose = data.order_status
     this.deliveryTime = '9:15'
     this.deliveryDate = '01/05/2021'
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
