@@ -130,11 +130,8 @@ export default {
     },
     retrieveOneProduct(id) {
       $('#loading').css({'display': 'block'})
-      axios.get(`https://mtsbackenddev.azurewebsites.net/api/products/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        }
-      }).then(response => {
+      this.APIGetRequest(`/products/${id}`, response => {
+        console.log('rtireve', response.data)
         $('#loading').css({'display': 'none'})
         if(response.data !== null) {
           this.data = response.data.products[0]
