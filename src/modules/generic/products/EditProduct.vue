@@ -43,7 +43,8 @@
           @tags-changed="newTags => CategoriesTags = newTags"
         />
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
-        <input type="radio" value="allDay" v-model="setTime" class="all">
+        <input type="radio" v-if="data.available_start_date_time_utc == null && data.available_end_date_time_utc == null" value="allDay" v-model="setTime" class="all" checked>
+        <input type="radio" v-else value="allDay" v-model="setTime" class="all">
         <label for="allDay" style="width:40%">All Day</label>
         <input type="radio" value="setTime" v-model="setTime" class="all">
         <label for="setTime" style="width:40%">Set Time</label>
@@ -68,6 +69,77 @@
     </div>
   </div>
 </template>
+<script>
+import VueTagsInput from '@johmun/vue-tags-input'
+export default {
+  props: ['bundle', 'data', 'category1', 'category2'],
+  data(){
+    return {
+      checked: true,
+      setTime: null,
+      clickSetTime: false,
+      setLocation: null,
+      category: '',
+      categories: '',
+      CategoryTags: [],
+      CategoriesTags: [],
+      autocompleteCategory: [],
+      autocompleteItems: [],
+      validation: [{
+        classes: 'no-numbers',
+        rule: /^([^0-9]*)$/
+      }, {
+        classes: 'avoid-item',
+        rule: /^(?!Cannot).*$/,
+        disableAdd: true
+      }, {
+        classes: 'no-braces',
+        rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
+      }]
+    }
+  },
+  components: {
+    VueTagsInput
+  },
+  mounted(){
+    this.category1.forEach(element => {
+      element['text'] = element.name
+      this.autocompleteCategory.push(element)
+      this.CategoryTags.push(element)
+      console.log('category', this.CategoryTags)
+    })
+    this.category2.forEach(element => {
+      element['text'] = element.name
+      this.autocompleteItems.push(element)
+      this.CategoriesTags.push(element)
+    })
+  },
+  computed: {
+    filteredCategory() {
+      return this.autocompleteCategory.filter(i => {
+        return i.name.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
+      })
+    },
+    filteredItems() {
+      return this.autocompleteItems.filter(i => {
+        return i.name.toLowerCase().indexOf(this.categories.toLowerCase()) !== -1
+      })
+    }
+  },
+  methods: {
+    back() {
+      this.$parent.isEdit = false
+    },
+    cancel(){
+      this.$parent.isEdit = false
+    },
+    onSave(data){
+      this.$emit('onSave', data)
+    }
+  }
+}
+</script>
+
 <style lang="css" scoped>
 @media (max-width: 1400px) {
   .main{
@@ -157,7 +229,7 @@
   box-sizing: border-box;
 }
 .name{
-	margin-left: 20px;
+  margin-left: 20px;
 }
 .container2{
   width: 100%;
@@ -196,82 +268,3 @@ img{
   image-rendering: -webkit-optimize-contrast
 }
 </style>
-<script>
-import VueTagsInput from '@johmun/vue-tags-input'
-export default {
-  props: ['bundle', 'data'],
-  data(){
-    return {
-      checked: true,
-      setTime: null,
-      clickSetTime: false,
-      setLocation: null,
-      category: '',
-      categories: '',
-      CategoryTags: [],
-      CategoriesTags: [],
-      autocompleteCategory: [{
-        text: 'Rare'
-      }, {
-        text: 'Medium Rare'
-      }, {
-        text: 'Medium'
-      }, {
-        text: 'Medium Well Done'
-      }, {
-        text: 'Well Done'
-      }],
-      autocompleteItems: [{
-        text: 'Side Salad'
-      }, {
-        text: 'Side Fries'
-      }, {
-        text: 'Side Dish'
-      }, {
-        text: 'Side Pasta'
-      }, {
-        text: 'Side Desserts'
-      }],
-      validation: [{
-        classes: 'no-numbers',
-        rule: /^([^0-9]*)$/
-      }, {
-        classes: 'avoid-item',
-        rule: /^(?!Cannot).*$/,
-        disableAdd: true
-      }, {
-        classes: 'no-braces',
-        rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
-      }]
-    }
-  },
-  components: {
-    VueTagsInput
-  },
-  mounted(){
-  },
-  computed: {
-    filteredCategory() {
-      return this.autocompleteCategory.filter(i => {
-        return i.text.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
-      })
-    },
-    filteredItems() {
-      return this.autocompleteItems.filter(i => {
-        return i.text.toLowerCase().indexOf(this.categories.toLowerCase()) !== -1
-      })
-    }
-  },
-  methods: {
-    back() {
-      this.$parent.isEdit = false
-    },
-    cancel(){
-      this.$parent.isEdit = false
-    },
-    onSave(data){
-      this.$emit('onSave', data)
-    }
-  }
-}
-</script>
