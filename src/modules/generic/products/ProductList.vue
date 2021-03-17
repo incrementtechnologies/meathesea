@@ -163,6 +163,9 @@ export default {
     retrieve(item) {
       this.$parent.retrieveOneProduct(item.id)
       this.$parent.isEdit = true
+      // this.$parent.retrieveCategory1()
+      // this.$parent.retrieveCategory2()
+      // this.$parent.update(item)
     }
   }
 }

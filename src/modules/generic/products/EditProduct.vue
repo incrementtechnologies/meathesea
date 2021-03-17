@@ -43,17 +43,20 @@
           @tags-changed="newTags => CategoriesTags = newTags"
         />
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
-        <input type="radio" v-if="data.available_start_date_time_utc == null && data.available_end_date_time_utc == null" value="allDay" v-model="setTime" class="all" checked>
-        <input type="radio" v-else value="allDay" v-model="setTime" class="all">
-        <label for="allDay" style="width:40%">All Day</label>
-        <input type="radio" value="setTime" v-model="setTime" class="all">
-        <label for="setTime" style="width:40%">Set Time</label>
-        <div v-if="setTime === 'setTime'" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
-          <label for="appt-time"><b>From: </b></label>
-          <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
-          <label for="appt-time"><b>Until: </b></label>
-          <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
-        </div>
+          <label style="width:40%" class="radio">
+            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc == null || data.available_end_date_time_utc == null) ? true : false">
+            All Day
+          </label>
+          <label style="width:40%" class="radio">
+            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
+            Set Time
+          </label>
+          <div v-if="data.available_start_date_time_utc != null || data.available_end_date_time_utc != null" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
+            <label for="appt-time"><b>From: </b></label>
+            <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
+            <label for="appt-time"><b>Until: </b></label>
+            <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
+          </div>
         <p class="name" style="margin-left: 0%; margin-top: 5%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
         <input type="radio" value="loc" v-model="setLocation" class="in">
         <label for="loc" class="on">88 Queens Road W</label>
@@ -75,7 +78,6 @@ export default {
   props: ['bundle', 'data', 'category1', 'category2'],
   data(){
     return {
-      checked: true,
       setTime: null,
       clickSetTime: false,
       setLocation: null,
@@ -102,17 +104,21 @@ export default {
     VueTagsInput
   },
   mounted(){
-    this.category1.forEach(element => {
-      element['text'] = element.name
-      this.autocompleteCategory.push(element)
-      this.CategoryTags.push(element)
-      console.log('category', this.CategoryTags)
-    })
-    this.category2.forEach(element => {
-      element['text'] = element.name
-      this.autocompleteItems.push(element)
-      this.CategoriesTags.push(element)
-    })
+    if(this.category1 !== null){
+      this.category1.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteCategory.push(element)
+        this.CategoryTags.push(element)
+        console.log('category', this.CategoryTags)
+      })
+    }
+    if(this.category2 !== null){
+      this.category2.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteItems.push(element)
+        this.CategoriesTags.push(element)
+      })
+    }
   },
   computed: {
     filteredCategory() {
@@ -193,7 +199,7 @@ export default {
   background-color: white;
   bottom: 0;
 }
-.all {
+#all {
   width: 30px;
 }
 .in {

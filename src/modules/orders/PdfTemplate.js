@@ -14,8 +14,8 @@ export default {
     this.total = data.order_total
     this.currency = data.customer_currency_code
     this.purpose = data.order_status
-    this.deliveryTime = '9:15'
-    this.deliveryDate = '01/05/2021'
+    this.deliveryTime = data.delivery_time
+    this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
     data.order_items.forEach(element => {
       sub.push(element.product.price * element.quantity)

@@ -108,7 +108,7 @@ export default {
     },
     retrieveCategories() {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest('/get_deli_shop_categories?storeId=' + 1, response => {
+      this.APIGetRequest('get_deli_shop_categories?storeId=' + 1, response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
@@ -123,8 +123,9 @@ export default {
     },
     retrieveProducts(id) {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/products?CategoryId=${id}`, response => {
+      this.APIGetRequest(`products?CategoryId=${id}`, response => {
         $('#loading').css({'display': 'none'})
+        console.log('[retrieveProd]', response.products)
         if(response.products.length > 0) {
           this.products = response.products
         } else {
@@ -134,11 +135,11 @@ export default {
     },
     retrieveOneProduct(id) {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/products/${id}`, response => {
-        console.log('rtireve', response.data)
+      this.APIGetRequest(`products/${id}`, response => {
         $('#loading').css({'display': 'none'})
-        if(response.data !== null) {
-          this.data = response.data.products[0]
+        if(response !== 0) {
+          this.data = response.products[0]
+          console.log('[data]', this.data)
         } else {
           this.data = null
         }
