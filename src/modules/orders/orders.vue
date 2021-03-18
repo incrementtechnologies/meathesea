@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid pt-0">
+  <div class="container-fluid pt-0 mb-5">
     <div class="row" :style="!widerView ? 'border: 1px solid #707070;' : 'border: none;'">
       <div class="col-sm-5 cardbodyborder initialHeight" v-if="!widerView">
         <div class="row">
@@ -102,6 +102,7 @@
               v-if="data[returnfocusIndex].length > 0 && componentType === 'card' && returnReRender"
               :restaurant="restaurant"
               :deliStore="deliStore"
+              :times="times"
               @orderProcessed="acceptOrder"
             />
             <dataTable 
@@ -230,7 +231,8 @@ export default {
       currentDate: new Date(),
       currentIndex: 0,
       search: '',
-      allOrders: []
+      allOrders: [],
+      times: []
     }
   },
   // created() {},
@@ -308,6 +310,7 @@ export default {
         this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`, response => {
           $('#loading').css({'display': 'none'})
           response.orders.forEach(el => {
+            console.log(el)
             if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
               this.currentIndex = 0
               this.data[0].push(el)
@@ -368,7 +371,6 @@ export default {
     },
     change(ndx) {
       this.focusIndex = ndx
-      console.log('nav index: ', ndx)
       this.reRender = false
       this.restaurant = []
       this.deliStore = []
@@ -389,12 +391,18 @@ export default {
       this.restaurant = []
       this.deliStore = []
       if(this.data[this.focusIndex] !== undefined && this.data[this.focusIndex].length > 0){
-        this.data[this.focusIndex][this.selectedDataIndex].order_items.forEach(el => {
-          if(el.product.category_type === 0){
-            this.restaurant.push(el)
-          }else if(el.product.category_type === 1){
-            this.deliStore.push(el)
-          }
+        let temp = this.data[this.focusIndex][this.selectedDataIndex]
+        this.APIGetRequest(`get_order_accept_time?orderId=${temp.id}`, response => {
+          this.times = response.order_accept_time
+          temp.order_items.forEach(el => {
+            if(el.product.category_type === 0){
+              this.restaurant.push(el)
+            }else if(el.product.category_type === 1){
+              this.deliStore.push(el)
+            }
+          })
+        }, error => {
+          console.log('ACCEPT TIME RETRIEVE ERROR: ', error)
         })
       }
       this.reRender = true
@@ -466,7 +474,7 @@ export default {
 </script>
 <style scoped>
 .notFoundContainer {
-  min-height: 80vh;
+  min-height: 581px;
 }
 .notFound {
   position: absolute;
@@ -477,7 +485,7 @@ export default {
   display: inline-block;
 }
 .initialHeight {
-  min-height: 80vh;
+  min-height: 500px;
 }
 .nav_container{
   border: 1px solid gray;
@@ -621,8 +629,7 @@ export default {
   }
 }
 .crockeriesBody {
-  height: 80vh !important;
-  max-height: 100vh;
+  height: 581px;
   overflow-y: scroll;
 }
 .crockeriesBody::-webkit-scrollbar-track
