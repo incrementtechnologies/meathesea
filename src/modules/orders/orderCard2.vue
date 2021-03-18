@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100% !important;">
+  <div style="min-height: 653px">
     <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)" style="overflow: hidden;position: relative;width: 100%;">
       <div class="card-header card2Header">
         <div class="row card2HeaderEl">
@@ -65,7 +65,7 @@
                 </div>
               </div>
             </div>
-            <div class="orderInformation col-sm-12" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: calc(100vh - 378px) !important; margin-top: -1px;' : 'height: calc(100vh - 372px) !important;'">
+            <div class="orderInformation col-sm-12" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: 513px; margin-top: -1px;' : 'height: 488px;'">
               <div class="mt-3">
                 <b :style="'color: #0064B1'"> Restaurant Items: </b>
               </div>
@@ -101,7 +101,7 @@
               </div>
             </div>
           </div>
-          <div class="col-sm-5 customerInformation">
+          <div class="col-sm-5 customerInformation" :style="data.order_status.toLowerCase() === 'pending' ? 'height: 581px !important; padding-bottom: 50px !important; overflow-y: scroll !important;': 'height: 513px; padding-left: 15px; padding-right: 15px;'">
             <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
               <div class="mt-3">
                 <b class="head"> Customer Information </b>
@@ -141,11 +141,11 @@
             </div>
             <div v-else-if="data.order_status.toLowerCase() === 'pending'">
               <center>
-                <div class="mt-4 mb-4">
+                <div class="mt-4 mb-4" style="width: 100%">
                   <b style="color: #00AF5F;"> ACCEPT FOR: </b>
                 </div>
                 <div class="mt-2" v-for="(el, ndx) in times" :key="'time' + ndx">
-                  <button class="squareButtonCommon" @click="focusIndex = ndx" :style="(focusIndex != ndx) ? unfocusStyle : focusStyle"> {{el}} </button>
+                  <button class="squareButtonCommon" @click="focusIndex = ndx" :style="(focusIndex != ndx) ? unfocusStyle : focusStyle"> {{el.start_time + ' - ' + el.end_time}} </button>
                 </div>
                 <div class="mt-5">
                   <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept(data.id)"> ACCEPT </button>
@@ -264,6 +264,10 @@ export default {
     deliStore: {
       default: [],
       type: Array
+    },
+    times: {
+      default: [],
+      type: Array
     }
   },
   mounted(){
@@ -284,14 +288,13 @@ export default {
     return {
       emptyCircle: 'font-size: 17px; position: absolute; left: 0 !important;',
       progressButtons: [
-        {text: 'Processing order', status: 'Yes'},
-        {text: 'Out for delivery', status: 'No'},
-        {text: 'Delivered', status: 'No'}
+        {text: 'Processing order', status: 'Yes', value: 'processing_order'},
+        {text: 'Out for delivery', status: 'No', value: 'out_for_delivery'},
+        {text: 'Delivered', status: 'No', value: 'delivered'}
       ],
       focusStyle: 'background-color: #00AF5F; color: #FFFFFF; border 1px solid #00AF5F !important;',
       unfocusStyle: 'background-color: #FFFFFF; border: 1px solid #00AF5F; color: #00AF5F; border 1px solid #00AF5F !important;',
       dangerUnfocusStyle: 'background-color: #FFFFFF; border: 1px solid #BE0000; color: #BE0000; border 1px solid #00AF5F !important;',
-      times: ['13:00 - 13:15', '13:15 - 13:30', '13:30 - 13:45'],
       rejectReasons: [
         {
           id: 50,
@@ -316,6 +319,8 @@ export default {
     }
   },
   methods: {
+    switch(event) {
+    },
     getImage() {
       this.APIGetRequest('get_mts_logo_base64', response => {
         this.image = response
@@ -341,9 +346,9 @@ export default {
       this.PdfTemplate.template()
     },
     accept(id) {
-      console.log('order ID: ', id)
+      console.log('order Time: ', this.times[this.focusIndex].id)
       $('#loading').css({'display': 'block'})
-      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20`, {}, response => {
+      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20&orderAcceptTimeId=${this.times[this.focusIndex].id}`, {}, response => {
         console.log('Accept order response: ', response)
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: id, process: 'accepted'})
@@ -384,7 +389,7 @@ export default {
 </script>
 <style scoped>
 .notFoundContainer {
-  min-height: 80vh;
+  min-height: 581px;
 }
 .notFound {
   position: absolute;
@@ -429,7 +434,7 @@ export default {
   width: 100%;
 }
 .card2Footer {
-  min-height: 72px;
+  min-height: 63px;
   background-color: #FFFFFF;
   border-left: 1px solid #707070;
   border-top: 1px solid #707070;
@@ -653,6 +658,23 @@ input[type="radio"]:checked {
 	background-color: #F5F5F5;
 }
 .orderInformation::-webkit-scrollbar-thumb
+{
+	background-color: #707070;
+	border: 0px;
+  border-radius: 10px;
+}
+
+.customerInformation::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+	background-color: #F5F5F5;
+}
+.customerInformation::-webkit-scrollbar
+{
+  width: 7px;
+	background-color: #F5F5F5;
+}
+.customerInformation::-webkit-scrollbar-thumb
 {
 	background-color: #707070;
 	border: 0px;
