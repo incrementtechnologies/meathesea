@@ -314,7 +314,7 @@ export default {
             if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
               this.currentIndex = 0
               this.data[0].push(el)
-            }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+            }else if((el.order_status.toLowerCase() === 'processing' || el.order_status.toLowerCase() === 'delivering') && el !== undefined) {
               this.currentIndex = 1
               this.data[1].push(el)
             }else if(el.order_status.toLowerCase() === 'complete' && el !== undefined){
@@ -454,6 +454,8 @@ export default {
       temp = temp.filter(el => {
         if(el.id === data.id && data.process === 'accepted') {
           console.log(el)
+          temp3 = el
+        }else if(el.id === data.id && data.process === 'complete'){
           temp3 = el
         }
         return el.id !== data.id
