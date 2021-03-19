@@ -3,7 +3,7 @@
     <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)" style="overflow: hidden;position: relative;width: 100%;">
       <div class="card-header card2Header">
         <div class="row card2HeaderEl">
-          <div class="col-sm-12 d-flex justify-content-between headerActions" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
+          <div class="col-sm-12 d-flex justify-content-between headerActions" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
             <div class="col-sm-3 text-center divAsButton">
               <b>{{data.id}}</b>
             </div>
@@ -11,7 +11,7 @@
               <b class='font-weight-normal'>DELIVERY TIME: {{data.delivery_time}}</b>
             </div>
             <div class="col-sm-3 text-center divAsButton">
-              <b v-if="data.order_status.toLowerCase() === 'processing'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
+              <b v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
             </div>
             <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'" @click="viewReceipt(data)">
               <b> PRINT ORDER </b>
@@ -102,7 +102,7 @@
             </div>
           </div>
           <div class="col-sm-5 customerInformation" :style="data.order_status.toLowerCase() === 'pending' ? 'height: 581px !important; padding-bottom: 50px !important; overflow-y: scroll !important;': 'height: 513px; padding-left: 15px; padding-right: 15px;'">
-            <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
+            <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
               <div class="mt-3">
                 <b class="head"> Customer Information </b>
               </div>
@@ -159,7 +159,7 @@
         </div>
         </div>
       </div>
-      <div class="card-footer card2Footer" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
+      <div class="card-footer card2Footer" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
         <div class="col-sm-12 p-0">
           <div class="row">
             <div class="progressbtnWidth p-1" v-for="(el, ndx) in progressButtons" :key="ndx">
@@ -170,12 +170,12 @@
                     <b>{{el.text}}</b>
                   </div>
 
-                  <div class=" p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivered'">
-                    <div v-if="el.status.toLowerCase() === 'yes'">
-                      <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"></i>
+                  <div class=" p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
+                    <div v-if="el.status.toLowerCase() === 'yes'" :class="el.status === 'no'? 'switchAllowed' : 'switchNotAllowed'"  @click="el.status === 'no' ? updateOrderStatus(data.id, el.stats) : ''">
+                      <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'" disbled></i>
                       <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                     </div>
-                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="updateStatus($event, el.text)">
+                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="updateOrderStatus(data.id, el.stats)">
                       <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                       <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
                     </div>
@@ -194,8 +194,8 @@
                 </div>
               <!-- </div> -->
             </div>
-            <div class="progressbtnWidth cancelWrapper">
-              <div class="cancel">
+            <div class="progressbtnWidth cancelWrapper" :hidden="data.order_status.toLowerCase() === 'complete'">
+              <div class="cancel" @click="updateOrderStatus(data.id, 'cancel')">
                 <b>
                   CANCEL ORDER
                 </b>
@@ -274,6 +274,24 @@ export default {
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
     this.getImage()
+    if(!_.isEmpty(this.data)){
+      console.log(this.data)
+      console.log(this.data.order_status.toLowerCase())
+      if(this.data.order_status.toLowerCase() === 'processing'){
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'no'
+        this.progressButtons[2].status = 'no'
+      }else if(this.data.order_status.toLowerCase() === 'delivering'){
+        this.progressButtons[0].disabled = true
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'yes'
+        this.progressButtons[2].status = 'no'
+      }else{
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'yes'
+        this.progressButtons[2].status = 'yes'
+      }
+    }
     // if(!_.isEmpty(this.data)){
     //   this.data.order_items.forEach(el => {
     //     if(el.product.category_type === 3){
@@ -288,9 +306,9 @@ export default {
     return {
       emptyCircle: 'font-size: 17px; position: absolute; left: 0 !important;',
       progressButtons: [
-        {text: 'Processing order', status: 'Yes', value: 'processing_order'},
-        {text: 'Out for delivery', status: 'No', value: 'out_for_delivery'},
-        {text: 'Delivered', status: 'No', value: 'delivered'}
+        {stats: 'processing', text: 'Processing order', status: 'Yes', value: 'processing_order', disabled: false},
+        {stats: 'delivery', text: 'Out for delivery', status: 'No', value: 'out_for_delivery', disabled: false},
+        {stats: 'complete', text: 'Delivered', status: 'No', value: 'delivered', disabled: false}
       ],
       focusStyle: 'background-color: #00AF5F; color: #FFFFFF; border 1px solid #00AF5F !important;',
       unfocusStyle: 'background-color: #FFFFFF; border: 1px solid #00AF5F; color: #00AF5F; border 1px solid #00AF5F !important;',
@@ -352,6 +370,39 @@ export default {
         console.log('Accept order response: ', response)
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: id, process: 'accepted'})
+      }, error => {
+        console.log('Accepting order error: ', error)
+      })
+    },
+    updateOrderStatus(id, status){
+      let tempStatus = null
+      if(status === 'processing'){
+        if(this.progressButtons[0].status === 'yes'){
+          tempStatus = 10
+        }else {
+          tempStatus = 20
+        }
+      }else if(status === 'delivery'){
+        console.log(status)
+        if(this.progressButtons[1].status === 'yes'){
+          tempStatus = 15
+        }else {
+          console.log('noo')
+          this.progressButtons[0].status = 'no'
+          this.progressButtons[1].status = 'yes'
+          tempStatus = 25
+        }
+      }else if(status === 'complete'){
+        tempStatus = 30
+      }else{
+        tempStatus = 40
+      }
+      console.log(status)
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=${tempStatus}`, {}, response => {
+        console.log('Accept order response: ', response)
+        $('#loading').css({'display': 'none'})
+        this.$emit('orderProcessed', {id: id, process: status === 'complete' ? 'complete' : 'delivering'})
       }, error => {
         console.log('Accepting order error: ', error)
       })
@@ -502,12 +553,19 @@ export default {
   position: absolute;
   right: 0;
 }
+.switchAllowed{
+  cursor: pointer;
+}
+.switchNotAllowed{
+  cursor:not-allowed;
+}
 .cancel {
   display: flex;
   align-items: center;
   justify-content: center !important;
   height: 63px;
   color: #BE0000;
+  cursor: pointer;
 }
 .cancelWrapper {
   display: flex;
