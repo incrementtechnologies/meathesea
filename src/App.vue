@@ -3,8 +3,8 @@
     <div v-bind:style="(globalVariables.showModal) ? 'overflow-y:hidden; height:'+deviceHeight+'px!important': ''">
       <div v-if="tokenData.token !== null && parseInt(user.userID) > 0 && tokenData.loading === false">
        <custom-header></custom-header>
-       <custom-sidebar></custom-sidebar>
        <!-- <system-header></system-header> -->
+       <custom-sidebar></custom-sidebar>
        <!-- <system-sidebar></system-sidebar> -->
        <!-- <support-messenger></support-messenger> -->
        <system-footer></system-footer>
@@ -186,12 +186,12 @@ import AUTH from './services/auth'
 import global from './helpers/global'
 export default {
   name: 'app',
-  // mounted(){
-  //   console.log(this.$route.name)
-  // },
-  created(){
-    // this.validate()
+  mounted(){
+    console.log('header', this.tokenData)
   },
+  // created(){
+    // this.validate()
+  // },
   data(){
     return {
       user: AUTH.user,
