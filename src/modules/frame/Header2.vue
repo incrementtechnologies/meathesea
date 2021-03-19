@@ -1,5 +1,5 @@
 <template>
-  <div class="navigatonBar">
+  <div class="navigationBar">
     <nav class="navbar navbar-expand-sm">
       <!-- Brand/logo -->
       <a class="navbar-brand" href="#">
