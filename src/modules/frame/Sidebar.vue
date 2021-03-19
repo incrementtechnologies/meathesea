@@ -48,10 +48,10 @@
 <style scoped lang="scss">
 @import "~assets/style/colors.scss";
 .contentH {
-  padding-top: 150px !important;
+  padding-top: 30px !important;
 }
 .sidebar {
-  padding-top: 123px !important;
+  padding-top: 0px !important;
 }
 .LeftRightPadding {
   padding-left: 5%;
