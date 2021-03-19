@@ -23,7 +23,7 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right ml-auto">
-        <li @click="logout()">
+        <li @click="''">
           <i
             class="fas fa-sign-out-alt"
             style="font-size: 30px; color: white"
@@ -32,26 +32,24 @@
         </li>
       </ul>
     </nav>
+    
     <div class="notificationBar" v-if="notificationMessage.length > 0">
       <b> {{notificationTitle}} ({{notificationMessage.length}})</b>
       <b class="xNotification" @click="notificationMessage = []; notificationTitle = ''">&times;</b>
     </div>
-    <PushNotification
+    <pushnofication
       ref="pushNotification"
       :currentToken="userToken"
       @update-token="onUpdateToken"
       @new-message="onNewMessage" />
   </div>
 </template>
+
 <script>
 import CONFIG from 'src/config.js'
 import AUTH from 'src/services/auth'
-import PushNotification from 'src/components/notification/pushNotification'
 import api from 'src/services/api'
 export default {
-  components: {
-    PushNotification
-  },
   data: () => ({
     config: CONFIG,
     firebaseServerKey: CONFIG.firebaseServerKey,
@@ -61,9 +59,14 @@ export default {
     notificationMessage: [],
     notificationTitle: ''
   }),
-  created () {
+  components: {
+    'pushnofication': () => import('src/components/notification/pushNotification')
+    // PushNotification
+  },
+  mounted() {
     var userLoggedId = 1
     // check if user has a token
+    console.log('response')
     api.user_profile(userLoggedId).then((response) => {
       this.userProfile = response.data
       this.userToken = this.userProfile.push_notification.ask_for_permission.token

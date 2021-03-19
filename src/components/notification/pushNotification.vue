@@ -20,6 +20,7 @@ export default {
   },
   methods: {
     initialize () {
+      console.log('initialize')
       if (!('serviceWorker' in navigator)) {
         console.warn('serviceWorker not working')
         return
@@ -31,6 +32,7 @@ export default {
       this.hasServiceWorker = true
     },
     askForPermission () {
+      console.log('perimission')
       if (!this.hasServiceWorker) {
         return
       }
@@ -38,7 +40,7 @@ export default {
       firebase.messaging.usePublicVapidKey(CONFIG.vapidKey)
       navigator.serviceWorker.register('./static/firebase-messaging-sw.js')
         .then((registration) => {
-
+          console.log('serviceworker')
           firebase.messaging.useServiceWorker(registration)
 
           firebase.messaging.requestPermission().then(() => {
