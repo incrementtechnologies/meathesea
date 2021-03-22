@@ -48,10 +48,10 @@
             All Day
           </label>
           <label style="width:40%" class="radio">
-            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
+            <input type="radio" name="setTime" id="all" @change="up($event)" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
             Set Time
           </label>
-          <div v-if="data.available_start_date_time_utc != null || data.available_end_date_time_utc != null" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
+          <div v-if="showSetTime === true" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
             <label for="appt-time"><b>From: </b></label>
             <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
             <label for="appt-time"><b>Until: </b></label>
@@ -86,6 +86,7 @@ export default {
       CategoryTags: [],
       CategoriesTags: [],
       autocompleteCategory: [],
+      showSetTime: false,
       autocompleteItems: [],
       validation: [{
         classes: 'no-numbers',
@@ -133,6 +134,12 @@ export default {
     }
   },
   methods: {
+    up(e) {
+      console.log('[eve]', e)
+      if(e.target.checked === true){
+        this.showSetTime = true
+      }
+    },
     back() {
       this.$parent.isEdit = false
     },
