@@ -105,21 +105,21 @@ export default {
     VueTagsInput
   },
   mounted(){
-    if(this.category1 !== null){
-      this.category1.forEach(element => {
-        element['text'] = element.name
-        this.autocompleteCategory.push(element)
-        this.CategoryTags.push(element)
-        console.log('category', this.CategoryTags)
-      })
-    }
-    if(this.category2 !== null){
-      this.category2.forEach(element => {
-        element['text'] = element.name
-        this.autocompleteItems.push(element)
-        this.CategoriesTags.push(element)
-      })
-    }
+    // if(this.category1 !== null){
+    //   this.category1.forEach(element => {
+    //     element['text'] = element.name
+    //     this.autocompleteCategory.push(element)
+    //     this.CategoryTags.push(element)
+    //     console.log('category', this.CategoryTags)
+    //   })
+    // }
+    // if(this.category2 !== null){
+    //   this.category2.forEach(element => {
+    //     element['text'] = element.name
+    //     this.autocompleteItems.push(element)
+    //     this.CategoriesTags.push(element)
+    //   })
+    // }
   },
   computed: {
     filteredCategory() {
