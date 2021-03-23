@@ -124,10 +124,8 @@ import dummy from './data.js'
 import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
-// import navbar from '../../components/increment/generic/frame/Navbar.vue'
 export default {
   components: {
-    // navbar,
     card1,
     card2,
     dataTable
