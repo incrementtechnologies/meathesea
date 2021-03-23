@@ -81,6 +81,7 @@ export default {
       active[id].classList.add('active')
     },
     retrieve(id, i) {
+      this.$parent.category = id
       if(i === this.data.length) {
         this.$parent.bundled = true
       } else {

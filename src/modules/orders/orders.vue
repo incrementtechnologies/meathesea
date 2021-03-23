@@ -124,10 +124,8 @@ import dummy from './data.js'
 import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
-// import navbar from '../../components/increment/generic/frame/Navbar.vue'
 export default {
   components: {
-    // navbar,
     card1,
     card2,
     dataTable
@@ -314,7 +312,7 @@ export default {
             if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
               this.currentIndex = 0
               this.data[0].push(el)
-            }else if(el.order_status.toLowerCase() === 'processing' && el !== undefined) {
+            }else if((el.order_status.toLowerCase() === 'processing' || el.order_status.toLowerCase() === 'delivering') && el !== undefined) {
               this.currentIndex = 1
               this.data[1].push(el)
             }else if(el.order_status.toLowerCase() === 'complete' && el !== undefined){
@@ -454,6 +452,8 @@ export default {
       temp = temp.filter(el => {
         if(el.id === data.id && data.process === 'accepted') {
           console.log(el)
+          temp3 = el
+        }else if(el.id === data.id && data.process === 'complete'){
           temp3 = el
         }
         return el.id !== data.id
