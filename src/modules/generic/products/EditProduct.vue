@@ -1,19 +1,33 @@
 <template>
-  <div class="container2" v-if="data">
+  <div class="container2">
     <div class="row">
       <div class="columns">
         <i class="fas fa-arrow-alt-circle-left fa-3x" style="margin-left: 0px; margin-right: 0px; margin-top: 1%; color: #0064B1;" @click="back()"></i>
       </div>
-      <div class="column">
-        <img :src="data ? data.images[0].src : ''" width="150px" height="142px">
+      <div class="column" v-if="data">
+        <img :src="data !== null ? data.images.length > 0 && data.images[0].src : ''" width="150px" height="142px">
       </div>
       <div class="main">
-        <p class="name" style="margin-left: 0%;"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
-        <button class="buttons">Change picture</button>
-        <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
-        <input type="text" class="col-sm-12 form-control form-control-custom" v-model="data.name" placeholder="Type product title here...">
+        <p class="name" style="margin-left: 0%;" @click="del(data)"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b><button class="pull-right buttons"><i class="fas fa-trash"></i> Remove</button></p>
+        <input type="file" @change="onFileChange" name="picture" class="form-control-file" id="picture">
+        <button class="buttons" @click="submit()">Change picture</button>
+        <div v-if="data">
+          <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE1' : 'PRODUCT TITLE'}}</b></p>
+          <input type="text" class="col-sm-12 form-control form-control-custom" v-model="data.name" placeholder="Type product title here...">
+        </div>
+       <div v-else>
+          <p class="name" style="margin-left: 0%; margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE1' : 'PRODUCT TITLE'}}</b></p>
+          <input type="text" class="col-sm-12 form-control form-control-custom" v-model="name" placeholder="Type product title here...">
+        </div>
+        <div v-if="data">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE DESCRIPTION' : 'PRODUCT DESCRIPTION'}}</b></p>
         <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="data.full_description" placeholder="Type product description here..."></textarea>
+        </div>
+        <div v-else>
+        <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE DESCRIPTION' : 'PRODUCT DESCRIPTION'}}</b></p>
+        <textarea class="form-control col-sm-12" rows="20" style="height: 10%;" v-model="full_description" placeholder="Type product description here..."></textarea>
+        </div>
+        <div v-if="data">
         <div class="row" style="margin-top: 3%;">
           <div class="col-6">
             <p class="name" style="margin-left: 0%;"><b>{{bundle === true ? 'BUNDLE PRICE' : 'REGULAR PRICE'}}</b></p>
@@ -23,6 +37,19 @@
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
             <input type="number" class="w-100 form-control form-control-custom" v-model="data.old_price" placeholder="Input Special Offer Price">
           </div>
+        </div>
+        </div>
+        <div v-else>
+        <div class="row" style="margin-top: 3%;">
+          <div class="col-6">
+            <p class="name" style="margin-left: 0%;"><b>{{bundle === true ? 'BUNDLE PRICE' : 'REGULAR PRICE'}}</b></p>
+            <input type="number" class="w-100 form-control form-control-custom" v-model="price" placeholder="Input Regular Price">
+          </div>
+          <div class="col-6">
+            <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
+            <input type="number" class="w-100 form-control form-control-custom" v-model="old_price" placeholder="Input Special Offer Price">
+          </div>
+        </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 32%">LIMIT CHOICE TO: 1</b></p>
         <vue-tags-input
@@ -42,20 +69,39 @@
           placeholder="Add Another Category"
           @tags-changed="newTags => CategoriesTags = newTags"
         />
+        <div v-if="data">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
-            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc == null || data.available_end_date_time_utc == null) ? true : false">
+            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc == null) ? true : false">
             All Day
           </label>
           <label style="width:40%" class="radio">
-            <input type="radio" name="setTime" id="all" @change="up($event)" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
+            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
             Set Time
           </label>
-          <div v-if="showSetTime === true" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
+          <div v-if="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) === true ? showSetTime === true : showSetTime === false" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
             <label for="appt-time"><b>From: </b></label>
             <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
             <label for="appt-time"><b>Until: </b></label>
             <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
+            </div>
+          </div>
+          <div v-else>
+        <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
+          <label style="width:40%" class="radio">
+            <input type="radio" name="setTime" id="all" :checked="(available_start_date_time_utc == null || available_end_date_time_utc == null) ? true : false">
+            All Day
+          </label>
+          <label style="width:40%" class="radio">
+            <input type="radio" name="setTime" id="all" :checked="(available_start_date_time_utc != null || available_end_date_time_utc != null) ? true : false">
+            Set Time
+          </label>
+          <div v-if="available_start_date_time_utc != null || available_end_date_time_utc != null" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
+            <label for="appt-time"><b>From: </b></label>
+            <input id="appt-time" type="time" v-model="available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
+            <label for="appt-time"><b>Until: </b></label>
+            <input id="appt-time" type="time" v-model="available_end_date_time_utc" name="appt-time" step="2">
+            </div>
           </div>
         <p class="name" style="margin-left: 0%; margin-top: 5%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
         <input type="radio" value="loc" v-model="setLocation" class="in">
@@ -70,15 +116,29 @@
         </div>
       </div>
     </div>
+    <Confirmation
+    ref="prod"
+    :title="'Confirmation Message'"
+    :message="'Are you sure you want to delete this product?'"
+    @onConfirm="remove(data)"
+    ></Confirmation>
   </div>
 </template>
 <script>
+import AUTH from 'src/services/auth'
 import VueTagsInput from '@johmun/vue-tags-input'
+import Confirmation from 'src/components/increment/generic/modal/Confirmation.vue'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId'],
   data(){
     return {
       setTime: null,
+      name: null,
+      full_description: null,
+      price: null,
+      old_price: null,
+      available_start_date_time_utc: null,
+      available_end_date_time_utc: null,
       clickSetTime: false,
       setLocation: null,
       category: '',
@@ -98,11 +158,15 @@ export default {
       }, {
         classes: 'no-braces',
         rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
+      }],
+      formField: [{
+        picture: null
       }]
     }
   },
   components: {
-    VueTagsInput
+    VueTagsInput,
+    Confirmation
   },
   mounted(){
     // if(this.category1 !== null){
@@ -134,11 +198,45 @@ export default {
     }
   },
   methods: {
-    up(e) {
-      console.log('[eve]', e)
-      if(e.target.checked === true){
-        this.showSetTime = true
+    addProduct() {
+      const { user } = AUTH
+      console.log(this.categoryId, 'tjasdijahidaisfd')
+      let parameter = {
+        category_id: this.categoryId,
+        store_ids: [user.userID],
+        name: this.name,
+        full_description: this.full_description,
+        price: this.price,
+        old_price: this.old_price,
+        available_start_date_time_utc: this.available_start_date_time_utc,
+        available_end_date_time_utc: this.available_end_date_time_utc
       }
+      $('#loading').css({'display': 'block'})
+      this.APIPostRequest(`products`, {product: parameter}, response => {
+        $('#loading').css({'display': 'none'})
+        console.log(this.$parent)
+        this.$parent.add = false
+        this.$parent.isEdit = false
+      })
+    },
+    onFileChange(event){
+      console.log('[events]', event)
+      this.formField.picture = event.target.files[0]
+      console.log('[evenddddts]', this.formField.picture)
+    },
+    submit(){
+      let formData = new FormData()
+      formData.append('picture', this.formField.picture)
+    },
+    remove(data){
+      $('#loading').css({'display': 'block'})
+      this.APIDeleteRequest(`products/${data.id}`, {}, response => {
+        $('#loading').css({'display': 'none'})
+        this.back()
+      })
+    },
+    del(id) {
+      this.$refs.prod.show(id)
     },
     back() {
       this.$parent.isEdit = false
@@ -147,7 +245,11 @@ export default {
       this.$parent.isEdit = false
     },
     onSave(data){
-      this.$emit('onSave', data)
+      if(data) {
+        this.$emit('onSave', data)
+      } else {
+        this.addProduct()
+      }
     }
   }
 }

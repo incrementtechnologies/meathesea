@@ -125,7 +125,6 @@ export default {
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`products?CategoryId=${id}`, response => {
         $('#loading').css({'display': 'none'})
-        console.log('[retrieveProd]', response.products)
         if(response.products.length > 0) {
           this.products = response.products
         } else {
