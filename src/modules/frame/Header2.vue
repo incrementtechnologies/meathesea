@@ -24,7 +24,7 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right ml-auto">
-        <li @click="''">
+        <li @click="logout()">
           <i
             class="fas fa-sign-out-alt"
             style="font-size: 30px; color: white;"
@@ -38,8 +38,9 @@
       <b> {{notificationTitle}} ({{notificationMessage.length}})</b>
       <b class="xNotification" @click="notificationMessage = []; notificationTitle = ''">&times;</b>
     </div>
-    <pushnofication
+    <PushNotification
       ref="pushNotification"
+      id="pushNotification"
       :currentToken="userToken"
       @update-token="onUpdateToken"
       @new-message="onNewMessage" />
@@ -50,21 +51,10 @@
 import CONFIG from 'src/config.js'
 import AUTH from 'src/services/auth'
 import api from 'src/services/api'
+import Vue from 'vue'
+import PushNotification from '../../components/notification/pushNotification.vue'
 export default {
-  data: () => ({
-    config: CONFIG,
-    firebaseServerKey: CONFIG.firebaseServerKey,
-    userProfile: {},
-    askForPermission: false,
-    userToken: null,
-    notificationMessage: [],
-    notificationTitle: ''
-  }),
-  components: {
-    'pushnofication': () => import('src/components/notification/pushNotification')
-    // PushNotification
-  },
-  mounted() {
+  created() {
     var userLoggedId = 1
     // check if user has a token
     console.log('response')
@@ -80,6 +70,18 @@ export default {
       }
     })
   },
+  components: {
+    PushNotification
+  },
+  data: () => ({
+    config: CONFIG,
+    firebaseServerKey: CONFIG.firebaseServerKey,
+    userProfile: {},
+    askForPermission: false,
+    userToken: null,
+    notificationMessage: [],
+    notificationTitle: ''
+  }),
   methods: {
     logout(){
       AUTH.removeAuthentication()
