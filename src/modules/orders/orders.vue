@@ -16,7 +16,7 @@
                   >
                     {{nav.name}}
                     <div class="notifications ml-3" v-if="nav.isNotification" :style="'background-color: ' + nav.notificationColor">
-                      <b :style="'color :' + nav.notificationTextColor">{{(data[ndx] !== undefined) ? returnData.length : 0}}</b>
+                      <b :style="'color :' + nav.notificationTextColor">{{nav.count}}</b>
                     </div>
                   </div>
                 </div>
@@ -139,9 +139,9 @@ export default {
         {text: 'Plate returned', key: 'returned'}
       ],
       navs: [
-        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1'},
-        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1'},
-        {name: 'DELIVERED', background: '#E1E1E1', color: '#878787'}
+        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
+        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
+        {name: 'DELIVERED', background: '#E1E1E1', color: '#878787', count: 0}
       ],
       headerElements: [
         {
@@ -236,6 +236,7 @@ export default {
   // created() {},
   created() {
     this.getDate('day', null)
+    this.retrieveNotification()
   },
   mounted() {
     this.reRenderTable = false
@@ -357,6 +358,19 @@ export default {
       //     })
       //   }
       // }
+    },
+    retrieveNotification(){
+      const {user} = AUTH
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`/orders/count?Status=10&CustomerId=${user.userID}`, response => {
+        this.navs[0].count = response.count
+      })
+      this.APIGetRequest(`/orders/count?Status=25&Status=20&CustomerId=${user.userID}`, response => {
+        this.navs[1].count = response.count
+      })
+      this.APIGetRequest(`/orders/count?Status=30&CustomerId=${user.userID}`, response => {
+        this.navs[2].count = response.count
+      })
     },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
@@ -520,27 +534,28 @@ export default {
       }
     },
     acceptOrder(data) {
-      let temp = this.data[this.focusIndex]
-      let temp2 = this.data
-      let temp3 = {}
-      temp = temp.filter(el => {
-        if(el.id === data.id && data.process === 'accepted') {
-          console.log(el)
-          temp3 = el
-        }else if(el.id === data.id && data.process === 'complete'){
-          temp3 = el
-        }
-        return el.id !== data.id
-      })
-      temp2[1].push(temp3)
-      temp2[this.focusIndex] = temp
-      this.data = temp2
-      if(this.selectedDataIndex - 1 >= 0) {
-        this.selectedDataIndex -= 1
-      }else {
-        this.selectedDataIndex += 1
-        this.selectedDataIndex -= 1
-      }
+      // let temp = this.data[this.focusIndex]
+      // let temp2 = this.data
+      // let temp3 = {}
+      // temp = temp.filter(el => {
+      //   if(el.id === data.id && data.process === 'accepted') {
+      //     console.log(el)
+      //     temp3 = el
+      //   }else if(el.id === data.id && data.process === 'complete'){
+      //     temp3 = el
+      //   }
+      //   return el.id !== data.id
+      // })
+      // temp2[1].push(temp3)
+      // temp2[this.focusIndex] = temp
+      // this.data = temp2
+      // if(this.selectedDataIndex - 1 >= 0) {
+      //   this.selectedDataIndex -= 1
+      // }else {
+      //   this.selectedDataIndex += 1
+      //   this.selectedDataIndex -= 1
+      // }
+      this.retrieveOrdersByStatus([20, 25], null)
       this.selectData(this.selectedDataIndex, 0)
     }
   }
