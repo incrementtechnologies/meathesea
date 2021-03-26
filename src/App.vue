@@ -2,7 +2,8 @@
   <div id="app">
     <div v-bind:style="(globalVariables.showModal) ? 'overflow-y:hidden; height:'+deviceHeight+'px!important': ''">
       <div v-if="tokenData.token !== null && parseInt(user.userID) > 0 && tokenData.loading === false">
-       <custom-header></custom-header>
+       <!-- <custom-header></custom-header> -->
+       <CustomHeader/>
        <!-- <system-header></system-header> -->
        <custom-sidebar></custom-sidebar>
        <!-- <system-sidebar></system-sidebar> -->
@@ -184,6 +185,7 @@ td i:hover{
 import ROUTER from './router'
 import AUTH from './services/auth'
 import global from './helpers/global'
+import CustomHeader from 'modules/frame/Header2.vue'
 export default {
   name: 'app',
   mounted(){
@@ -231,8 +233,9 @@ export default {
     'tutorial': () => import('components/increment/generic/tutorial/Tutorial.vue'),
     'error-modal': () => import('components/increment/generic/modal/Error.vue'),
     'lazy-loading': () => import('components/increment/generic/lazy/loading.vue'),
-    'custom-header': () => import('modules/frame/Header2.vue'),
-    'custom-sidebar': () => import('modules/frame/Sidebar.vue')
+    // 'custom-header': () => import('modules/frame/Header2.vue'),
+    'custom-sidebar': () => import('modules/frame/Sidebar.vue'),
+    CustomHeader
   }
 }
 </script>
