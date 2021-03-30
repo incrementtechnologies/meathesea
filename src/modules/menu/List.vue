@@ -9,7 +9,7 @@
 			<CategoryList :type="'menu'" :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data " @onSave="save($event)" :bundle="bundled"/>
+        <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -100,11 +100,37 @@ export default {
         }
       })
     },
-    save(id) {
-      $('#loading').css({'display': 'block'})
-      this.APIPutRequest(`/products/${id}`, response => {
-        $('#loading').css({'display': 'none'})
-        console.log(response)
+    update(product){
+      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null){
+        $('#loading').css({'display': 'block'})
+        let Prod = {
+          product: {
+            Id: product.id,
+            name: product.name,
+            full_description: product.full_description,
+            price: product.price,
+            old_price: product.old_price,
+            images: [
+              {
+                src: 'https://portal.meatthesea.com/product-images/' + this.images,
+                attachment: null,
+                position: 1
+              }
+            ]
+          }
+        }
+        this.APIPutRequest(`products/${product.id}`,
+        Prod
+        , response => {
+          $('#loading').css({'display': 'none'})
+        })
+      }
+    }
+    // save(id) {
+    //   $('#loading').css({'display': 'block'})
+    //   this.APIPutRequest(`products/${id.id}`, response => {
+    //     $('#loading').css({'display': 'none'})
+    //     console.log(response)
         // if(response.products.length > 0) {
         //   this.data = response.products[0]
         //   // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
@@ -112,8 +138,8 @@ export default {
         // } else {
         //   this.data = null
         // }
-      })
-    }
+    //   })
+    // }
   }
 }
 </script>
