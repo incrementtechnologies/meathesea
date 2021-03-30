@@ -154,7 +154,14 @@ export default {
             name: product.name,
             full_description: product.full_description,
             price: product.price,
-            old_price: product.old_price
+            old_price: product.old_price,
+            images: [
+              {
+                src: 'https://portal.meatthesea.com/product-images/' + this.images,
+                attachment: null,
+                position: 1
+              }
+            ]
           }
         }
         this.APIPutRequest(`products/${product.id}`,
