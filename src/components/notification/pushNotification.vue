@@ -50,8 +50,7 @@ export default {
                 console.log('token ', token)
                 this.$emit('update-token', token)
                 
-                  let topic = 'MeatTheSea-' + USER.user.userID
-
+                  let topic = 'MeatTheSea'
 
                   fetch('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/' + topic, {
                     method: 'POST',
@@ -79,13 +78,15 @@ export default {
 
       firebase.messaging.onMessage((payload) => {
         console.log('notification ', payload)
-        switch(payload.data.topic.toLowerCase()) {
-          case 'acceptorder':
-            USER.setNotificationOrders(payload)
-            break
-          case 'crockery':
-            USER.setNotificationCrockery(payload)
-            break
+        if(payload.data.topic !== null && payload.data.topic !== undefined){
+          switch(payload.data.topic.toLowerCase()) {
+            case 'acceptorder':
+              USER.setNotificationOrders(payload)
+              break
+            case 'crockery':
+              USER.setNotificationCrockery(payload)
+              break
+          }
         }
         this.$emit('new-message', payload)
       })
