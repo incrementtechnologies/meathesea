@@ -1,6 +1,7 @@
 <template>
 <div>
-  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null" @click="$emit('showAddForm', true), isEdit = true, add = true"><b>add new</b></button>
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
+    <b>add new</b></button>
   <div>
     <br><br>
   </div>
