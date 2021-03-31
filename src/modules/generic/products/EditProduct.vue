@@ -88,36 +88,34 @@
         <div v-if="data" class="row" style="margin-left: 0% !important;width: 100%">
           <p class="name" style="margin-left: 0%; margin-top: 3%; width: 100%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
-            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc == null) ? true : false">
+            <input @click="isShow = true" type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc == null) ? true : false">
             All Day
           </label>
           <label style="width:40%" class="radio">
-            <input  type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
+            <input @click="isShow = false" type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
             Set Time
           </label>
-          <div v-if="data.available_start_date_time_utc != null || data.available_end_date_time_utc != null" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
-            <label for="appt-time"><b>From: </b></label>
-            <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
-            <label for="appt-time"><b>Until: </b></label>
-            <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
-            </div>
+          <div v-if="!isShow" style="margin-left:30%">
+            <vue-timepicker  v-model="data.available_start_date_time_utc"></vue-timepicker>
+            <span> - </span>
+            <vue-timepicker v-model="data.available_end_date_time_utc"></vue-timepicker>
+          </div>     
         </div>
         <div v-else class="row" style="margin-left: 0% !important;width: 100%">
           <p class="name" style="margin-left: 0%; margin-top: 3%;width: 100%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
-          <input type="radio" name="setTime" id="all" :checked="(available_start_date_time_utc == null || available_end_date_time_utc == null) ? true : false">
+          <input @click="show()" type="radio" name="setTime" id="all" :checked="all_day">
           All Day
           </label>
           <label style="width:40%" class="radio">
-          <input type="radio" name="setTime" id="all" :checked="(available_start_date_time_utc != null || available_end_date_time_utc != null) ? true : false">
+          <input @click="isShow = true, all_day = false" type="radio" name="setTime" id="all" :checked="(time_from != null || time_until != null) ? true : false">
           Set Time
           </label>
-          <div v-if="available_start_date_time_utc != null || available_end_date_time_utc != null" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
-            <label for="appt-time"><b>From: </b></label>
-            <input id="appt-time" type="time" v-model="available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
-            <label for="appt-time"><b>Until: </b></label>
-            <input id="appt-time" type="time" v-model="available_end_date_time_utc" name="appt-time" step="2">
-            </div>
+          <div v-show="isShow === true" style="margin-left:30%">
+            <vue-timepicker v-model="time_from" placeholder="from"></vue-timepicker>
+            <span> - </span>
+            <vue-timepicker v-model="time_until" placeholder="until"></vue-timepicker>
+          </div>
         </div>
         <div v-if="data" class="row" style="width:100%;margin-left:0 !important">
           <div class="column" style="width:100%;margin-left:0px !important">
@@ -142,19 +140,24 @@
           </div>
         </div>
       </div>
-        <div class="row" style="margin-left: 10%">
+        <div class="row" style="justify-content: center">
           <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click="onSave(data)">SAVE</button>
-          <button class="buttonCommon pull-right" style="height:50px;width:120px" @click="cancel()">DISCARD</button>
+          <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
         </div>
   </div>
 </template>
 <script>
 import AUTH from 'src/services/auth'
 import VueTagsInput from '@johmun/vue-tags-input'
+import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 export default {
   props: ['bundle', 'data', 'category1', 'category2', 'categoryId'],
   data(){
     return {
+      all_day: false,
+      time_from: null,
+      time_until: null,
+      isShow: false,
       images: null,
       setTime: null,
       name: null,
@@ -185,24 +188,25 @@ export default {
     }
   },
   components: {
-    VueTagsInput
+    VueTagsInput,
+    VueTimepicker
   },
   mounted(){
-    // if(this.category1 !== null){
-    //   this.category1.forEach(element => {
-    //     element['text'] = element.name
-    //     this.autocompleteCategory.push(element)
-    //     this.CategoryTags.push(element)
-    //     console.log('category', this.CategoryTags)
-    //   })
-    // }
-    // if(this.category2 !== null){
-    //   this.category2.forEach(element => {
-    //     element['text'] = element.name
-    //     this.autocompleteItems.push(element)
-    //     this.CategoriesTags.push(element)
-    //   })
-    // }
+    if(this.category1 !== null){
+      this.category1.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteCategory.push(element)
+        this.CategoryTags.push(element)
+        console.log('category', this.CategoryTags)
+      })
+    }
+    if(this.category2 !== null){
+      this.category2.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteItems.push(element)
+        this.CategoriesTags.push(element)
+      })
+    }
   },
   computed: {
     filteredCategory() {
@@ -217,25 +221,36 @@ export default {
     }
   },
   methods: {
+    show() {
+      this.all_day = true
+      this.isShow = false
+    },
     addProduct() {
+      console.log(this.all_day, 'kjhjk')
       const { user } = AUTH
-      console.log(this.categoryId, 'tjasdijahidaisfd')
-      let parameter = {
-        category_id: this.categoryId,
-        store_ids: [user.userID],
-        name: this.name,
-        full_description: this.full_description,
-        price: this.price,
-        old_price: this.old_price,
-        available_start_date_time_utc: this.available_start_date_time_utc,
-        available_end_date_time_utc: this.available_end_date_time_utc,
-        images: [
-          {
-            src: 'https://portal.meatthesea.com/product-images/' + this.images,
-            attachment: null,
-            position: 1
-          }
-        ]
+      let parameter = null
+      if(this.all_day === true){
+        parameter = {
+          category_id: this.categoryId,
+          store_ids: [user.userID],
+          name: this.name,
+          full_description: this.full_description,
+          price: this.price,
+          old_price: this.old_price,
+          available_start_date_time_utc: '',
+          available_end_date_time_utc: ''
+        }
+      }else{
+        parameter = {
+          category_id: this.categoryId,
+          store_ids: [user.userID],
+          name: this.name,
+          full_description: this.full_description,
+          price: this.price,
+          old_price: this.old_price,
+          available_start_date_time_utc: this.time_from.HH + ':' + this.time_from.mm,
+          available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm
+        }
       }
       console.log(parameter)
       $('#loading').css({'display': 'block'})
@@ -255,8 +270,10 @@ export default {
       this.$parent.isEdit = false
     },
     onSave(data){
-      console.log('[data onsave]', data)
       if(data) {
+        console.log('[data onsave]', data)
+        data.available_end_date_time_utc = this.time_until.HH + ':' + this.time_until.mm
+        data.available_start_date_time_utc = this.time_from.HH + ':' + this.time_from.mm
         this.$emit('onSave', data)
       } else {
         this.addProduct()
