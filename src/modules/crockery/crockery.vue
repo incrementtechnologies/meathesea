@@ -184,7 +184,7 @@ export default {
       widerView: false,
       orders: [],
       cardRedered: true,
-      searchValue: '2'
+      searchValue: ''
     }
   },
   mounted() {},
