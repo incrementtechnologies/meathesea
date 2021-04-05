@@ -270,15 +270,6 @@ export default {
         this.$parent.isEdit = false
       })
     },
-    onFileChange(event){
-      console.log('[events]', event)
-      this.formField.picture = event.target.files[0]
-      console.log('[evenddddts]', this.formField.picture)
-    },
-    submit(){
-      let formData = new FormData()
-      formData.append('picture', this.formField.picture)
-    },
     remove(data){
       $('#loading').css({'display': 'block'})
       this.APIDeleteRequest(`products/${data.id}`, {}, response => {
