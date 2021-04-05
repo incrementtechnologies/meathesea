@@ -4,11 +4,22 @@
       <div class="column" style="position:relative;width: 30%;margin-left:0px !important">
         <div v-if="data">
           <i class="fas fa-arrow-alt-circle-left fa-3x" style="float:left !important;margin-left:0 !important;margin-top: 1%; color: #0064B1;" @click="back()"></i>
-          <img style="margin-left: 2%" :src="data !== null ? data.images.length > 0 && data.images[0].src : ''" width="100px" height="98px">
+          <img style="margin-left: 2%" v-if="data.images.length > 0" :src="data.images.length > 0 ? data.images.length > 0 && data.images[0].src : '#'" width="100px" height="98px">
+          <div v-else-if="encodedImage">
+            <img :src='encodedImage' style="margin-left: 2%" width="100px" height="98px"> 
+          </div>
+          <div v-else>
+            <i style="color:gray;margin-left: 2%" class="far fa-image fa-10x"></i>
+          </div>
         </div>
         <div v-else>
-          <i class="fas fa-arrow-alt-circle-left fa-3x" style="float:left !important;margin-left:0 !important;margin-top: 1%; color: #0064B1;"   @click="back()"></i>
-          <i style="color:gray;margin-left: 2%" class="far fa-image fa-10x"></i>
+          <i class="fas fa-arrow-alt-circle-left fa-3x" style="float:left !important;margin-left:0 !important;margin-top: 1%; color: #0064B1;" @click="back()"></i>
+          <div v-if="encodedImage">
+            <img :src='encodedImage' style="margin-left: 2%" width="100px" height="98px"> 
+          </div>
+          <div v-else>
+            <i style="color:gray;margin-left: 2%" class="far fa-image fa-10x"></i>
+          </div>
         </div>
       </div>
       <div class="column" style="width:70%; position:relative;margin-left:0px !important">
@@ -141,7 +152,7 @@
         </div>
       </div>
         <div class="row" style="justify-content: center">
-          <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click="onSave(data)">SAVE</button>
+          <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
           <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
         </div>
   </div>
@@ -149,11 +160,13 @@
 <script>
 import AUTH from 'src/services/auth'
 import VueTagsInput from '@johmun/vue-tags-input'
+import axios from 'axios'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 export default {
   props: ['bundle', 'data', 'category1', 'category2', 'categoryId'],
   data(){
     return {
+      encodedImage: null,
       all_day: false,
       time_from: null,
       time_until: null,
@@ -192,21 +205,21 @@ export default {
     VueTimepicker
   },
   mounted(){
-    if(this.category1 !== null){
-      this.category1.forEach(element => {
-        element['text'] = element.name
-        this.autocompleteCategory.push(element)
-        this.CategoryTags.push(element)
-        console.log('category', this.CategoryTags)
-      })
-    }
-    if(this.category2 !== null){
-      this.category2.forEach(element => {
-        element['text'] = element.name
-        this.autocompleteItems.push(element)
-        this.CategoriesTags.push(element)
-      })
-    }
+    // if(this.category1 !== null){
+    //   this.category1.forEach(element => {
+    //     element['text'] = element.name
+    //     this.autocompleteCategory.push(element)
+    //     this.CategoryTags.push(element)
+    //     console.log('category', this.CategoryTags)
+    //   })
+    // }
+    // if(this.category2 !== null){
+    //   this.category2.forEach(element => {
+    //     element['text'] = element.name
+    //     this.autocompleteItems.push(element)
+    //     this.CategoriesTags.push(element)
+    //   })
+    // }
   },
   computed: {
     filteredCategory() {
@@ -253,13 +266,41 @@ export default {
         }
       }
       console.log(parameter)
-      $('#loading').css({'display': 'block'})
-      this.APIPostRequest(`products`, {product: parameter}, response => {
+      if(this.images !== null){
+        let formData = new FormData()
+        formData.append('photo', this.images)
+        $('#loading').css({'display': 'block'})
+        axios.post(`https://mtsbackenddev.azurewebsites.net/api/upload_photo`, formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('usertoken')}`
+            }
+          }
+        ).then(response => {
+          parameter['images'] = [
+            {
+              src: response.data,
+              // attachment: null,
+              position: 0
+            }
+          ]
+          this.APIPostRequest(`products`, {product: parameter}, res => {
+            console.log(res)
+            this.$parent.add = false
+            this.$parent.isEdit = false
+          })
+          $('#loading').css({'display': 'none'})
+          console.log('images', this.images)
+        })
+      }else{
+        this.APIPostRequest(`products`, {product: parameter}, res => {
+          console.log(res)
+          this.$parent.add = false
+          this.$parent.isEdit = false
+        })
         $('#loading').css({'display': 'none'})
-        console.log(this.$parent)
-        this.$parent.add = false
-        this.$parent.isEdit = false
-      })
+        console.log('images', this.images)
+      }
     },
     back() {
       this.$parent.isEdit = false
@@ -271,9 +312,7 @@ export default {
     },
     onSave(data){
       if(data) {
-        console.log('[data onsave]', data)
-        data.available_end_date_time_utc = this.time_until.HH + ':' + this.time_until.mm
-        data.available_start_date_time_utc = this.time_from.HH + ':' + this.time_from.mm
+        data['uploaded_image'] = this.images
         this.$emit('onSave', data)
       } else {
         this.addProduct()
@@ -284,8 +323,15 @@ export default {
     },
     selectFile(event){
       // console.log(event.target.files[0].name)
-      this.images = event.target.files[0].name
+      this.images = event.target.files[0]
+      let image = event.target.files[0].name
+      // this.encodedImage = btoa(image);
       console.log(this.images)
+      const reader = new FileReader()
+      reader.onloadend = (e) => {
+        this.encodedImage = e.target.result
+      }
+      reader.readAsDataURL(event.target.files[0])
     }
   }
 }

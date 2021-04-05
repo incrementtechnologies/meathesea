@@ -102,24 +102,81 @@ export default {
       })
     },
     update(product){
-      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
+      console.log('[here in list.menu]')
+      let Prod = null
+      if(product.length != null){
+        console.log(product)
         $('#loading').css({'display': 'block'})
-        let Prod = {
-          product: {
-            Id: product.id,
-            name: product.name,
-            full_description: product.full_description,
-            price: product.price,
-            old_price: product.old_price,
-            available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
-            available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+        if(product.available_start_date_time_utc != null && product.available_end_date_time_utc != null){
+          Prod = {
+            product: {
+              Id: product.id,
+              name: product.name,
+              full_description: product.full_description,
+              price: product.price,
+              old_price: product.old_price,
+              available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
+              available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+            }
           }
+          console.log('true')
+        }else{
+          Prod = {
+            product: {
+              Id: product.id,
+              name: product.name,
+              full_description: product.full_description,
+              price: product.price,
+              old_price: product.old_price,
+              available_start_date_time_utc: null,
+              available_end_date_time_utc: null
+            }
+          }
+          console.log('false')
+          console.log(product.available_start_date_time_utc)
         }
-        this.APIPutRequest(`products/${product.id}`,
-        Prod
-        , response => {
-          $('#loading').css({'display': 'none'})
-        })
+        if(product.uploaded_image !== null && product.uploaded_image !== undefined){
+          console.log('test')
+          let formData = new FormData()
+          formData.append('photo', product.uploaded_image)
+          $('#loading').css({'display': 'block'})
+          axios.post(`https://mtsbackenddev.azurewebsites.net/api/upload_photo`, formData,
+            {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('usertoken')}`
+              }
+            }
+          ).then(response => {
+            Prod['product']['images'] = [
+              {
+                src: response.data,
+                // attachment: null,
+                position: 0
+              }
+            ]
+            $('#loading').css({'display': 'block'})
+            this.APIPutRequest(`products/${product.id}`,
+            Prod
+            , response => {
+              console.log('[response]', response)
+            })
+            $('#loading').css({'display': 'none'})
+            console.log('images', this.images)
+          })
+        }else{
+          $('#loading').css({'display': 'block'})
+          this.APIPutRequest(`products/${product.id}`,
+          Prod
+          , response => {
+            console.log('[response]', response)
+            // let formData = new FormData()
+            // formData.append('photo', this.images)
+            // this.APIPostRequest(`upload_photo`, formData, response => {
+            //   console.log('images', this.images)
+            // })
+            $('#loading').css({'display': 'none'})
+          })
+        }
       }
     }
     // save(id) {
