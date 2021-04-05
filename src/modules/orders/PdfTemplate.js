@@ -139,7 +139,7 @@ export default {
                 },
                 {
                   text: ' ',
-                  margin: [0, 0, 97, 0],
+                  margin: [0, 0, 84, 0],
                   border: [false, false, false, true]
                 },
                 {

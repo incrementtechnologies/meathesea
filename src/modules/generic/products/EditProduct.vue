@@ -72,21 +72,21 @@
         <div v-if="data">
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
-            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc == null) ? true : false">
+            <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc == null || data.available_end_date_time_utc == null) ? true : false">
             All Day
           </label>
           <label style="width:40%" class="radio">
             <input type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
             Set Time
           </label>
-          <div v-if="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) === true ? showSetTime === true : showSetTime === false" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
+          <div v-if="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? showSetTime === true : showSetTime === false" class="pull-right" style="padding-right: 5%; margin-top: 1%;">
             <label for="appt-time"><b>From: </b></label>
             <input id="appt-time" type="time" v-model="data.available_start_date_time_utc" name="appt-time" step="2">&nbsp;-
             <label for="appt-time"><b>Until: </b></label>
             <input id="appt-time" type="time" v-model="data.available_end_date_time_utc" name="appt-time" step="2">
             </div>
           </div>
-          <div v-else>
+          <!-- <div v-else>
         <p class="name" style="margin-left: 0%; margin-top: 3%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
             <input type="radio" name="setTime" id="all" :checked="(available_start_date_time_utc == null || available_end_date_time_utc == null) ? true : false">
@@ -102,7 +102,7 @@
             <label for="appt-time"><b>Until: </b></label>
             <input id="appt-time" type="time" v-model="available_end_date_time_utc" name="appt-time" step="2">
             </div>
-          </div>
+          </div> -->
         <p class="name" style="margin-left: 0%; margin-top: 5%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
         <input type="radio" value="loc" v-model="setLocation" class="in">
         <label for="loc" class="on">88 Queens Road W</label>
