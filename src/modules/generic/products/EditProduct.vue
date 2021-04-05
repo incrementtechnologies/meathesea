@@ -192,9 +192,6 @@ export default {
       }, {
         classes: 'no-braces',
         rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
-      }],
-      formField: [{
-        picture: null
       }]
     }
   },
