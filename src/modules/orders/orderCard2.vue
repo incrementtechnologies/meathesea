@@ -175,7 +175,7 @@
                       <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'" disbled></i>
                       <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                     </div>
-                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="updateOrderStatus(data.id, el.stats)">
+                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="el.disabled === true ? '' : updateOrderStatus(data.id, el.stats, data.order_status)" :class="el.disabled === false ? 'switchAllowed' : 'switchNotAllowed'">
                       <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
                       <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
                     </div>
@@ -273,10 +273,9 @@ export default {
   mounted(){
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
+    console.log('[DATA]', this.data)
     this.getImage()
     if(!_.isEmpty(this.data)){
-      console.log(this.data)
-      console.log(this.data.order_status.toLowerCase())
       if(this.data.order_status.toLowerCase() === 'processing'){
         this.progressButtons[0].status = 'yes'
         this.progressButtons[1].status = 'no'
@@ -374,30 +373,21 @@ export default {
         console.log('Accepting order error: ', error)
       })
     },
-    updateOrderStatus(id, status){
+    updateOrderStatus(id, status, currStatus){
       let tempStatus = null
-      if(status === 'processing'){
-        if(this.progressButtons[0].status === 'yes'){
-          tempStatus = 10
-        }else {
-          tempStatus = 20
-        }
-      }else if(status === 'delivery'){
-        console.log(status)
-        if(this.progressButtons[1].status === 'yes'){
-          tempStatus = 15
-        }else {
-          console.log('noo')
-          this.progressButtons[0].status = 'no'
-          this.progressButtons[1].status = 'yes'
-          tempStatus = 25
-        }
+      if(currStatus.toLowerCase() === 'processing' && status === 'complete'){
+        this.progressButtons[2].disabled = true
+        return
+      }
+      if(status === 'delivery'){
+        this.progressButtons[1].status = 'yes'
+        tempStatus = 25
       }else if(status === 'complete'){
         tempStatus = 30
       }else{
         tempStatus = 40
       }
-      console.log(status)
+      console.log('status', status, currStatus)
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=${tempStatus}`, {}, response => {
         console.log('Accept order response: ', response)
@@ -434,7 +424,23 @@ export default {
     }
   },
   updated() {
-    console.log('data ', this.data)
+    console.log('[status]', this.data.order_status.toLowerCase())
+    if(!_.isEmpty(this.data)){
+      if(this.data.order_status.toLowerCase() === 'processing'){
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'no'
+        this.progressButtons[2].status = 'no'
+      }else if(this.data.order_status.toLowerCase() === 'delivering'){
+        this.progressButtons[0].disabled = true
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'yes'
+        this.progressButtons[2].status = 'no'
+      }else{
+        this.progressButtons[0].status = 'yes'
+        this.progressButtons[1].status = 'yes'
+        this.progressButtons[2].status = 'yes'
+      }
+    }
   }
 }
 </script>

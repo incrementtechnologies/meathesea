@@ -1,6 +1,7 @@
 <template>
 <div>
-  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null" @click="$emit('showAddForm', true), isEdit = true, add = true"><b>add new</b></button>
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
+    <b>add new</b></button>
   <div>
     <br><br>
   </div>
@@ -9,7 +10,7 @@
 			<CategoryList :type="'menu'" :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data " @onSave="save($event)" :bundle="bundled"/>
+        <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -100,11 +101,32 @@ export default {
         }
       })
     },
-    save(id) {
-      $('#loading').css({'display': 'block'})
-      this.APIPutRequest(`/products/${id}`, response => {
-        $('#loading').css({'display': 'none'})
-        console.log(response)
+    update(product){
+      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
+        $('#loading').css({'display': 'block'})
+        let Prod = {
+          product: {
+            Id: product.id,
+            name: product.name,
+            full_description: product.full_description,
+            price: product.price,
+            old_price: product.old_price,
+            available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
+            available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+          }
+        }
+        this.APIPutRequest(`products/${product.id}`,
+        Prod
+        , response => {
+          $('#loading').css({'display': 'none'})
+        })
+      }
+    }
+    // save(id) {
+    //   $('#loading').css({'display': 'block'})
+    //   this.APIPutRequest(`products/${id.id}`, response => {
+    //     $('#loading').css({'display': 'none'})
+    //     console.log(response)
         // if(response.products.length > 0) {
         //   this.data = response.products[0]
         //   // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
@@ -112,8 +134,8 @@ export default {
         // } else {
         //   this.data = null
         // }
-      })
-    }
+    //   })
+    // }
   }
 }
 </script>

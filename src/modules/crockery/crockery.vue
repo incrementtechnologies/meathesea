@@ -79,7 +79,7 @@
             </div>
           </div>
           <div class="card-body p-0 initialHeight tableArea">
-            <card1 :data="(data[returnFocusIndex][returnSelectedIndex] !== undefined) ? data[returnFocusIndex][returnSelectedIndex] : {}" v-if="componentType === 'card' && returnCardRender"/>
+            <card1 :data="(this.searchValue !== '') ? [] :(data[returnFocusIndex][returnSelectedIndex] !== undefined) ? data[returnFocusIndex][returnSelectedIndex] : {}" v-if="componentType === 'card' && returnCardRender"/>
             <!-- <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card' && $route.path === '/orders'"/> -->
             <div 
               v-else-if="componentType === 'table'"
@@ -184,7 +184,7 @@ export default {
       widerView: false,
       orders: [],
       cardRedered: true,
-      searchValue: '2'
+      searchValue: ''
     }
   },
   mounted() {},
@@ -266,6 +266,7 @@ export default {
             })
             el['order_details'] = orderDetails1[0]
             this.data[0].push(el)
+            console.log(this.data[0])
           }else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
             let orderDetails2 = this.orders.filter(t => {
               return t.id === el.order_id
@@ -308,6 +309,15 @@ export default {
         response.crockery.forEach((el, ndx) => {
           if(el.id === val){
             console.log('customer_id:', el)
+            this.data[0].push(el.id)
+          }
+          if(el.id === val) {
+            let orderDetails1 = this.orders.filter(t => {
+              return t.id === el.order_id
+            })
+            el['order_details'] = orderDetails1[0]
+            this.data[0].push(el)
+            console.log(this.data[0])
           }
         })
       })

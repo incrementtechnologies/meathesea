@@ -145,7 +145,7 @@ export default {
       })
     },
     update(product){
-      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null){
+      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
         $('#loading').css({'display': 'block'})
         let Prod = {
           product: {
@@ -153,7 +153,9 @@ export default {
             name: product.name,
             full_description: product.full_description,
             price: product.price,
-            old_price: product.old_price
+            old_price: product.old_price,
+            available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
+            available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
           }
         }
         this.APIPutRequest(`products/${product.id}`,
