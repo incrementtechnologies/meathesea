@@ -311,7 +311,7 @@ export default {
       this.data = []
       // if(!this.widerView){
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&CustomerId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
         console.log('[RESPONSE]', response)
         this.data = response.orders
@@ -366,13 +366,13 @@ export default {
     retrieveNotification(){
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/count?Status=10&CustomerId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.userID}`, response => {
         this.navs[0].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=25&Status=20&CustomerId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.userID}`, response => {
         this.navs[1].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=30&CustomerId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.userID}`, response => {
         this.navs[2].count = response.count
       })
     },
@@ -393,7 +393,7 @@ export default {
       console.log('TEsting', ndx)
       this.reRender = false
       this.focusIndex = ndx
-      console.log('[INDEX]', ndx)
+      // console.log('[INDEX]', ndx)
       let status = null
       if(ndx === 0){
         this.currentIndex = 0
@@ -414,10 +414,10 @@ export default {
       this.restaurant = []
       this.data = []
       this.deliStore = []
-      console.log('[NDX]', ndx)
+      // console.log('[NDX]', ndx)
       if(Array.isArray(status)){
         $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status[0]}&Status=${status[1]}&CustomerId=${user.userID}`, response => {
+        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status[0]}&Status=${status[1]}&StoreId=${user.userID}`, response => {
           $('#loading').css({'display': 'none'})
           this.allOrders = ndx === 1 ? response.orders : []
           this.reRenderTable = true
@@ -436,7 +436,7 @@ export default {
         })
       }else{
         $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status}&CustomerId=${user.userID}`, response => {
+        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status}&StoreId=${user.userID}`, response => {
           $('#loading').css({'display': 'none'})
           this.allOrders = ndx === 1 ? response.orders : []
           this.reRenderTable = true
@@ -456,7 +456,7 @@ export default {
       }
     },
     selectData(ndx, popId) {
-      console.log('INDEX: ', this.data[ndx].id)
+      // console.log('INDEX: ', this.data[ndx].id)
       this.selectedDataIndex = ndx
       this.reRender = false
       this.restaurant = []
