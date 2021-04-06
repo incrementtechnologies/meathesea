@@ -239,7 +239,7 @@ export default {
       this.isShow = false
     },
     addProduct() {
-      console.log(this.all_day, 'kjhjk')
+      // console.log(this.all_day, 'kjhjk')
       const { user } = AUTH
       let parameter = null
       if(this.all_day === true){
