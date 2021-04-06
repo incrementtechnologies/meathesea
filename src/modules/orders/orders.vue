@@ -124,9 +124,9 @@
 import card1 from '../crockery/orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
-import dummy from './data.js'
 import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
+import property from './property'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
 export default {
   components: {
@@ -136,85 +136,9 @@ export default {
   },
   data() {
     return {
-      tableHeaders: [
-        {text: 'Order date/time', key: 'created_on_utc'},
-        {text: 'Order number', key: 'id'},
-        {text: 'Order Status', key: 'order_status'},
-        {text: 'Plate returned', key: 'returned'}
-      ],
-      navs: [
-        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
-        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
-        {name: 'DELIVERED', background: '#E1E1E1', color: '#878787', count: 0}
-      ],
-      headerElements: [
-        {
-          text: 'TODAY',
-          style: 'border: 1px solid #0064B1; color: #0064B1;',
-          type: 'button',
-          componentTocall: 'card',
-          focusedBackground: '#FFFACA',
-          focusedColor: '#0064B1',
-          unfocusedColor: '#000000',
-          wholeView: false,
-          shorterView: true,
-          column: '20%',
-          changeDate: false
-        },
-        {
-          text: 'THIS WEEK',
-          style: 'border: 1px solid #0064B1; color: #000000;',
-          type: 'button',
-          componentTocall: 'table',
-          focusedBackground: '#FFFACA',
-          focusedColor: '#0064B1',
-          unfocusedColor: '#000000',
-          wholeView: false,
-          shorterView: true,
-          column: '20%',
-          changeDate: true
-        },
-        {
-          text: 'SEE REJECTED',
-          style: 'border: 1px solid #BE0000; color: #BE0000;',
-          type: 'button',
-          componentTocall: 'table',
-          focusedBackground: '#BE0000',
-          focusedColor: '#FFFFFF',
-          unfocusedColor: '#BE0000',
-          wholeView: true,
-          shorterView: false,
-          column: '20%',
-          wholeViewColumn: '25%',
-          changeDate: false
-        },
-        {
-          text: 'ALL ORDERS',
-          style: 'border: 1px solid #0064B1; color: #0064B1;',
-          type: 'button',
-          componentTocall: 'table',
-          focusedBackground: '#FFFACA',
-          focusedColor: '#0064B1',
-          unfocusedColor: '#000000',
-          wholeView: true,
-          shorterView: true,
-          column: '20%',
-          wholeViewColumn: '25%',
-          changeDate: false
-        },
-        {
-          text: 'Search',
-          style: 'border: 1px solid #707070; background-color: #FFFFFF; color: #000000;',
-          type: 'input',
-          componentTocall: 'table',
-          wholeView: true,
-          shorterView: true,
-          column: '40%',
-          focusedBackground: '#0064B1',
-          wholeViewColumn: '42%',
-          changeDate: false
-        }
-      ],
+      tableHeaders: property.tableHeaders,
+      navs: property.navs,
+      headerElements: property.headerElements,
       data: [[], [], []],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
@@ -390,7 +314,7 @@ export default {
       }
     },
     change(ndx) {
-      console.log('TEsting', ndx)
+      console.log('TEsting', ndx, ' :: ', this.currentIndex)
       this.reRender = false
       this.focusIndex = ndx
       // console.log('[INDEX]', ndx)
@@ -404,6 +328,7 @@ export default {
         status = 30
         this.retrieveOrdersByStatus(status, 0)
       }else{
+        console.log('supposed to be processing')
         this.currentIndex = 2
         status = [20, 25]
         this.retrieveOrdersByStatus(status, 0)
@@ -417,7 +342,11 @@ export default {
       // console.log('[NDX]', ndx)
       if(Array.isArray(status)){
         $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status[0]}&Status=${status[1]}&StoreId=${user.userID}`, response => {
+        let query = `orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`
+        status.forEach((el, ndx) => {
+          query += `&Status=${status[ndx]}`
+        })
+        this.APIGetRequest(query, response => {
           $('#loading').css({'display': 'none'})
           this.allOrders = ndx === 1 ? response.orders : []
           this.reRenderTable = true
@@ -456,7 +385,6 @@ export default {
       }
     },
     selectData(ndx, popId) {
-      // console.log('INDEX: ', this.data[ndx].id)
       this.selectedDataIndex = ndx
       this.reRender = false
       this.restaurant = []
@@ -516,11 +444,12 @@ export default {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        // this.createdAtMin = firstDay.toISOString()
-        // this.createdAtMax = lastDay.toISOString()
+        this.createdAtMin = firstDay.toISOString()
+        this.createdAtMax = lastDay.toISOString()
+        console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
         this.retrieveOrdersByStatus([20, 25], 1)
-        this.createdAtMin = ''
-        this.createdAtMax = ''
+        // this.createdAtMin = ''
+        // this.createdAtMax = ''
       }else{
         console.log('NDX', ndx)
         this.createdAtMin = ''
@@ -532,7 +461,7 @@ export default {
       }else if(ndx === 2){
         this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
       }else if(ndx === 3){
-        this.retrieveOrdersByStatus([70], 1)
+        this.retrieveOrdersByStatus([70, 60, 50], 1)
       }else {
         this.retrieveOrders()
       }
