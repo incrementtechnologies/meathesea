@@ -144,27 +144,30 @@ export default {
         }
       })
     },
-    update(product){
-      if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
-        $('#loading').css({'display': 'block'})
-        let Prod = {
-          product: {
-            Id: product.id,
-            name: product.name,
-            full_description: product.full_description,
-            price: product.price,
-            old_price: product.old_price,
-            available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
-            available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
-          }
-        }
-        this.APIPutRequest(`products/${product.id}`,
-        Prod
-        , response => {
-          $('#loading').css({'display': 'none'})
-        })
-      }
-    },
+    // update(product){
+    //   console.log('[here in list.products]')
+    //   if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
+    //     $('#loading').css({'display': 'block'})
+    //     let Prod = {
+    //       product: {
+    //         Id: product.id,
+    //         name: product.name,
+    //         full_description: product.full_description,
+    //         price: product.price,
+    //         old_price: product.old_price,
+    //         available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
+    //         available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+    //       }
+    //     }
+    //     this.APIPutRequest(`products/${product.id}`,
+    //     Prod
+    //     , response => {
+    //     // console.log('photo', this.images, 'response', response)
+    //       $('#loading').css({'display': 'none'})
+    //       console.log()
+    //     })
+    //   }
+    // },
     retrieveCategory1(){
       this.APIGetRequest(`get_addOnCategory_1`, response => {
         this.category1 = response.add_on_category
