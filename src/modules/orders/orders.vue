@@ -37,7 +37,11 @@
                     <div v-if="!returnHeaderElements[typeIndex].changeDate && !returnHeaderElements[typeIndex].changeDate">{{el.id}}</div>
                     <div>
                       {{
-                        returnDate(el)
+                        el.delivery_time_requested === 'ASAP'
+                        ?
+                          el.local_time_created
+                        :
+                          el.delivery_time_requested
                       }}
                     </div>
                   </div>

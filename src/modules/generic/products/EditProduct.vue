@@ -27,7 +27,7 @@
           <p style="float:left;margin-left:0 !important" class="name"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b></p>
         </div>
         <div>
-          <button class="pull-right buttons" style="margin-left:40px !important"><i style="color:black;margin-right: 2%" class="fas fa-trash"></i> Remove</button>
+          <button class="pull-right buttons" style="margin-left:40px !important" @click="del(data)"><i style="color:black;margin-right: 2%" class="fas fa-trash"></i> Remove</button>
         </div>
         <div style="margin-top:5%;margin-left:0px !important;positon:flex;">
           <button class="buttons" @click="chooseFile()" >Change picture</button>
@@ -151,15 +151,22 @@
           </div>
         </div>
       </div>
-        <div class="row" style="justify-content: center">
-          <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
-          <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
-        </div>
+      <div class="row" style="justify-content: center">
+        <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
+        <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
+      </div>
+      <Confirmation
+      ref="prod"
+      :title="'Confirmation Message'"
+      :message="'Are you sure you want to delete this product?'"
+      @onConfirm="remove(data)"
+      ></Confirmation>
   </div>
 </template>
 <script>
 import AUTH from 'src/services/auth'
 import VueTagsInput from '@johmun/vue-tags-input'
+import Confirmation from 'src/components/increment/generic/modal/Confirmation.vue'
 import axios from 'axios'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 export default {
@@ -186,6 +193,7 @@ export default {
       CategoryTags: [],
       CategoriesTags: [],
       autocompleteCategory: [],
+      showSetTime: false,
       autocompleteItems: [],
       validation: [{
         classes: 'no-numbers',
@@ -202,6 +210,7 @@ export default {
   },
   components: {
     VueTagsInput,
+    Confirmation,
     VueTimepicker
   },
   mounted(){
@@ -301,6 +310,16 @@ export default {
         $('#loading').css({'display': 'none'})
         console.log('images', this.images)
       }
+    },
+    remove(data){
+      $('#loading').css({'display': 'block'})
+      this.APIDeleteRequest(`products/${data.id}`, {}, response => {
+        $('#loading').css({'display': 'none'})
+        this.back()
+      })
+    },
+    del(id) {
+      this.$refs.prod.show(id)
     },
     back() {
       this.$parent.isEdit = false

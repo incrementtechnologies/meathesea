@@ -8,7 +8,7 @@
               <b>{{data.id}}</b>
             </div>
             <div class="col-sm-3 p-0 text-center divAsButton" :style="'color: #0064B1;'">
-              <b class='font-weight-normal'>DELIVERY TIME: {{data.delivery_time}}</b>
+              <b class='font-weight-normal'>DELIVERY TIME: {{data.delivery_time_requested === 'ASAP' ? data.local_time_created : data.delivery_time_requested}}</b>
             </div>
             <div class="col-sm-3 text-center divAsButton">
               <b v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
