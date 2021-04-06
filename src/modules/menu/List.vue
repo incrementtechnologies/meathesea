@@ -71,6 +71,7 @@ export default {
         if(response.categories.length > 0) {
           this.categories = response.categories
           if(this.firstRetrieve === true) {
+            console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
             this.firstRetrieve = false
           }
@@ -169,11 +170,6 @@ export default {
           Prod
           , response => {
             console.log('[response]', response)
-            // let formData = new FormData()
-            // formData.append('photo', this.images)
-            // this.APIPostRequest(`upload_photo`, formData, response => {
-            //   console.log('images', this.images)
-            // })
             $('#loading').css({'display': 'none'})
           })
         }

@@ -297,6 +297,14 @@ export default {
             console.log(res)
             this.$parent.add = false
             this.$parent.isEdit = false
+            $('#loading').css({'display': 'block'})
+            this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
+              $('#loading').css({'display': 'none'})
+              if(response.products.length > 0) {
+                console.log('test', this.$parent.product)
+                this.$parent.products = response.products
+              }
+            })
           })
           $('#loading').css({'display': 'none'})
           console.log('images', this.images)
@@ -306,16 +314,33 @@ export default {
           console.log(res)
           this.$parent.add = false
           this.$parent.isEdit = false
+          $('#loading').css({'display': 'block'})
+          this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
+            $('#loading').css({'display': 'none'})
+            if(response.products.length > 0) {
+              console.log('test', this.$parent.product)
+              this.$parent.products = response.products
+            }
+          })
         })
         $('#loading').css({'display': 'none'})
         console.log('images', this.images)
       }
     },
     remove(data){
+      console.log(data.category_id)
       $('#loading').css({'display': 'block'})
       this.APIDeleteRequest(`products/${data.id}`, {}, response => {
         $('#loading').css({'display': 'none'})
+        $('#loading').css({'display': 'block'})
         this.back()
+        this.APIGetRequest(`/products?CategoryId=${data.category_id}`, response => {
+          $('#loading').css({'display': 'none'})
+          if(response.products.length > 0) {
+            console.log('test', this.$parent.product)
+            this.$parent.products = response.products
+          }
+        })
       })
     },
     del(id) {
