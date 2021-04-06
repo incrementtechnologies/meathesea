@@ -14,7 +14,6 @@ export default {
     this.total = data.order_total
     this.currency = data.customer_currency_code
     this.purpose = data.order_status
-    this.deliveryTime = data.delivery_time
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
     data.order_items.forEach(element => {
@@ -23,6 +22,11 @@ export default {
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
+    if(data.delivery_time_requested === 'ASAP'){
+      this.deliveryTime = data.local_time_created
+    }else{
+      this.deliveryTime = data.delivery_time_requested
+    }
   },
   getImage(image) {
     this.imageLogo = image
@@ -97,7 +101,7 @@ export default {
     this.dataContainer.map(key => {
       retrieve.push([
         { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
-        { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
+        { text: key.quantity, fontSize: 10, margin: [65, 0, 0, 0], border: [false, false, false, false] },
         { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
@@ -139,7 +143,7 @@ export default {
                 },
                 {
                   text: ' ',
-                  margin: [0, 0, 97, 0],
+                  margin: [0, 0, 84, 0],
                   border: [false, false, false, true]
                 },
                 {
