@@ -1,13 +1,13 @@
 <template>
 <div>
-  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems'  && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
     <b>add new</b></button>
   <div>
     <br><br>
   </div>
 	<div class="contents">
 		<div class="clearfix">
-			<CategoryList :type="'menu'" :data="categories"/>
+			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
         <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
@@ -30,7 +30,7 @@ export default {
       data: null,
       detail: null,
       bundled: false,
-      categories: null,
+      categories: [],
       products: null,
       firstRetrieve: true,
       category: null,
@@ -70,6 +70,8 @@ export default {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
+          this.category = response.categories[0].id
+          console.log(response.categories[0].id, 'kkkl')
           if(this.firstRetrieve === true) {
             console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
