@@ -4,7 +4,7 @@
       <div class="column" style="position:relative;width: 30%;margin-left:0px !important">
         <div v-if="data">
           <i class="fas fa-arrow-alt-circle-left fa-3x" style="float:left !important;margin-left:0 !important;margin-top: 1%; color: #0064B1;" @click="back()"></i>
-          <img style="margin-left: 2%" v-if="data.images.length > 0" :src="data.images.length > 0 ? data.images.length > 0 && data.images[0].src : '#'" width="100px" height="98px">
+          <img style="margin-left: 2%" v-if="data.images.length > 0 && encodedImage === null" :src="data.images.length > 0 ? data.images.length > 0 && data.images[0].src : '#'" width="100px" height="98px">
           <div v-else-if="encodedImage">
             <img :src='encodedImage' style="margin-left: 2%" width="100px" height="98px"> 
           </div>

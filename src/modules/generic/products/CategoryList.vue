@@ -2,8 +2,9 @@
   <div>
     <div class="column menu" v-if="data">
       <ul>
-        <li class="list" v-for="(item, i) in data" :key="i" @click="retrieve(item.id, i)">{{item.name}}</li>
-        <li class="list" v-if="type === 'menu'" @click="retrieve(data[0].id, data.length), setActive(data.length)">Set Meals</li>
+        <li class="actives" @click="retrieveOne(data[0].id)">{{data[0].name}}</li>
+        <li class="list" v-for="(item, i) in data" :key="i" @click="retrieve(item.id, (i-1))" v-if="i !== 0">{{item.name}}</li>
+        <li class="list" v-if="type === 'menu'" @click="retrieve(data[0].id, data.length - 1), setActive(data.length - 1)">Set Meals</li>
       </ul>
     </div>
   </div>
@@ -39,6 +40,12 @@
 .active {
   background-color:  #ffe1a6;
 }
+.actives {
+  background-color:  #ffe1a6;
+}
+.activess {
+  background-color: #ffff;
+}
 .menu li {
   padding: 8px;
 	border: 1px solid #cccccc;
@@ -70,26 +77,55 @@ export default {
   components: {
     EditProduct
   },
+  mounted(){
+  },
   methods: {
+    classToggle() {
+      if($('.activess')[0]) {
+        document.getElementsByClassName('activess')[0].className = 'actives'
+        document.getElementsByClassName('activess').className = 'actives'
+        let active = document.getElementsByClassName('list')
+        for (var i = 0; i < active.length; i++) {
+          active[i].className = active[i].className.replace('active', '')
+        }
+      } else {
+        document.getElementsByClassName('actives')[0].className = 'actives'
+        let active = document.getElementsByClassName('list')
+        for (var j = 0; j < active.length; j++) {
+          active[j].className = active[j].className.replace('actives', '')
+        }
+      }
+    },
     setActive(id) {
       this.isEdit = false
       this.bundled = false
       let active = document.getElementsByClassName('list')
       for (var i = 0; i < active.length; i++) {
         active[i].className = active[i].className.replace('active', '')
+        console.log('test', active[0])
       }
       active[id].classList.add('active')
     },
     retrieve(id, i) {
+      console.log('[id]', id)
       this.$parent.category = id
       if(i === this.data.length) {
         this.$parent.bundled = true
       } else {
         this.$parent.bundled = false
       }
+      if($('.actives')[0]) {
+        document.getElementsByClassName('actives')[0].className = 'activess'
+      }
       this.setActive(i)
       this.$parent.retrieveProducts(id)
       this.$parent.isEdit = false
+    },
+    retrieveOne(id) {
+      this.$parent.category = id
+      this.$parent.retrieveProducts(id)
+      this.$parent.isEdit = false
+      this.classToggle()
     }
   }
 }

@@ -1,13 +1,13 @@
 <template>
 <div>
-  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems' && category !== null && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="$route.name === 'menuItems'  && add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
     <b>add new</b></button>
   <div>
     <br><br>
   </div>
 	<div class="contents">
 		<div class="clearfix">
-			<CategoryList :type="'menu'" :data="categories"/>
+			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
         <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
@@ -30,11 +30,12 @@ export default {
       data: null,
       detail: null,
       bundled: false,
-      categories: null,
+      categories: [],
       products: null,
       firstRetrieve: true,
       category: null,
-      add: false
+      add: false,
+      photo: null
     }
   },
   watch: {
@@ -70,6 +71,8 @@ export default {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
+          this.category = response.categories[0].id
+          console.log(response.categories[0].id, 'kkkl')
           if(this.firstRetrieve === true) {
             console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
@@ -107,8 +110,10 @@ export default {
       let Prod = null
       if(product.length != null){
         console.log(product)
+        console.log('time start', product.available_start_date_time_utc)
+        console.log('time end', product.available_end_date_time_utc)
         $('#loading').css({'display': 'block'})
-        if(product.available_start_date_time_utc != null && product.available_end_date_time_utc != null){
+        if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
             product: {
               Id: product.id,
@@ -116,11 +121,10 @@ export default {
               full_description: product.full_description,
               price: product.price,
               old_price: product.old_price,
-              available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
-              available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+              available_start_date_time_utc: product.available_start_date_time_utc.HH ? product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm : product.available_start_date_time_utc,
+              available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc
             }
           }
-          console.log('true')
         }else{
           Prod = {
             product: {
@@ -133,8 +137,6 @@ export default {
               available_end_date_time_utc: null
             }
           }
-          console.log('false')
-          console.log(product.available_start_date_time_utc)
         }
         if(product.uploaded_image !== null && product.uploaded_image !== undefined){
           console.log('test')
@@ -155,25 +157,36 @@ export default {
                 position: 0
               }
             ]
+            console.log('update happens')
             $('#loading').css({'display': 'block'})
-            this.APIPutRequest(`products/${product.id}`,
-            Prod
-            , response => {
+            this.APIPutRequest(`products/${product.id}`, Prod, response => {
+              $('#loading').css({'display': 'none'})
               console.log('[response]', response)
+              console.log('retrieve happens')
+              $('#loading').css({'display': 'block'})
+              this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+                $('#loading').css({'display': 'none'})
+                if(response.products.length > 0) {
+                  this.products = response.products
+                  this.back()
+                }
+              })
             })
             $('#loading').css({'display': 'none'})
-            console.log('images', this.images)
           })
         }else{
           $('#loading').css({'display': 'block'})
-          this.APIPutRequest(`products/${product.id}`,
-          Prod
-          , response => {
+          this.APIPutRequest(`products/${product.id}`, Prod, response => {
             console.log('[response]', response)
             $('#loading').css({'display': 'none'})
           })
         }
       }
+    },
+    back() {
+      this.isEdit = false
+      this.add = false
+
     }
     // save(id) {
     //   $('#loading').css({'display': 'block'})
