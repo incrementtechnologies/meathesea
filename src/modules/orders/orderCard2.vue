@@ -18,7 +18,7 @@
             </div>
           </div>
           <div v-else-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 text-center">
-            <b style="color: #0064B1;"> NEW ORDER REQUEST AT 12:42 </b> 
+            <b style="color: #0064B1;"> NEW ORDER REQUEST AT {{ data.local_time_created }} </b> 
           </div>
         </div>
       </div>
@@ -42,6 +42,7 @@
                       </div>
                       <div>
                         <b style="color: #0064B1;"> Contact number </b>
+                        <p>{{ data.customer.phone_number }}</p>
                       </div>
                     </div>
                     <div class="col-sm-7 pr-0">
@@ -65,6 +66,15 @@
                 </div>
               </div>
             </div>
+            <div v-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 p-3" style="border-left: 1px solid grey;">
+              <div class="d-flex" >
+                <b class="col-sm-4">{{ data.id }}</b>
+                <div class="col-sm-8 d-flex" :style="'color: #0064B1;'">
+                  <b>Delivery Time:</b>
+                  <b :style="'padding-left: 2%;'">{{ data.delivery_time }}</b>
+                </div>
+              </div>
+            </div>
             <div class="orderInformation col-sm-12" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: 513px; margin-top: -1px;' : 'height: 488px;'">
               <div class="mt-3">
                 <b :style="'color: #0064B1'"> Restaurant Items: </b>
@@ -84,7 +94,7 @@
               <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
                 <div class="d-flex justify-content-between">
                   <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} </b>
+                  <b class="font-weight-normal"> {{data.customer_currency_code}}{{ el.product.price }} X {{el.quantity}} </b>
                 </div>
                 <div class="col-sm-12" :style="'color: #E07700'">
                   + {{el.product.short_description}}
@@ -250,6 +260,7 @@
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import PDFTemplate from 'pdfmake'
 import TemplatePdf from './PdfTemplate.js'
+import moment from 'moment'
 import _ from 'lodash'
 export default {
   props: {
@@ -274,6 +285,11 @@ export default {
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
     console.log('[DATA]', this.data)
+    // this.data.foreach((item, index) => {
+      // console.log(item)
+      // item.local_time_create = moment(item.local_time_create, ['HH.mm']).format('hh:mm')
+    // })
+    // this.localTime = moment(this.data.local_time_created, ['HH.mm']).format('hh:mm')
     this.getImage()
     if(!_.isEmpty(this.data)){
       if(this.data.order_status.toLowerCase() === 'processing'){
@@ -333,6 +349,7 @@ export default {
       dataDel: [],
       rejectionReason: null,
       image: null
+      // localTime: moment(this.data.local_time_created, ['HH:mm']).format('hh:mm')
     }
   },
   methods: {

@@ -128,6 +128,7 @@ import { APIGetRequest } from 'src/helpers/api'
 import AUTH from 'src/services/auth'
 import property from './property'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
+import moment from 'moment'
 export default {
   components: {
     card1,
@@ -238,6 +239,9 @@ export default {
       this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
         console.log('[RESPONSE]', response)
+        // response.orders.map((item, ndx) => {
+        //   item.local_time_created = moment(item.local_time_created, ['HH:mm']).format('hh:mm')
+        // })
         this.data = response.orders
         // response.orders.forEach(el => {
         //   console.log(el)
@@ -436,7 +440,8 @@ export default {
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
         // this.createdAtMin = start.toISOString()
-        this.createdAtMin = ''
+        this.createdAtMin = start.toISOString().slice(0, 10)
+        console.log('[Current Date]', this.createdAtMin)
         // this.createdAtMax = end.toISOString()
         this.createdAtMax = ''
         // console.log(start.toISOString() + ':' + end.toISOString())
