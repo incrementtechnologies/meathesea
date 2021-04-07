@@ -160,29 +160,26 @@ export default {
             console.log('update happens')
             $('#loading').css({'display': 'block'})
             this.APIPutRequest(`products/${product.id}`, Prod, response => {
-              console.log('[response]', response)
-            })
-            $('#loading').css({'display': 'block'})
-            this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
-              console.log('category', this.category)
               $('#loading').css({'display': 'none'})
-              if(response.products.length > 0) {
-                console.log('test', this.products)
-                this.products = response.products
-                this.back()
-              }
+              console.log('[response]', response)
+              console.log('retrieve happens')
+              $('#loading').css({'display': 'block'})
+              this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+                $('#loading').css({'display': 'none'})
+                if(response.products.length > 0) {
+                  this.products = response.products
+                  this.back()
+                }
+              })
             })
             $('#loading').css({'display': 'none'})
           })
         }else{
           $('#loading').css({'display': 'block'})
-          this.APIPutRequest(`products/${product.id}`,
-          Prod
-          , response => {
+          this.APIPutRequest(`products/${product.id}`, Prod, response => {
             console.log('[response]', response)
             $('#loading').css({'display': 'none'})
           })
-          console.log('hey ba')
         }
       }
     },
