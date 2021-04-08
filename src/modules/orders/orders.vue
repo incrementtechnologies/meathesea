@@ -294,10 +294,10 @@ export default {
     retrieveNotification(){
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[0].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.userID}`, response => {
+      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.count
       })
       this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.userID}`, response => {
@@ -449,8 +449,9 @@ export default {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        this.createdAtMin = firstDay.toISOString()
-        this.createdAtMax = lastDay.toISOString()
+        console.log('[THIS IS FIRST DAY]', firstDay.toISOString().slice(0, 10))
+        this.createdAtMin = firstDay.toISOString().slice(0, 10)
+        this.createdAtMax = lastDay.toISOString().slice(0, 10)
         console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
         this.retrieveOrdersByStatus([20, 25], 1)
         // this.createdAtMin = ''
