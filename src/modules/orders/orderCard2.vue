@@ -109,6 +109,16 @@
               <div class="mt-2">
                 <b :style="'color: #E07700'"> Add cutlery </b>
               </div>
+              <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0px;background-color: #e0e0e0;">
+                  <div class="col p-0 m-0">
+                    <b style="color: #0064B1;">Total</b>
+                  </div>
+                  <div class="col p-0 m-0">
+                    <p style="float:right;">
+                      {{ data.customer_currency_code }} {{ data.order_total }}
+                    </p>
+                  </div>
+              </div>
             </div>
           </div>
           <div class="col-sm-5 customerInformation" :style="data.order_status.toLowerCase() === 'pending' ? 'height: 581px !important; padding-bottom: 50px !important; overflow-y: scroll !important;': 'height: 513px; padding-left: 15px; padding-right: 15px;'">

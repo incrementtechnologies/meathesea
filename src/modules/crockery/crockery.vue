@@ -15,7 +15,7 @@
                   >
                     {{nav.name}}
                     <div class="notifications ml-3" v-if="nav.isNotification" :style="'background-color: ' + nav.notificationColor">
-                      <b :style="'color :' + nav.notificationTextColor">{{data[focusIndex].length}}</b>
+                      <b :style="'color :' + nav.notificationTextColor">{{nav.count}}</b>
                     </div>
                   </div>
                 </div>
@@ -36,7 +36,9 @@
                     <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div>
                       {{
-                        returnDate(el)
+                        el.order_details.delivery_time_requested === "ASAP"
+                        ? el.order_details.local_time_created
+                        : el.order_details.delivery_time_requested
                       }}
                     </div>
                   </div>
@@ -112,8 +114,8 @@ export default {
         {text: 'Plate returned', key: 'returned'}
       ],
       navs: [
-        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1'},
-        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1'},
+        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
+        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
         {name: 'RETURNED', background: '#E1E1E1', color: '#878787'}
       ],
       headerElements: [
@@ -184,7 +186,8 @@ export default {
       widerView: false,
       orders: [],
       cardRedered: true,
-      searchValue: ''
+      searchValue: '',
+      notifications: []
     }
   },
   mounted() {},
@@ -266,6 +269,7 @@ export default {
             })
             el['order_details'] = orderDetails1[0]
             this.data[0].push(el)
+            this.navs[0].count = this.data[0].length
             console.log(this.data[0])
           }else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
             let orderDetails2 = this.orders.filter(t => {
@@ -273,6 +277,7 @@ export default {
             })
             el['order_details'] = orderDetails2[0]
             this.data[1].push(el)
+            this.navs[1].count = this.data[1].length
           }else if(el.crockery_status.toLowerCase() === 'complete') {
             let orderDetails3 = this.orders.filter(t => {
               return t.id === el.order_id
