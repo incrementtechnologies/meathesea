@@ -134,40 +134,125 @@ export default {
     },
     retrieveOneProduct(id) {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`products/${id}`, response => {
+      this.APIGetRequest(`/products/${id}`, response => {
         $('#loading').css({'display': 'none'})
-        if(response !== 0) {
+        if(response.products.length > 0) {
           this.data = response.products[0]
-          console.log('[data]', this.data)
+          response.products[0].add_on_category_1.forEach(element => {
+            element['text'] = element.name
+          })
+          response.products[0].add_on_category_2.forEach(element => {
+            element['text'] = element.name
+          })
+          // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
+          console.log('here', this.data)
         } else {
           this.data = null
         }
       })
     },
-    // update(product){
-    //   console.log('[here in list.products]')
-    //   if(product.name !== '' && product.name !== null && product.full_description !== '' && product.price !== '' && product.old_price !== '' && product.old_price !== null && product.available_start_date_time_utc !== '' && product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== '' && product.available_end_date_time_utc !== null){
-    //     $('#loading').css({'display': 'block'})
-    //     let Prod = {
-    //       product: {
-    //         Id: product.id,
-    //         name: product.name,
-    //         full_description: product.full_description,
-    //         price: product.price,
-    //         old_price: product.old_price,
-    //         available_start_date_time_utc: product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm,
-    //         available_end_date_time_utc: product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
-    //       }
-    //     }
-    //     this.APIPutRequest(`products/${product.id}`,
-    //     Prod
-    //     , response => {
-    //     // console.log('photo', this.images, 'response', response)
-    //       $('#loading').css({'display': 'none'})
-    //       console.log()
-    //     })
-    //   }
-    // },
+    update(product){
+      console.log('[here in list.menu]')
+      let Prod = null
+      if(product !== null){
+        if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
+          Prod = {
+            product: {
+              Id: product.id,
+              name: product.name,
+              full_description: product.full_description,
+              price: product.price,
+              old_price: product.old_price,
+              available_start_date_time_utc: product.available_start_date_time_utc.HH ? product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm : product.available_start_date_time_utc,
+              available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc,
+              add_on_category_1: product.add_on_category_1.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              }),
+              add_on_category_2: product.add_on_category_2.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              })
+            }
+          }
+        }else{
+          Prod = {
+            product: {
+              Id: product.id,
+              name: product.name,
+              full_description: product.full_description,
+              price: product.price,
+              old_price: product.old_price,
+              available_start_date_time_utc: null,
+              available_end_date_time_utc: null,
+              add_on_category_1: product.add_on_category_1.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              }),
+              add_on_category_2: product.add_on_category_2.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              })
+            }
+          }
+        }
+        if(product.uploaded_image !== null && product.uploaded_image !== undefined){
+          console.log('test')
+          let formData = new FormData()
+          formData.append('photo', product.uploaded_image)
+          $('#loading').css({'display': 'block'})
+          axios.post(`https://mtsbackenddev.azurewebsites.net/api/upload_photo`, formData,
+            {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('usertoken')}`
+              }
+            }
+          ).then(response => {
+            Prod['product']['images'] = [
+              {
+                src: response.data,
+                // attachment: null,
+                position: 0
+              }
+            ]
+            console.log('update happens')
+            $('#loading').css({'display': 'block'})
+            this.APIPutRequest(`products/${product.id}`, Prod, response => {
+              $('#loading').css({'display': 'none'})
+              console.log('[response]', response)
+              console.log('retrieve happens')
+              $('#loading').css({'display': 'block'})
+              this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+                $('#loading').css({'display': 'none'})
+                if(response.products.length > 0) {
+                  this.products = response.products
+                  this.back()
+                }
+              })
+            })
+          })
+        }else{
+          $('#loading').css({'display': 'block'})
+          this.APIPutRequest(`products/${product.id}`, Prod, response => {
+            console.log('[response]', response)
+            $('#loading').css({'display': 'none'})
+          })
+        }
+      }
+    },
+    back() {
+      this.isEdit = false
+      this.add = false
+
+    },
     retrieveCategory1(){
       this.APIGetRequest(`get_addOnCategory_1`, response => {
         this.category1 = response.add_on_category
