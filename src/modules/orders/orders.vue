@@ -93,7 +93,8 @@
                   class="buttonel"
                   v-model="search"
                   :style="el.style + ' padding: 15px;'"
-                  :placeholder="el.text" 
+                  :placeholder="el.text"
+                  @keyup.enter="searchOrders()"
                   v-else-if="el.type.toLowerCase() === 'input'"
                 >
               </div>
@@ -157,7 +158,7 @@ export default {
       createdAtMax: null,
       currentDate: new Date(),
       currentIndex: 0,
-      search: '',
+      search: null,
       allOrders: [],
       times: []
     }
@@ -227,6 +228,29 @@ export default {
     }
   },
   methods: {
+    searchOrders() {
+      const {user} = AUTH
+      console.log('READING')
+      if(this.navs[this.focusIndex].name === 'NEW') {
+        console.log('READING IN NEW')
+        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10`, response => {
+          this.data = response.orders
+          console.log('RESPONSE DATA', this.data)
+        })
+      } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
+        console.log('READING IN PROGRESS')
+        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
+          this.data = response.orders
+          console.log('RESPONSE DATA', this.data)
+        })
+      } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
+        console.log('READING IN DELIVERED')
+        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
+          this.data = response.orders
+          console.log('RESPONSE DATA', this.data)
+        })
+      }
+    },
     sample(e) {
       console.log('Test::: ', e)
     },
@@ -657,7 +681,7 @@ export default {
   }
 }
 .crockeriesBody {
-  height: 581px;
+  height: 659px !important;
   overflow-y: scroll;
 }
 .crockeriesBody::-webkit-scrollbar-track
