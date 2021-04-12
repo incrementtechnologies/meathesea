@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct :categoryId="category" v-if="isEdit" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -24,6 +24,8 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      newCategory1: null,
+      newCategory2: null,
       isActive: false,
       hasError: false,
       isEdit: false,
@@ -46,6 +48,8 @@ export default {
   },
   mounted() {
     this.retrieveCategories()
+    this.retrieveCategory1()
+    this.retrieveCategory2()
   },
   components: {
     ProductList,
@@ -98,6 +102,12 @@ export default {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
           this.data = response.products[0]
+          response.products[0].add_on_category_1.forEach(element => {
+            element['text'] = element.name
+          })
+          response.products[0].add_on_category_2.forEach(element => {
+            element['text'] = element.name
+          })
           // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
           console.log('here', this.data)
         } else {
@@ -108,11 +118,7 @@ export default {
     update(product){
       console.log('[here in list.menu]')
       let Prod = null
-      if(product.length != null){
-        console.log(product)
-        console.log('time start', product.available_start_date_time_utc)
-        console.log('time end', product.available_end_date_time_utc)
-        $('#loading').css({'display': 'block'})
+      if(product !== null){
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
             product: {
@@ -122,7 +128,19 @@ export default {
               price: product.price,
               old_price: product.old_price,
               available_start_date_time_utc: product.available_start_date_time_utc.HH ? product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm : product.available_start_date_time_utc,
-              available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc
+              available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc,
+              add_on_category_1: product.add_on_category_1.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              }),
+              add_on_category_2: product.add_on_category_2.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              })
             }
           }
         }else{
@@ -134,7 +152,19 @@ export default {
               price: product.price,
               old_price: product.old_price,
               available_start_date_time_utc: null,
-              available_end_date_time_utc: null
+              available_end_date_time_utc: null,
+              add_on_category_1: product.add_on_category_1.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              }),
+              add_on_category_2: product.add_on_category_2.map(el => {
+                let temp = {}
+                temp.id = el.id
+                temp.name = el.name
+                return temp
+              })
             }
           }
         }
@@ -172,7 +202,6 @@ export default {
                 }
               })
             })
-            $('#loading').css({'display': 'none'})
           })
         }else{
           $('#loading').css({'display': 'block'})
@@ -186,7 +215,16 @@ export default {
     back() {
       this.isEdit = false
       this.add = false
-
+    },
+    retrieveCategory1(){
+      this.APIGetRequest(`get_addOnCategory_1`, response => {
+        this.category1 = response.add_on_category
+      })
+    },
+    retrieveCategory2(){
+      this.APIGetRequest(`get_addOnCategory_2`, response => {
+        this.category2 = response.add_on_category
+      })
     }
     // save(id) {
     //   $('#loading').css({'display': 'block'})

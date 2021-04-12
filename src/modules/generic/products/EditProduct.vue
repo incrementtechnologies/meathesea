@@ -78,24 +78,24 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="CategoryTags"
+            :tags="data ? data.add_on_category_1 : CategoryTags"
             :validation="validation"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
-            @tags-changed="newTags => CategoryTags = newTags"
+            @tags-changed="newTags => data ? data.add_on_category_1 = newTags : CategoryTags = newTags"
           />
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">LIMIT CHOICE TO: -</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
-            :tags="CategoriesTags"
+            :tags="data ? data.add_on_category_2 : CategoriesTags"
             :validation="validation"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-            @tags-changed="newTags => CategoriesTags = newTags"
+            @tags-changed="newTags => data ? data.add_on_category_2 = newTags : CategoriesTags = newTags"
           />
-        </div>  
+        </div>
         <div v-if="data" class="row" style="margin-left: 0% !important;width: 100%">
           <p class="name" style="margin-left: 0%; margin-top: 3%; width: 100%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
@@ -214,21 +214,20 @@ export default {
     VueTimepicker
   },
   mounted(){
-    // if(this.category1 !== null){
-    //   this.category1.forEach(element => {
-    //     element['text'] = element.name
-    //     this.autocompleteCategory.push(element)
-    //     this.CategoryTags.push(element)
-    //     console.log('category', this.CategoryTags)
-    //   })
-    // }
-    // if(this.category2 !== null){
-    //   this.category2.forEach(element => {
-    //     element['text'] = element.name
-    //     this.autocompleteItems.push(element)
-    //     this.CategoriesTags.push(element)
-    //   })
-    // }
+    if(this.category1 !== null){
+      this.category1.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteCategory.push(element)
+        this.CategoryTags.push(element)
+      })
+    }
+    if(this.category2 !== null){
+      this.category2.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteItems.push(element)
+        this.CategoriesTags.push(element)
+      })
+    }
   },
   computed: {
     filteredCategory() {
@@ -259,6 +258,18 @@ export default {
           full_description: this.full_description,
           price: this.price,
           old_price: this.old_price,
+          add_on_category_1: this.CategoryTags.map(el => {
+            let temp = {}
+            temp.id = el.id
+            temp.name = el.name
+            return temp
+          }),
+          add_on_category_2: this.CategoriesTags.map(el => {
+            let temp = {}
+            temp.id = el.id
+            temp.name = el.name
+            return temp
+          }),
           available_start_date_time_utc: '',
           available_end_date_time_utc: ''
         }
@@ -270,6 +281,18 @@ export default {
           full_description: this.full_description,
           price: this.price,
           old_price: this.old_price,
+          AddonCategory1: this.CategoryTags.map(el => {
+            let temp = {}
+            temp.id = el.id
+            temp.namme = el.name
+            return temp
+          }),
+          AddonCategory2: this.CategoriesTags.map(el => {
+            let temp = {}
+            temp.id = el.id
+            temp.namme = el.name
+            return temp
+          }),
           available_start_date_time_utc: this.time_from.HH + ':' + this.time_from.mm,
           available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm
         }
@@ -294,7 +317,7 @@ export default {
             }
           ]
           this.APIPostRequest(`products`, {product: parameter}, res => {
-            console.log(res)
+            $('#loading').css({'display': 'none'})
             this.$parent.add = false
             this.$parent.isEdit = false
             $('#loading').css({'display': 'block'})
@@ -326,6 +349,23 @@ export default {
         $('#loading').css({'display': 'none'})
         console.log('images', this.images)
       }
+      // parameter = {
+      //   AddonCategory1: this.CategoryTags.map(el => {
+      //     let temp = {}
+      //     temp.id = el.id
+      //     temp.namme = el.name
+      //     return temp
+      //   }),
+      //   AddonCategory2: this.CategoriesTags.map(el => {
+      //     let temp = {}
+      //     temp.id = el.id
+      //     temp.namme = el.name
+      //     return temp
+      //   })
+      // }
+      // this.APIPutRequest(`products`, {product: parameter}, res => {
+      //   console.log('unta ', res)
+      // })
     },
     remove(data){
       console.log(data.category_id)
