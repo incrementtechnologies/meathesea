@@ -393,25 +393,39 @@ export default {
       console.log('order Time: ', this.times[this.focusIndex].id)
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20&orderAcceptTimeId=${this.times[this.focusIndex].id}`, {}, response => {
-        console.log('Accept order response: ', response)
+        console.log('Accept order response: ', this.times[this.focusIndex])
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: id, process: 'accepted'})
+        this.$parent.retrieveNotification()
       }, error => {
         console.log('Accepting order error: ', error)
       })
     },
     updateOrderStatus(id, status, currStatus){
       let tempStatus = null
-      if(currStatus.toLowerCase() === 'processing' && status === 'complete'){
+      if(this.data.order_status.toLowerCase() === 'processing' && status === 'complete'){
         this.progressButtons[2].disabled = true
         return
       }
+      // if(this.data.order_status.toLowerCase() === 'processing' && status === 'cancel'){
+      //   $('#loading').css({'display': 'block'})
+      //   this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=40&orderAcceptTimeId=${this.data.order_accept_time_id}`, {}, response => {
+      //     console.log('Cancelled order response: ', response)
+      //     $('#loading').css({'display': 'none'})
+      //     this.$parent.retrieveOrders()
+      //     this.$parent.retrieveNotification()
+      //     // this.$emit('orderProcessed', {id: id, process: status === 'complete' ? 'complete' : 'delivering'})
+      //   }, error => {
+      //     console.log('Accepting order error: ', error)
+      //   })
+      // }
+
       if(status === 'delivery'){
         this.progressButtons[1].status = 'yes'
         tempStatus = 25
       }else if(status === 'complete'){
         tempStatus = 30
-      }else{
+      }else if(status === 'cancel') {
         tempStatus = 40
       }
       console.log('status', status, currStatus)
@@ -451,7 +465,7 @@ export default {
     }
   },
   updated() {
-    console.log('[status]', this.data.order_status.toLowerCase())
+    console.log('[status]', this.data)
     if(!_.isEmpty(this.data)){
       if(this.data.order_status.toLowerCase() === 'processing'){
         this.progressButtons[0].status = 'yes'
