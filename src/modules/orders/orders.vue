@@ -518,8 +518,20 @@ export default {
       //   this.selectedDataIndex += 1
       //   this.selectedDataIndex -= 1
       // }
-      this.retrieveOrdersByStatus([20, 25], null)
-      this.selectData(this.selectedDataIndex, 0)
+      let status = []
+      if(this.focusIndex === 0) {
+        console.log('PENDING...')
+        status = 10
+      }else if(this.focusIndex === 1) {
+        console.log('PROCESSING...')
+        status = [20, 25]
+      }else if(this.focusIndex === 2) {
+        console.log('COMPLETED...')
+        status = 30
+      }
+      this.retrieveNotification()
+      this.retrieveOrdersByStatus(status, null)
+      this.selectData(0, 0)
     }
   }
 }
