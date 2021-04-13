@@ -39,7 +39,7 @@
         </div>
         <div v-else>
           <p class="name" style="margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE1' : 'PRODUCT TITLE'}}</b></p>
-          <input type="text" class="col-sm-12 form-control form-control-custom" v-model="name" placeholder="Type product title here...">
+          <input type="text" class="col-sm-12 form-control form-control-custom" v-model="name" placeholder="Type product title here..." required>
         </div>
       </div>
     </div>
@@ -110,6 +110,9 @@
             <vue-timepicker  v-model="data.available_start_date_time_utc"></vue-timepicker>
             <span> - </span>
             <vue-timepicker v-model="data.available_end_date_time_utc"></vue-timepicker>
+            <div v-show="isError">
+              <h6 style="color:red; margin-left: 2">Invalid time</h6>
+            </div>
           </div>     
         </div>
         <div v-else class="row" style="margin-left: 0% !important;width: 100%">
@@ -126,6 +129,9 @@
             <vue-timepicker v-model="time_from" placeholder="from"></vue-timepicker>
             <span> - </span>
             <vue-timepicker v-model="time_until" placeholder="until"></vue-timepicker>
+            <div v-show="isSuccess === true">
+              <h6 style="color:red; margin-left: 2">Invalid time</h6>
+            </div>
           </div>
         </div>
         <div v-if="data" class="row" style="width:100%;margin-left:0 !important">
@@ -155,11 +161,12 @@
         <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
         <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
       </div>
+      <ErrorModal :message="errorMessage" :title="'Message'"/> 
       <Confirmation
-      ref="prod"
-      :title="'Confirmation Message'"
-      :message="'Are you sure you want to delete this product?'"
-      @onConfirm="remove(data)"
+        ref="prod"
+        :title="'Confirmation Message'"
+        :message="'Are you sure you want to delete this product?'"
+        @onConfirm="remove(data)"
       ></Confirmation>
   </div>
 </template>
@@ -169,10 +176,13 @@ import VueTagsInput from '@johmun/vue-tags-input'
 import Confirmation from 'src/components/increment/generic/modal/Confirmation.vue'
 import axios from 'axios'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
+import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage'],
   data(){
     return {
+      updateTimeError: false,
+      isSuccess: false,
       encodedImage: null,
       all_day: false,
       time_from: null,
@@ -205,13 +215,15 @@ export default {
       }, {
         classes: 'no-braces',
         rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
-      }]
+      }],
+      errorMessage: null
     }
   },
   components: {
     VueTagsInput,
     Confirmation,
-    VueTimepicker
+    VueTimepicker,
+    ErrorModal
   },
   mounted(){
     if(this.category1 !== null){
@@ -247,9 +259,20 @@ export default {
       this.isShow = false
     },
     addProduct() {
-      // console.log(this.all_day, 'kjhjk')
       const { user } = AUTH
       let parameter = null
+      var modal = document.getElementById('myModal')
+      // var errModal = document.getElementById('err')
+      if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.old_price === null || this.old_price === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
+        console.log('error !!!')
+        this.errorMessage = 'Please complete all required fields!'
+        $('#incrementAlert').modal('show')
+        return
+      }
+      if(this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9){
+        this.isSuccess = true
+        return
+      }
       if(this.all_day === true){
         parameter = {
           category_id: this.categoryId,
@@ -316,6 +339,11 @@ export default {
               position: 0
             }
           ]
+          this.isSuccess = true
+          this.errorMessage = 'Product added successfully!'
+          $('#incrementAlert').modal('show')
+          // modal.style.display = 'block'
+          // document.getElementById('myModal').style.display = 'block'
           this.APIPostRequest(`products`, {product: parameter}, res => {
             $('#loading').css({'display': 'none'})
             this.$parent.add = false
@@ -343,29 +371,14 @@ export default {
             if(response.products.length > 0) {
               console.log('test', this.$parent.product)
               this.$parent.products = response.products
+              this.errorMessage = 'Product added successfully!'
+              $('#incrementAlert').modal('show')
             }
           })
         })
         $('#loading').css({'display': 'none'})
         console.log('images', this.images)
       }
-      // parameter = {
-      //   AddonCategory1: this.CategoryTags.map(el => {
-      //     let temp = {}
-      //     temp.id = el.id
-      //     temp.namme = el.name
-      //     return temp
-      //   }),
-      //   AddonCategory2: this.CategoriesTags.map(el => {
-      //     let temp = {}
-      //     temp.id = el.id
-      //     temp.namme = el.name
-      //     return temp
-      //   })
-      // }
-      // this.APIPutRequest(`products`, {product: parameter}, res => {
-      //   console.log('unta ', res)
-      // })
     },
     remove(data){
       console.log(data.category_id)
@@ -416,6 +429,12 @@ export default {
         this.encodedImage = e.target.result
       }
       reader.readAsDataURL(event.target.files[0])
+    },
+    timeError(){
+      if(this.$parent.isError === true){
+        this.updateTimeError = true
+        console.log('error unta')
+      }
     }
   }
 }
@@ -547,5 +566,31 @@ export default {
 }
 img{
   image-rendering: -webkit-optimize-contrast
+}
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%;
+  height: 20%;
+  text-align: center;
+  color: green;
+  font-size: 30px;
+  margin-top: 2%;
 }
 </style>
