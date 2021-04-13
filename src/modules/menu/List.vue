@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -37,7 +37,9 @@ export default {
       firstRetrieve: true,
       category: null,
       add: false,
-      photo: null
+      photo: null,
+      isError: false,
+      errorMessage: null
     }
   },
   watch: {
@@ -117,7 +119,25 @@ export default {
     },
     update(product){
       console.log('[here in list.menu]')
+      let temp = product.available_start_date_time_utc.replace(':', '')
+      let temp1 = product.available_end_date_time_utc.replace(':', '')
+      let timeStart = Number(temp)
+      let timeEnd = Number(temp1)
       let Prod = null
+      if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
+        // console.log('error !!!')
+        this.errorMessage = 'Please complete all required fields!'
+        $('#incrementAlert').modal('show')
+        return
+      }
+      if(product.available_start_date_time_utc < product.available_end_date_time_utc && (timeStart > 859 || timeEnd < 1659)){
+        this.isError = false
+        console.log('false mn gud', timeStart, timeEnd)
+      }else{
+        console.log('true mn gud', timeEnd, timeStart)
+        this.isError = true
+        return
+      }
       if(product !== null){
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
