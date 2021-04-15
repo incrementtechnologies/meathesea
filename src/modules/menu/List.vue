@@ -79,6 +79,7 @@ export default {
           this.categories = response.categories
           this.category = response.categories[0].id
           console.log(response.categories[0].id, 'kkkl')
+          console.log(this.categories, 'kkkhhhhhl')
           if(this.firstRetrieve === true) {
             console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
