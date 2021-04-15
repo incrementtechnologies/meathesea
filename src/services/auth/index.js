@@ -66,8 +66,12 @@ export default {
   currentPath: false,
   attachmentValue: null,
   notification: {
+    type: '',
     order: [],
     crockery: []
+  },
+  setNotificationType(type) {
+    this.notification.type = type
   },
   setNotificationOrders(payload) {
     this.notification.order.push(payload)
@@ -121,7 +125,7 @@ export default {
     //   password: password,
     //   status: 'VERIFIED'
     // }
-    let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
+    let parameter = 'storefront_login' + `?Email=${username}&Password=${password}`
     vue.APIGetRequest(parameter, (response) => {
       this.tokenData.loading = false
       this.tokenData.verifyingToken = false

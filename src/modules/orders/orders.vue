@@ -119,6 +119,10 @@
         </div>
       </div>
     </div>
+    <PushNotification
+      ref="pushNotification"
+      id="pushNotification"
+      @new-message="onNewMessage"/>
   </div>
 </template>
 <script>
@@ -130,11 +134,13 @@ import AUTH from 'src/services/auth'
 import property from './property'
 import LogInVue from '../../components/increment/basic/LogIn.vue'
 import moment from 'moment'
+import PushNotification from '../../components/notification/pushNotification.vue'
 export default {
   components: {
     card1,
     card2,
-    dataTable
+    dataTable,
+    PushNotification
   },
   data() {
     return {
@@ -169,6 +175,7 @@ export default {
     this.retrieveNotification()
   },
   mounted() {
+    this.$refs.pushNotification.askForPermission()
     this.reRenderTable = false
     this.reRender = false
   },
@@ -228,6 +235,25 @@ export default {
     }
   },
   methods: {
+    onNewMessage(message) {
+      console.log('broadcasted message: ', message)
+      console.log('<TYPE> ', AUTH.notification.type)
+      if(AUTH.notification.type === 'order') {
+        this.APIGetRequest(`/orders/${message.data.orderId}`, response => {
+          this.reRenderTable = true
+          this.data.push(response.orders[0])
+          response.orders.order_items.map(each => {
+            if(each.product.category_type === 1){
+              this.deliStore.push(each)
+            }else{
+              this.restaurant.push(each)
+            }
+          })
+          this.selectData(this.selectedDataIndex, 0)
+          this.reRender = true
+        })
+      }
+    },
     searchOrders() {
       const {user} = AUTH
       console.log('READING')

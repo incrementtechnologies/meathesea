@@ -7,12 +7,14 @@
 import USER from '../../services/auth'
 import CONFIG from 'src/config'
 import firebase from 'firebase/app'
+import AUTH from 'src/services/auth'
 import 'firebase/messaging'
 export default {
   props: ['currentToken'],
   data () {
     return {
-      hasServiceWorker: false
+      hasServiceWorker: false,
+      auth: AUTH
     }
   },
   mounted () {
@@ -139,7 +141,21 @@ export default {
           })
 
           messaging.onMessage((payload) => {
-            console.log('Message received. ', payload)
+            // this.$emit('new-message', payload)
+            if (payload.data.topic !== undefined && payload.data.topic !== null && payload.data.topic !== '' ) {
+              switch(payload.data.topic.replace(/-[0-9]/, '').toLowerCase()) {
+                case 'placeorder':
+                  AUTH.setNotificationType('order')
+                  AUTH.setNotificationOrders(payload)
+                  this.$emit('new-message', payload)
+                  break
+                case 'crockery':
+                  AUTH.setNotificationType('crockery')
+                  AUTH.setNotificationCrockery(payload)
+                  break
+              }
+              console.log('<new message> ', payload)
+            }
           })
 
           self.addEventListener('notificationclick', function(event) {

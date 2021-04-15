@@ -1,7 +1,7 @@
 <template>
   <div class="system-body"> 
      <div class="main-sidebar sidebar-collapse navbar-collapse collapse" v-bind:class="hide" id="idfactory" >
-      <div class="sidebar">
+      <div :class="returnType === 'order' || returnType === 'crockery' ? 'notified_sidebar' : 'sidebar'">
         <ul class="sidebar-menu">
             <li v-for="item, index in menu" v-bind:class="{ 'active-menu': item.flag === true }" v-on:click="setActive(index)" v-if="(((item.users === user.type || item.users === 'ALL') && user.type !== 'ADMIN') || user.type === 'ADMIN') && menuFlag === true" class="menu-holder">
               <i v-bind:class="item.icon" class="visible"></i> 
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <div class="content-holder commontTopMargin LeftRightPadding contentH" v-bind:class="hide">
+      <div :class="'content-holder commontTopMargin LeftRightPadding ' + (returnType === 'order' || returnType === 'crockery' ? 'notified' : 'contentH')" v-bind:class="hide">
         <transition >
           <router-view ></router-view>
         </transition>
@@ -47,6 +47,12 @@
 </template>
 <style scoped lang="scss">
 @import "~assets/style/colors.scss";
+.notified_sidebar {
+  padding-top: 170px !important;
+}
+.notified {
+  padding-top: 200px !important;
+}
 .contentH {
   padding-top: 150px !important;
 }
@@ -439,7 +445,13 @@ export default {
       },
       prevMenu: 0,
       subPrevMenu: 0,
-      menuFlag: true
+      menuFlag: true,
+      auth: AUTH
+    }
+  },
+  computed: {
+    returnType() {
+      return this.auth.notification.type
     }
   },
   methods: {
