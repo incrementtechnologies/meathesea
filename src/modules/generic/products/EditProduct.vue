@@ -161,7 +161,7 @@
         <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
         <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
       </div>
-      <ErrorModal :message="errorMessage" :title="'Message'"/> 
+      <ErrorModal ref="modal" :message="errorMessage" :title="'Message'"/> 
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -215,8 +215,7 @@ export default {
       }, {
         classes: 'no-braces',
         rule: ({ text }) => text.indexOf('{') !== -1 || text.indexOf('}') !== -1
-      }],
-      errorMessage: null
+      }]
     }
   },
   components: {
@@ -262,6 +261,8 @@ export default {
       const { user } = AUTH
       let parameter = null
       var modal = document.getElementById('myModal')
+      // let timeStart = this.time_until.HH + '' + this.time_until.mm
+      // console.log('test', timeStart)
       // var errModal = document.getElementById('err')
       if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.old_price === null || this.old_price === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
         console.log('error !!!')
@@ -269,7 +270,7 @@ export default {
         $('#incrementAlert').modal('show')
         return
       }
-      if(this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9){
+      if(this.all_day === false && (this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9)){
         this.isSuccess = true
         return
       }
@@ -342,8 +343,6 @@ export default {
           this.isSuccess = true
           this.errorMessage = 'Product added successfully!'
           $('#incrementAlert').modal('show')
-          // modal.style.display = 'block'
-          // document.getElementById('myModal').style.display = 'block'
           this.APIPostRequest(`products`, {product: parameter}, res => {
             $('#loading').css({'display': 'none'})
             this.$parent.add = false

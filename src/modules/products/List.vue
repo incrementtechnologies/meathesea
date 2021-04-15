@@ -1,63 +1,21 @@
 <template>
+<div>
+  <button class="btn btn-outline-primary addBtn" style="float: right; margin-right: 77px" v-if="add === false" @click="$emit('showAddForm', true), isEdit = true, add = true">
+    <b>add new</b></button>
+  <div>
+    <br><br>
+  </div>
 	<div class="contents">
 		<div class="clearfix">
-			<CategoryList v-if="categories" :data="categories"/>
+			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct v-if="isEdit" :data="data" :category1="category1" :category2="category2" @onSave="update(data)" :bundle="false"/>
+        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
+</div>
 </template>
-
-<style lang="css" scoped>
-* {
-  box-sizing: border-box;
-}
-.column {
-  float: left;
-}
-.clearfix::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-.menu {
-  width: 25%;
-  padding-left: 100px;
-  /* margin-top: 1.3%; */
-}
-.content {
-  width: 70%;
-}
-.contents {
-  /* margin-top: -20px; */
-  margin-bottom: 2%;
-}
-.menu ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-.active {
-  background-color:  #ffe1a6;
-}
-.menu li {
-  padding: 8px;
-	border: 1px solid #cccccc;
-  padding-top: 15px;
-  height: 51px;
-}
-.content{
-	margin: 0% 3% 3% 0%;
-}
-.column1{
-	float: left;
-  width: 50%;
-  padding: 10px;
-  height: 300px;
-}
-</style>
 <script>
 import ProductList from 'modules/generic/products/ProductList.vue'
 import EditProduct from 'modules/generic/products/EditProduct.vue'
@@ -66,28 +24,34 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      newCategory1: null,
+      newCategory2: null,
       isActive: false,
       hasError: false,
       isEdit: false,
       data: null,
-      categories: null,
+      detail: null,
+      bundled: false,
+      categories: [],
       products: null,
       firstRetrieve: true,
-      category1: null,
-      category2: null,
-      token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2MDQ1NjEwNDEsImV4cCI6MTkxOTkyMTA0MSwiaXNzIjoiaHR0cHM6Ly9tdHNiYWNrZW5kZGV2LmF6dXJld2Vic2l0ZXMubmV0IiwiYXVkIjpbImh0dHBzOi8vbXRzYmFja2VuZGRldi5henVyZXdlYnNpdGVzLm5ldC9yZXNvdXJjZXMiLCJub3BfYXBpIl0sImNsaWVudF9pZCI6IjkzZTZjNDNlLTJjOTUtNGY3Yi04YzJiLWEwMTA5YmExODFiYyIsInN1YiI6IjkzZTZjNDNlLTJjOTUtNGY3Yi04YzJiLWEwMTA5YmExODFiYyIsImF1dGhfdGltZSI6MTYwNDU2MTAzOSwiaWRwIjoibG9jYWwiLCJzY29wZSI6WyJub3BfYXBpIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbInB3ZCJdfQ.qRvEbcmpAPO-qhMBJqk0jDCNbl_BsmBdVStz76P2uLQi37uS6SoitQ5AV31M8PijiOaLbJQQ4uddRpI7P45virWUseq7wq1Xi9KDpKduo9bnRKFHu3UwBJJo_Wmgl86V_tNiJpey7Xdswr80E6rWFCL-Nneh9kfcs9ka-Igg2cwLb0Hlt1BHd42IB-700S9g5SIQir4vcWPbWkotMyik2NORXwjS7lnta_lXlTnxC4xWMREMpBwt4x6J9eLLunmy9Dj6LypLWt20C-JEiCvBHEjDff0QviVEIcnsqys0CucZUQ-jCD3-jHoFPCC79-PmSFojcmXVG-M0FcON8iLArw'
+      category: null,
+      add: false,
+      photo: null,
+      isError: false,
+      errorMessage: null
     }
-  },
-  mounted() {
-    this.retrieveCategories()
-    this.retrieveCategory1()
-    this.retrieveCategory2()
   },
   watch: {
     $route(to, from){
       console.log(to)
       this.isEdit = false
     }
+  },
+  mounted() {
+    this.retrieveCategories()
+    this.retrieveCategory1()
+    this.retrieveCategory2()
   },
   components: {
     ProductList,
@@ -97,6 +61,7 @@ export default {
   methods: {
     redirectEdit(){
       this.isEdit = false
+      // e.currentTarget.classList.add('active')
     },
     setActive(id) {
       this.isEdit = false
@@ -108,27 +73,29 @@ export default {
     },
     retrieveCategories() {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest('get_deli_shop_categories?storeId=' + 1, response => {
+      this.APIGetRequest('/get_deli_shop_categories?storeId=1', response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
+          this.category = response.categories[0].id
+          console.log(response.categories[0].id, 'kkkl')
+          console.log(this.categories, 'kkkhhhhhl')
           if(this.firstRetrieve === true) {
+            console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
             this.firstRetrieve = false
           }
-        } else {
-          this.categories = null
         }
       })
     },
     retrieveProducts(id) {
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`products?CategoryId=${id}`, response => {
-        $('#loading').css({'display': 'none'})
+      this.APIGetRequest(`/products?CategoryId=${id}`, response => {
         if(response.products.length > 0) {
           this.products = response.products
+          $('#loading').css({'display': 'none'})
         } else {
-          this.products = null
+          $('#loading').css({'display': 'none'})
         }
       })
     },
@@ -152,8 +119,26 @@ export default {
       })
     },
     update(product){
-      console.log('[here in list.menu]')
+      console.log('[here in list.menu]', product)
+      let temp = product.available_start_date_time_utc.replace(':', '')
+      let temp1 = product.available_end_date_time_utc.replace(':', '')
+      let timeStart = Number(temp)
+      let timeEnd = Number(temp1)
       let Prod = null
+      if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
+        // console.log('error !!!')
+        this.errorMessage = 'Please complete all required fields!'
+        $('#incrementAlert').modal('show')
+        return
+      }
+      if(product.available_start_date_time_utc < product.available_end_date_time_utc && (timeStart > 859 && timeEnd < 1659) || (product.available_start_date_time_utc.HH > 9 || product.available_end_date_time_utc.HH < 17)){
+        this.isError = false
+        console.log('not error', timeStart, timeEnd)
+      }else{
+        console.log('true mn gud', timeEnd, timeStart)
+        this.isError = true
+        return
+      }
       if(product !== null){
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
@@ -227,6 +212,8 @@ export default {
             $('#loading').css({'display': 'block'})
             this.APIPutRequest(`products/${product.id}`, Prod, response => {
               $('#loading').css({'display': 'none'})
+              this.isEdit = false
+              this.add = false
               console.log('[response]', response)
               console.log('retrieve happens')
               $('#loading').css({'display': 'block'})
@@ -251,7 +238,6 @@ export default {
     back() {
       this.isEdit = false
       this.add = false
-
     },
     retrieveCategory1(){
       this.APIGetRequest(`get_addOnCategory_1`, response => {
@@ -266,3 +252,50 @@ export default {
   }
 }
 </script>
+
+<style lang="css" scoped>
+* {
+  box-sizing: border-box;
+}
+.column {
+  float: left;
+}
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+.menu {
+  width: 25%;
+  /* margin-top: 1.3%; */
+}
+.content {
+  width: 70%;
+}
+.contents {
+  /* margin-top: -20px; */
+  margin-bottom: 2%;
+}
+.menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.active {
+  background-color:  #ffe1a6;
+}
+.menu li {
+  padding: 8px;
+	border: 1px solid #cccccc;
+  padding-top: 15px;
+  height: 51px;
+}
+.content{
+	margin: 0% 3% 3% 0%;
+}
+.column1{
+	float: left;
+  width: 50%;
+  height: 300px;
+}
+</style>

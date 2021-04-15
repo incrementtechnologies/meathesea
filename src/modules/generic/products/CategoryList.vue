@@ -3,8 +3,7 @@
     <div class="column menu" v-if="data">
       <ul>
         <li class="actives" @click="retrieveOne(data[0].id)">{{data[0].name}}</li>
-        <li class="list" v-for="(item, i) in data" :key="i" @click="retrieve(item.id, (i-1))" v-if="i !== 0">{{item.name}}</li>
-        <li class="list" v-if="type === 'menu'" @click="retrieve(data[0].id, data.length - 1), setActive(data.length - 1)">Set Meals</li>
+        <li class="list" v-for="(item, i) in data" :key="i" @click="retrieve(item, (i-1))" v-if="i !== 0">{{item.name}}</li>
       </ul>
     </div>
   </div>
@@ -106,19 +105,24 @@ export default {
       }
       active[id].classList.add('active')
     },
-    retrieve(id, i) {
-      console.log('[id]', id)
-      this.$parent.category = id
-      if(i === this.data.length) {
+    retrieve(item, i) {
+      if(item.name === 'Set Meals') {
+        this.setActive(i)
         this.$parent.bundled = true
-      } else {
-        this.$parent.bundled = false
+        this.$parent.isEdit = true
+        this.$parent.add = true
+        if($('.actives')[0]) {
+          document.getElementsByClassName('actives')[0].className = 'activess'
+        }
+        return
       }
+      this.$parent.bundled = false
+      this.$parent.category = item.id
       if($('.actives')[0]) {
         document.getElementsByClassName('actives')[0].className = 'activess'
       }
       this.setActive(i)
-      this.$parent.retrieveProducts(id)
+      this.$parent.retrieveProducts(item.id)
       this.$parent.isEdit = false
     },
     retrieveOne(id) {
