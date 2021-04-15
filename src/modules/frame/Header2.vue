@@ -34,16 +34,10 @@
       </ul>
     </nav>
     
-    <div class="notificationBar" v-if="notificationMessage.length > 0">
-      <b> {{notificationTitle}} ({{notificationMessage.length}})</b>
-      <b class="xNotification" @click="notificationMessage = []; notificationTitle = ''">&times;</b>
+    <div class="notificationBar" v-if="returnNotificationType === 'order' || returnNotificationType === 'crockery'">
+      <b> {{returnNotificationType === 'order' ? 'NEW ORDER REQUEST' : 'NEW CROCKERY REQUEST'}} ({{ returnNotificationType === 'order' ? returnOrders.length : returnCrockery.length }})</b>
+      <b class="xNotification" @click="notificationClose">&times;</b>
     </div>
-    <PushNotification
-      ref="pushNotification"
-      id="pushNotification"
-      :currentToken="userToken"
-      @update-token="onUpdateToken"
-      @new-message="onNewMessage" />
   </div>
 </template>
 
@@ -52,27 +46,24 @@ import CONFIG from 'src/config.js'
 import AUTH from 'src/services/auth'
 import api from 'src/services/api'
 import Vue from 'vue'
-import PushNotification from '../../components/notification/pushNotification.vue'
 export default {
   created() {
-    var userLoggedId = 1
-    // check if user has a token
-    console.log('response')
-    api.user_profile(userLoggedId).then((response) => {
-      this.userProfile = response.data
-      this.userToken = this.userProfile.push_notification.ask_for_permission.token
-      if (this.userProfile.push_notification.ask_for_permission) {
-        setTimeout(() => {
-          // Simulate it wont ask for permission in the first user access
-          this.askForPermission = true
-        }, 4000)
-        this.enableNotifications()
-      }
-    })
+    // var userLoggedId = 1
+    // // check if user has a token
+    // console.log('response')
+    // api.user_profile(userLoggedId).then((response) => {
+    //   this.userProfile = response.data
+    //   this.userToken = this.userProfile.push_notification.ask_for_permission.token
+    //   if (this.userProfile.push_notification.ask_for_permission) {
+    //     setTimeout(() => {
+    //       // Simulate it wont ask for permission in the first user access
+    //       this.askForPermission = true
+    //     }, 4000)
+    //     this.enableNotifications()
+    //   }
+    // })
   },
-  components: {
-    PushNotification
-  },
+  components: {},
   data: () => ({
     config: CONFIG,
     firebaseServerKey: CONFIG.firebaseServerKey,
@@ -80,8 +71,20 @@ export default {
     askForPermission: false,
     userToken: null,
     notificationMessage: [],
-    notificationTitle: ''
+    notificationTitle: '',
+    auth: AUTH
   }),
+  computed: {
+    returnCrockery() {
+      return this.auth.notification.crockery
+    },
+    returnOrders() {
+      return this.auth.notification.order
+    },
+    returnNotificationType() {
+      return this.auth.notification.type
+    }
+  },
   methods: {
     logout(){
       AUTH.removeAuthentication()
@@ -96,18 +99,26 @@ export default {
     },
     onNewMessage (message) {
       if (message.data.topic !== undefined || message.data.topic !== null) {
-        switch(message.data.topic.toLowerCase()) {
-          case 'acceptorder':
-            this.notificationTitle = 'NEW ORDER REQUEST'
-            break
-          case 'crockery':
-            this.notificationTitle = 'NEW CROCKERY REQUEST'
-            break
-        }
-        if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
-          this.notificationMessage.push(message.notification.body)
-        }
+        // switch(message.data.topic.toLowerCase()) {
+        //   case 'acceptorder':
+        //     this.notificationTitle = 'NEW ORDER REQUEST'
+        //     break
+        //   case 'crockery':
+        //     this.notificationTitle = 'NEW CROCKERY REQUEST'
+        //     break
+        // }
+        // if(message.data.topic.toLowerCase() === 'acceptorder' || message.data.topic.toLowerCase() === 'crockery'){
+        //   this.notificationMessage.push(message.notification.body)
+        // }
       }
+    },
+    notificationClose() {
+      if(this.auth.notification.type === 'order') {
+        this.auth.notification.order = []
+      } else if(this.auth.notification.type === 'crockery') {
+        this.auth.notification.crockery = []
+      }
+      this.auth.setNotificationType('')
     }
   }
 }
@@ -142,6 +153,7 @@ export default {
   justify-content: space-between;
   color: #FFFFFF;
   height: 60px;
+  margin-bottom: 50px !important;
 }
 .xNotification {
   cursor: pointer;
