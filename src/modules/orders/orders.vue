@@ -396,7 +396,7 @@ export default {
       // console.log('[NDX]', ndx)
       if(Array.isArray(status)){
         $('#loading').css({'display': 'block'})
-        let query = `orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`
+        let query = `orders?Status=${status}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`
         status.forEach((el, ndx) => {
           query += `&Status=${status[ndx]}`
         })
@@ -489,12 +489,10 @@ export default {
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        // this.createdAtMin = start.toISOString()
         this.createdAtMin = start.toISOString().slice(0, 10)
-        console.log('[Current Date]', this.createdAtMin)
-        // this.createdAtMax = end.toISOString()
         this.createdAtMax = ''
-        // console.log(start.toISOString() + ':' + end.toISOString())
+        console.log('[Current Date]', this.createdAtMin)
+        // this.retrieveOrdersByStatus([10], 1)
       }else if(date === 'week'){
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
@@ -503,15 +501,14 @@ export default {
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         this.createdAtMax = lastDay.toISOString().slice(0, 10)
         console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
-        this.retrieveOrdersByStatus([20, 25], 1)
-        // this.createdAtMin = ''
-        // this.createdAtMax = ''
+        // this.retrieveOrdersByStatus([20, 25], 1)
       }else{
         console.log('NDX', ndx)
         this.createdAtMin = ''
         this.createdAtMax = ''
         console.log('monthly data: ', date)
       }
+
       if(ndx === 1){
         this.retrieveOrdersByStatus([20, 25], 1)
       }else if(ndx === 2){

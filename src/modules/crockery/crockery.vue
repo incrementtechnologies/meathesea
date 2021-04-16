@@ -37,8 +37,8 @@
                     <div>
                       {{
                         el.order_details.delivery_time_requested === "ASAP"
-                        ? el.order_details.local_time_created
-                        : el.order_details.delivery_time_requested
+                        ? headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.local_time_created
+                        : headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.delivery_time_requested
                       }}
                     </div>
                   </div>
@@ -75,7 +75,7 @@
                   :style="el.style + ' padding: 15px;'"
                   :placeholder="el.text" 
                   v-else-if="el.type.toLowerCase() === 'input'"
-                  v-on:change="handleSearchChange"
+                  @keyup.enter="handleSearchChange"
                 >
               </div>
             </div>
@@ -187,13 +187,16 @@ export default {
       orders: [],
       cardRedered: true,
       searchValue: '',
-      notifications: []
+      notifications: [],
+      createdAtMin: '',
+      createdAtMax: ''
     }
   },
   mounted() {},
   created() {
+    this.getDate('day', 0)
     this.retrieveOrders()
-    this.retrieveOrderId()
+    // this.retrieveOrderId()
   },
   watch: {},
   computed: {
@@ -227,6 +230,44 @@ export default {
     }
   },
   methods: {
+    getDate(date, ndx) {
+      if(date === 'day'){
+        var start = new Date()
+        start.setHours(0, 0, 0, 0)
+        var end = new Date(start.getTime())
+        end.setHours(23, 59, 59, 999)
+        this.createdAtMin = start.toISOString().slice(0, 10)
+        console.log('[Current Date]', this.createdAtMin)
+        this.retrieveOrdersByStatus([10], 1)
+      } else if(date === 'week') {
+        let first = this.currentDate.getDate() - this.currentDate.getDay()
+        let firstDay = new Date(this.currentDate.setDate(first))
+        let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
+        console.log('[THIS IS FIRST DAY]', firstDay.toISOString().slice(0, 10))
+        this.createdAtMin = firstDay.toISOString().slice(0, 10)
+        this.createdAtMax = lastDay.toISOString().slice(0, 10)
+        console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
+        this.retrieveOrdersByStatus([20, 30], 1)
+      }else{
+        console.log('NDX', ndx)
+        this.createdAtMin = ''
+        this.createdAtMax = ''
+        console.log('monthly data: ', date)
+      }
+
+      if(ndx === 1){
+        this.retrieveOrdersByStatus([20, 25], 1)
+      }else if(ndx === 2){
+        this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
+      }else if(ndx === 3){
+        this.retrieveOrdersByStatus([70, 60, 50], 1)
+      }else {
+        this.retrieveOrders()
+      }
+    },
+    retrieveOrdersByStatus(){
+      const { user } = AUTH
+    },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
       let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
@@ -244,6 +285,24 @@ export default {
       this.cardRedered = false
       this.focusIndex = ndx
       this.cardRedered = true
+      let status = null
+      if(ndx === 0){
+        this.currentIndex = 0
+        status = [20, 30]
+        this.retrieveCrockeryByStatus(status, 0)
+      }else if(ndx === 2){
+        this.currentIndex = 1
+        status = 40
+        this.retrieveCrockeryByStatus(status, 0)
+      }else{
+        console.log('supposed to be processing')
+        this.currentIndex = 2
+        status = 50
+        this.retrieveCrockeryByStatus(status, 0)
+      }
+    },
+    retrieveCrockeryByStatus() {
+
     },
     selectData(ndx, popId) {
       console.log('SIDE MENU CLICKED: ', ndx)
@@ -260,7 +319,6 @@ export default {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
-        // console.log('RETRIEVING CROCKERY RESPONSE: ', response)
         $('#loading').css({'display': 'none'})
         response.crockery.forEach((el, ndx) => {
           if(el.crockery_status.toLowerCase() === 'pending') {
@@ -295,6 +353,7 @@ export default {
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`orders?StoreId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
+        console.log('ORDERS', response.orders)
         this.orders = response.orders
         this.retrieveCrockery()
       }, error => {
@@ -306,26 +365,57 @@ export default {
       console.log('TESTING !!!: ', this.searchValue)
       const { user } = AUTH
       let val = Number(this.searchValue)
-      $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
-        $('#loading').css({'display': 'none'})
-        console.log('sample_Data:', response)
-        console.log('test:', val)
-        response.crockery.forEach((el, ndx) => {
-          if(el.id === val){
-            console.log('customer_id:', el)
-            this.data[0].push(el.id)
-          }
-          if(el.id === val) {
-            let orderDetails1 = this.orders.filter(t => {
-              return t.id === el.order_id
-            })
-            el['order_details'] = orderDetails1[0]
-            this.data[0].push(el)
-            console.log(this.data[0])
-          }
+      if(this.navs[this.focusIndex].name === 'NEW'){
+        $('#loading').css({'display': 'block'})
+        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=20&Status=30`, response => {
+          $('#loading').css({'display': 'none'})
+          this.data[0] = []
+          response.crockery.forEach((el, ndx) => {
+            if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
+              let orderDetails2 = this.orders.filter(t => {
+                return String(t.id).match(String(el.order_id))
+              })
+              el['order_details'] = orderDetails2[0]
+              this.data[0].push(el)
+              this.navs[0].count = this.data[0].length
+              console.log('DATA1', orderDetails2[0])
+            }
+          })
+          // this.data = response.crockery
         })
-      })
+      } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
+        $('#loading').css({'display': 'block'})
+        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=40`, response => {
+          $('#loading').css({'display': 'none'})
+          // this.data = response.crockery
+        })
+      } else if(this.navs[this.focusIndex].name === 'RETURNED') {
+        $('#loading').css({'display': 'block'})
+        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=50`, response => {
+          $('#loading').css({'display': 'none'})
+          // this.data = response.crockery
+        })
+      }
+      // $('#loading').css({'display': 'block'})
+      // this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
+      //   $('#loading').css({'display': 'none'})
+      //   console.log('sample_Data:', response)
+      //   console.log('test:', val)
+      //   response.crockery.forEach((el, ndx) => {
+      //     if(String(el.id).match(val)){
+      //       console.log('customer_id:', el)
+      //       this.data[0].push(el.id)
+      //     }
+      //     if(el.id === val) {
+      //       let orderDetails1 = this.orders.filter(t => {
+      //         return t.id === el.order_id
+      //       })
+      //       el['order_details'] = orderDetails1[0]
+      //       this.data[0].push(el)
+      //       console.log(this.data[0])
+      //     }
+      //   })
+      // })
     }
   }
 }
