@@ -74,26 +74,24 @@
             <input type="number" class="w-100 form-control form-control-custom" v-model="old_price" placeholder="Input Special Offer Price"> 
           </div>       
         </div>
-        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left:25%">LIMIT CHOICE TO: 1</b></p>
+        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left:25%">{{bundle ? 'LIMIT CHOICE TO: -' : 'LIMIT CHOICE TO: 1'}}</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="data ? data.add_on_category_1 : CategoryTags"
-            :validation="validation"
+            :tags="data ? data.add_on_category_1 : (bundle ? bundleProduct : CategoryTags)"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
-            @tags-changed="newTags => data ? data.add_on_category_1 = newTags : CategoryTags = newTags"
+            @tags-changed="newTags => data ? data.add_on_category_1 = newTags : (bundle ? bundleProduct = newTags : CategoryTags = newTags)"
           />
         </div>
-        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">LIMIT CHOICE TO: -</b></p>
+        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
-            :tags="data ? data.add_on_category_2 : CategoriesTags"
-            :validation="validation"
+            :tags="data ? data.add_on_category_2 : (bundle ? bundleCategory : CategoriesTags)"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-            @tags-changed="newTags => data ? data.add_on_category_2 = newTags : CategoriesTags = newTags"
+            @tags-changed="newTags => data ? data.add_on_category_2 = newTags : (bundle ? bundleCategory = newTags : CategoriesTags = newTags)"
           />
         </div>
         <div v-if="data" class="row" style="margin-left: 0% !important;width: 100%">
@@ -178,9 +176,11 @@ import axios from 'axios'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts'],
   data(){
     return {
+      bundleProduct: [],
+      bundleCategory: [],
       updateTimeError: false,
       isSuccess: false,
       encodedImage: null,
@@ -239,12 +239,32 @@ export default {
         this.CategoriesTags.push(element)
       })
     }
+    if(this.bundle === true){
+      this.bundleProducts.forEach(element => {
+        element['text'] = element.Name
+        this.autocompleteCategory.push(element)
+        this.bundleProduct.push(element)
+      })
+    }
+    if(this.bundle === true){
+      this.category1.forEach(element => {
+        element['text'] = element.name
+        this.autocompleteItems.push(element)
+        this.bundleCategory.push(element)
+      })
+    }
   },
   computed: {
     filteredCategory() {
-      return this.autocompleteCategory.filter(i => {
-        return i.name.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
-      })
+      if(this.bundle === true) {
+        return this.autocompleteCategory.filter(i => {
+          return i.name.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
+        })
+      }else {
+        return this.autocompleteCategory.filter(i => {
+          return i.name.toLowerCase().indexOf(this.category.toLowerCase()) !== -1
+        })
+      }
     },
     filteredItems() {
       return this.autocompleteItems.filter(i => {
@@ -282,18 +302,59 @@ export default {
           full_description: this.full_description,
           price: this.price,
           old_price: this.old_price,
-          add_on_category_1: this.CategoryTags.map(el => {
-            let temp = {}
-            temp.id = el.id
-            temp.name = el.name
-            return temp
-          }),
-          add_on_category_2: this.CategoriesTags.map(el => {
-            let temp = {}
-            temp.id = el.id
-            temp.name = el.name
-            return temp
-          }),
+          attributes: [
+            {
+              product_attribute_id: 10, // category 1,
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.CategoryTags.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            },
+            {
+              product_attribute_id: 11,  // category 2
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.CategoriesTags.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            },
+            {
+              product_attribute_id: 12,  // category 2
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.bundleProduct.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            }
+          ],
           available_start_date_time_utc: '',
           available_end_date_time_utc: ''
         }
@@ -321,6 +382,11 @@ export default {
           available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm
         }
       }
+      if(this.bundle === true) {
+        parameter.attributes.splice(0, 1)
+      } else {
+        parameter.attributes.splice(2, 1)
+      }
       console.log(parameter)
       if(this.images !== null){
         let formData = new FormData()
@@ -345,8 +411,6 @@ export default {
           $('#incrementAlert').modal('show')
           this.APIPostRequest(`products`, {product: parameter}, res => {
             $('#loading').css({'display': 'none'})
-            this.$parent.add = false
-            this.$parent.isEdit = false
             $('#loading').css({'display': 'block'})
             this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
               $('#loading').css({'display': 'none'})
