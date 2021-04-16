@@ -16,7 +16,7 @@
           <div class="right">
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
-              <input type="checkbox" :checked="!item.visible_individually">
+              <input type="checkbox" :checked="!item.published">
               <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>

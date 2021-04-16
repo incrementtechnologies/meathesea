@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -21,6 +21,7 @@ import ProductList from 'modules/generic/products/ProductList.vue'
 import EditProduct from 'modules/generic/products/EditProduct.vue'
 import CategoryList from 'modules/generic/products/CategoryList.vue'
 import axios from 'axios'
+import AUTH from 'src/services/auth'
 export default {
   data() {
     return {
@@ -39,7 +40,9 @@ export default {
       add: false,
       photo: null,
       isError: false,
-      errorMessage: null
+      errorMessage: null,
+      bundleProducts: [],
+      user: AUTH
     }
   },
   watch: {
@@ -52,6 +55,7 @@ export default {
     this.retrieveCategories()
     this.retrieveCategory1()
     this.retrieveCategory2()
+    this.retrieve()
   },
   components: {
     ProductList,
@@ -59,6 +63,16 @@ export default {
     EditProduct
   },
   methods: {
+    retrieve() {
+      this.APIGetRequest(`/products_restaurant?StoreId=${this.user.user.userID}`, response => {
+        if(response.products.length > 0) {
+          response.products.forEach(item => {
+            item['name'] = item.Name
+          })
+          this.bundleProducts = response.products
+        }
+      })
+    },
     redirectEdit(){
       this.isEdit = false
       // e.currentTarget.classList.add('active')
@@ -72,8 +86,9 @@ export default {
       active[id].classList.add('active')
     },
     retrieveCategories() {
+      const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest('/get_restaurant_categories?storeId=1', response => {
+      this.APIGetRequest(`/get_restaurant_categories?storeId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
@@ -95,6 +110,7 @@ export default {
           this.products = response.products
           $('#loading').css({'display': 'none'})
         } else {
+          this.products = []
           $('#loading').css({'display': 'none'})
         }
       })

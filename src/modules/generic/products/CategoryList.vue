@@ -63,14 +63,14 @@
 </style>
 <script>
 import EditProduct from 'modules/generic/products/EditProduct.vue'
+import AUTH from 'src/services/auth'
 export default {
   props: ['data', 'type'],
   data() {
     return {
       isActive: false,
       hasError: false,
-      isEdit: false,
-      bundled: false
+      isEdit: false
     }
   },
   components: {
@@ -97,7 +97,6 @@ export default {
     },
     setActive(id) {
       this.isEdit = false
-      this.bundled = false
       let active = document.getElementsByClassName('list')
       for (var i = 0; i < active.length; i++) {
         active[i].className = active[i].className.replace('active', '')
@@ -106,29 +105,33 @@ export default {
       active[id].classList.add('active')
     },
     retrieve(item, i) {
+      const {user} = AUTH
+      this.$parent.add = false
       if(item.name === 'Set Meals') {
         this.setActive(i)
+        this.$parent.category = item.id
         this.$parent.bundled = true
-        this.$parent.isEdit = true
-        this.$parent.add = true
         if($('.actives')[0]) {
           document.getElementsByClassName('actives')[0].className = 'activess'
         }
-        return
+        this.$parent.retrieveProducts(item.id)
+      } else {
+        this.$parent.bundled = false
+        this.$parent.category = item.id
+        if($('.actives')[0]) {
+          document.getElementsByClassName('actives')[0].className = 'activess'
+        }
+        this.setActive(i)
+        this.$parent.retrieveProducts(item.id)
+        this.$parent.isEdit = false
       }
-      this.$parent.bundled = false
-      this.$parent.category = item.id
-      if($('.actives')[0]) {
-        document.getElementsByClassName('actives')[0].className = 'activess'
-      }
-      this.setActive(i)
-      this.$parent.retrieveProducts(item.id)
-      this.$parent.isEdit = false
+      console.log(this.$parent.bundled, 'lkjkljlkjlkj')
     },
     retrieveOne(id) {
       this.$parent.category = id
       this.$parent.retrieveProducts(id)
       this.$parent.isEdit = false
+      this.$parent.bundled = false
       this.classToggle()
     }
   }
