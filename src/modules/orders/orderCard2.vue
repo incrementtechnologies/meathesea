@@ -8,7 +8,7 @@
               <b>{{data.id}}</b>
             </div>
             <div class="col-sm-3 p-0 text-center divAsButton" :style="'color: #0064B1;'">
-              <b class='font-weight-normal'>DELIVERY TIME: {{data.delivery_time_requested === 'ASAP' ? data.local_time_created : data.delivery_time_requested}}</b>
+              <b class='font-weight-normal'>DELIVERY TIME: {{data.order_accept_start_time +  ' - ' +  data.order_accept_end_time}}</b>
             </div>
             <div class="col-sm-3 text-center divAsButton">
               <b v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
@@ -36,9 +36,8 @@
                       </div>
                       <div>
                         <b class="font-weight-normal"> {{
-                          ((data.customer.first_name !== '' || data.customer.first_name !== NULL) ? data.customer.first_name  : '--' )
-                            + ' ' + 
-                          ((data.customer.last_name !== '' || data.customer.last_name !== NULL) ? data.customer.last_name : '--')}} </b>
+                          data.customer.first_name !== '' || data.customer.first_name !== NULL ? data.customer.first_name  : '--' 
+                        }} </b>
                       </div>
                       <div>
                         <b style="color: #0064B1;"> Contact number </b>
@@ -129,8 +128,9 @@
               <div class="mt-2">
                 <b class="font-weight-normal"> {{ (data.customer.first_name + ' ' + data.customer.last_name).toUpperCase() }} </b>
               </div>
-              <div class="mt-1">
+              <div class="mt-1" style="display: flex; flex-direction: column;">
                 <b class="text-primary"> Contact customer </b>
+                <b class="text-black font-weight-normal"> {{data.customer.phone_number}} </b>
               </div>
               <br>
               <div class="mt-5">
@@ -229,7 +229,7 @@
           <div class="modal-content">
             <div class="modal-header modalHeader">
               <b class="font-weight-bold reasonHeader"> UNABLE TO FULFILL ORDER </b>
-              <button type="button" ref="xButton" class="xButton close" data-dismiss="modal" aria-label="Close">
+              <button type="button" ref="xButton" class="xButton close" data-dismiss="modal" aria-label="Close" @click="rejectionReason = null">
                 <b>&times;</b>
               </button>
             </div>
@@ -250,7 +250,7 @@
               </div>
             </div>
             <div class="modal-footer modalFooter">
-              <button class="roundButtonCommon rejectButton font-weight-bold" @click="reject(data.id)"> REJECT ORDER </button>
+              <button class="roundButtonCommon rejectButton font-weight-bold" @click="reject(data.id)" :disabled="rejectionReason === null" :style="rejectionReason === null ? 'cursor: not-allowed;' : ''"> REJECT ORDER </button>
             </div>
           </div>
         </div>
