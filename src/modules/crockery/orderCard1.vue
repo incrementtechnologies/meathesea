@@ -26,10 +26,10 @@
           {{ data.order_details.shipping_address.address1 + ', ' + data.order_details.shipping_address.city + ', ' + data.order_details.shipping_address.country}}
         </b>
       </div>
-      <div class="marginTop text-center" v-if="data.crockery_status.toLowerCase() === 'pending'">
-        <button class="successButton buttonCommon"> ACCEPT </button>
+      <div class="marginTop text-center" v-if="['pickup', 'returninperson'].includes(data.crockery_status.toLowerCase())">
+        <button class="successButton buttonCommon" style="cursor:pointer;" @click="acceptCrockery(data.id, data.address_id)"> ACCEPT </button>
       </div>
-      <div class="marginTop" v-else-if="['processing', 'pickup', 'returninperson'].includes(data.crockery_status.toLowerCase())">
+      <div class="marginTop" v-else-if="(data.crockery_status.toLowerCase() === 'processing')">
         <center>
           <div class="successButton buttonCommon progressAccepted"><i class="fas fa-check-circle mr-4"></i> ACCEPTED </div>
           <div class="mt-3 buttonCommon progressCollect"> COLLECT </div>
@@ -50,6 +50,12 @@ import props from '../../components/stripe/props'
 export default {
   data() {
     return {}
+  },
+  methods: {
+    acceptCrockery(id, addID){
+      console.log('ADDRESS ID', addID)
+      this.$parent.acceptCrockery(id, addID)
+    }
   },
   props: ['data'],
   watch: {

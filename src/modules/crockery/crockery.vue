@@ -36,6 +36,7 @@
                     <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div>
                       {{
+                        
                         el.order_details.delivery_time_requested === "ASAP"
                         ? headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.local_time_created
                         : headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.delivery_time_requested
@@ -116,7 +117,7 @@ export default {
       navs: [
         {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
         {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
-        {name: 'RETURNED', background: '#E1E1E1', color: '#878787'}
+        {name: 'RETURNED', background: '#E1E1E1', color: '#878787', count: 0}
       ],
       headerElements: [
         {
@@ -194,9 +195,8 @@ export default {
   },
   mounted() {},
   created() {
-    this.getDate('day', 0)
-    this.retrieveOrders()
-    // this.retrieveOrderId()
+    this.getDate('day', null)
+    this.retrieveNotification()
   },
   watch: {},
   computed: {
@@ -230,15 +230,38 @@ export default {
     }
   },
   methods: {
+    retrieveNotification(){
+      const { user } = AUTH
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+        this.navs[0].count = response.crockery.length
+      })
+      this.APIGetRequest(`get_crockery?Status=40&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+        this.navs[1].count = response.crockery.length
+      })
+      // this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.userID}`, response => {
+      //   // this.navs[2].count = response.count
+      // })
+    },
+    acceptCrockery(id, addID){
+      const { user } = AUTH
+      console.log('READING IN ACCEPT', id + ' ' + addID)
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`update_crockery?CrockeryId=${id}&AddressId=${addID}&CrockeryStatusId=40`, response => {
+        $('#loading').css({'display': 'none'})
+        this.retrieveNotification()
+        this.retrieveCrockeryByStatus([20, 30], 0)
+      })
+    },
     getDate(date, ndx) {
       if(date === 'day'){
         var start = new Date()
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
+        // this.createdAtMin = ''
         this.createdAtMin = start.toISOString().slice(0, 10)
         console.log('[Current Date]', this.createdAtMin)
-        this.retrieveOrdersByStatus([10], 1)
       } else if(date === 'week') {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
@@ -247,7 +270,6 @@ export default {
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         this.createdAtMax = lastDay.toISOString().slice(0, 10)
         console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
-        this.retrieveOrdersByStatus([20, 30], 1)
       }else{
         console.log('NDX', ndx)
         this.createdAtMin = ''
@@ -255,18 +277,72 @@ export default {
         console.log('monthly data: ', date)
       }
 
-      if(ndx === 1){
-        this.retrieveOrdersByStatus([20, 25], 1)
+      if(ndx === 0){
+        this.retrieveCrockeryByStatus([20, 30], 0)
+      }else if(ndx === 1){
+        this.retrieveCrockeryStatus(40, 1)
       }else if(ndx === 2){
-        this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
-      }else if(ndx === 3){
-        this.retrieveOrdersByStatus([70, 60, 50], 1)
+        this.retrieveCrockeryByStatus(50, 2)
       }else {
         this.retrieveOrders()
       }
     },
-    retrieveOrdersByStatus(){
+    retrieveCrockeryByStatus(status, index){
       const { user } = AUTH
+      if(Array.isArray(status)){
+        $('#loading').css({'display': 'block'})
+        let query = `get_crockery?StoreId=${user.ID}&CreatedAtMin=${this.createdAtMin}&CreateAtMax=${this.createAtMax}`
+        status.forEach((item, ndx) => {
+          query += `&Status=${item[ndx]}`
+        })
+        this.APIGetRequest(query, response => {
+          $('#loading').css({'display': 'none'})
+          this.data[0] = []
+          response.crockery.forEach((el, ndx) => {
+            if(el.crockery_status.toLowerCase() === 'pending') {
+              let orderDetails1 = this.orders.filter(t => {
+                return t.id === el.order_id
+              })
+              el['order_details'] = orderDetails1[0]
+              this.data[0].push(el)
+              console.log('PENDING', this.data[0])
+            }
+          })
+        })
+      }else{
+        $('#loading').css({'display': 'block'})
+        this.APIGetRequest(`get_crockery?Status=${status}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreateAtMax=${this.createAtMax}`, response => {
+          $('#loading').css({'display': 'none'})
+          console.log('READING IN NOT ARRAY RESPONSE', index)
+          if(status === 40){
+            this.data[1] = []
+            response.crockery.forEach((el, ndx) => {
+              let orderDetails1 = this.orders.filter(t => {
+                return t.id === el.order_id
+              })
+              el['order_details'] = orderDetails1[0]
+              this.data[1].push(el)
+              console.log('PENDING')
+            })
+            console.log('RESPONSE DATA', this.data[1])
+            console.log('STATUS', status)
+          } else {
+            let data = []
+            response.crockery.forEach((el, ndx) => {
+              let orderDetails1 = this.orders.filter(t => {
+                return t.id === el.order_id
+              })
+              el['order_details'] = orderDetails1[0]
+              data.push(el)
+              console.log('PENDING')
+            })
+            this.returnData[2] = data
+            console.log('RESPONSE DATA', this.returnData[2])
+            console.log('STATUS', status)
+          }
+
+        })
+      }
     },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
@@ -287,23 +363,22 @@ export default {
       this.cardRedered = true
       let status = null
       if(ndx === 0){
-        this.currentIndex = 0
+        this.focusIndex = 0
         status = [20, 30]
         this.retrieveCrockeryByStatus(status, 0)
-      }else if(ndx === 2){
-        this.currentIndex = 1
+      }else if(ndx === 1){
+        this.focusIndex = 1
         status = 40
-        this.retrieveCrockeryByStatus(status, 0)
+        console.log('READING IN INPROGRESS')
+        this.retrieveCrockeryByStatus(status, ndx)
       }else{
         console.log('supposed to be processing')
-        this.currentIndex = 2
+        this.focusIndex = 2
         status = 50
         this.retrieveCrockeryByStatus(status, 0)
       }
     },
-    retrieveCrockeryByStatus() {
-
-    },
+    // retrieveCrockeryByStatus() {},
     selectData(ndx, popId) {
       console.log('SIDE MENU CLICKED: ', ndx)
       this.$root.$emit('bv::hide::popover')
@@ -318,30 +393,16 @@ export default {
     retrieveCrockery() {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
+      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         response.crockery.forEach((el, ndx) => {
-          if(el.crockery_status.toLowerCase() === 'pending') {
+          if(el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
             let orderDetails1 = this.orders.filter(t => {
               return t.id === el.order_id
             })
             el['order_details'] = orderDetails1[0]
             this.data[0].push(el)
-            this.navs[0].count = this.data[0].length
-            console.log(this.data[0])
-          }else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
-            let orderDetails2 = this.orders.filter(t => {
-              return t.id === el.order_id
-            })
-            el['order_details'] = orderDetails2[0]
-            this.data[1].push(el)
-            this.navs[1].count = this.data[1].length
-          }else if(el.crockery_status.toLowerCase() === 'complete') {
-            let orderDetails3 = this.orders.filter(t => {
-              return t.id === el.order_id
-            })
-            el['order_details'] = orderDetails3[0]
-            this.data[2].push(el)
+            console.log('PENDING', this.data[0])
           }
         })
       }, error => {
@@ -351,7 +412,7 @@ export default {
     retrieveOrders() {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`orders?StoreId=${user.userID}`, response => {
+      this.APIGetRequest(`orders?StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         console.log('ORDERS', response.orders)
         this.orders = response.orders
