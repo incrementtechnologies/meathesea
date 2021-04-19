@@ -91,9 +91,9 @@
                 <input 
                   type="text" 
                   class="buttonel"
-                  v-model="search"
                   :style="el.style + ' padding: 15px;'"
                   :placeholder="el.text"
+                  v-on:keyup="onType($event)"
                   @keyup.enter="searchOrders()"
                   v-else-if="el.type.toLowerCase() === 'input'"
                 >
@@ -166,7 +166,8 @@ export default {
       currentIndex: 0,
       search: null,
       allOrders: [],
-      times: []
+      times: [],
+      onload: true
     }
   },
   // created() {},
@@ -235,10 +236,29 @@ export default {
     }
   },
   methods: {
+    onType(event) {
+      console.log(this.search, event.target.value, ' | TESTING LLLL |')
+      if(event.target.value === '' && this.search !== null) {
+        console.log('SHOULD RETRIEVE...')
+        let date = ''
+        if(this.typeIndex === 0) { // today order/s
+          date = 'day'
+        }else if(this.typeIndex === 1) { // weekly order/s
+          date = 'week'
+        }else if(this.widerView) { // all orders
+          date = 'month'
+        }
+        this.getDate(date, null)
+        this.retrieveNotification()
+      }else{
+        this.search = event.target.value
+      }
+    },
     onNewMessage(message) {
       console.log('broadcasted message: ', message)
       console.log('<TYPE> ', AUTH.notification.type)
       if(AUTH.notification.type === 'order') {
+        console.log('RETRIEVING...')
         this.APIGetRequest(`/orders/${message.data.orderId}`, response => {
           this.reRenderTable = true
           this.data.push(response.orders[0])
@@ -256,25 +276,27 @@ export default {
     },
     searchOrders() {
       const {user} = AUTH
-      console.log('READING')
-      if(this.navs[this.focusIndex].name === 'NEW') {
-        console.log('READING IN NEW')
-        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10`, response => {
-          this.data = response.orders
-          console.log('RESPONSE DATA', this.data)
-        })
-      } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-        console.log('READING IN PROGRESS')
-        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
-          this.data = response.orders
-          console.log('RESPONSE DATA', this.data)
-        })
-      } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
-        console.log('READING IN DELIVERED')
-        this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
-          this.data = response.orders
-          console.log('RESPONSE DATA', this.data)
-        })
+      console.log('READING ', this.search)
+      if(this.search !== '' && this.search !== null) {
+        if(this.navs[this.focusIndex].name === 'NEW') {
+          console.log('READING IN NEW')
+          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10&`, response => {
+            this.data = response.orders
+            console.log('RESPONSE DATA', this.data)
+          })
+        } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
+          console.log('READING IN PROGRESS')
+          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
+            this.data = response.orders
+            console.log('RESPONSE DATA', this.data)
+          })
+        } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
+          console.log('READING IN DELIVERED')
+          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
+            this.data = response.orders
+            console.log('RESPONSE DATA', this.data)
+          })
+        }
       }
     },
     sample(e) {
@@ -368,15 +390,16 @@ export default {
       }
     },
     change(ndx) {
-      console.log('TEsting', ndx, ' :: ', this.currentIndex)
+      console.log('| TESTING | ', ndx)
       this.reRender = false
       this.focusIndex = ndx
-      // console.log('[INDEX]', ndx)
+      this.selectedDataIndex = 0
+      // console.log('[test]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
       let status = null
       if(ndx === 0){
         this.currentIndex = 0
         status = 10
-        this.retrieveOrdersByStatus(status, 0)
+        this.retrieveOrdersByStatus(status, 1)
       }else if(ndx === 2){
         this.currentIndex = 1
         status = 30
@@ -385,6 +408,7 @@ export default {
         console.log('supposed to be processing')
         this.currentIndex = 2
         status = [20, 25]
+        // this.retrieveOrders()
         this.retrieveOrdersByStatus(status, 0)
       }
     },
@@ -393,16 +417,20 @@ export default {
       this.restaurant = []
       this.data = []
       this.deliStore = []
+      this.allOrders = []
       // console.log('[NDX]', ndx)
       if(Array.isArray(status)){
+        console.log('[orders by status (Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
         $('#loading').css({'display': 'block'})
-        let query = `orders?Status=${status}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&StoreId=${user.userID}`
+        let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
+        let query = `orders?${date}StoreId=${user.userID}`
         status.forEach((el, ndx) => {
           query += `&Status=${status[ndx]}`
         })
+        console.log('[QUERY] ', query)
         this.APIGetRequest(query, response => {
           $('#loading').css({'display': 'none'})
-          this.allOrders = ndx === 1 ? response.orders : []
+          this.allOrders = response.orders
           this.reRenderTable = true
           this.data = response.orders
           response.orders.map(el => {
@@ -418,10 +446,12 @@ export default {
           this.reRender = true
         })
       }else{
+        console.log('[orders by status (Not Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
         $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=${status}&StoreId=${user.userID}`, response => {
+        let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
+        this.APIGetRequest(`orders?${date}Status=${status}&StoreId=${user.userID}`, response => {
           $('#loading').css({'display': 'none'})
-          this.allOrders = ndx === 1 ? response.orders : []
+          this.allOrders = response.orders
           this.reRenderTable = true
           this.data = response.orders
           response.orders.map(el => {
@@ -439,25 +469,30 @@ export default {
       }
     },
     selectData(ndx, popId) {
-      this.selectedDataIndex = ndx
-      this.reRender = false
-      this.restaurant = []
-      this.deliStore = []
-      if(this.data.length > 0){
-        this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
-          this.times = response.order_accept_time
-          this.data[ndx].order_items.map(el => {
-            if(el.product.category_type === 0){
-              this.restaurant.push(el)
-            }else if(el.product.category_type === 1){
-              this.deliStore.push(el)
-            }
+      console.log('[selected data index]', ndx)
+      if(this.selectedDataIndex !== ndx || this.onload){
+        this.selectedDataIndex = ndx
+        this.reRender = false
+        this.restaurant = []
+        this.deliStore = []
+        console.log('[RESPONSE TIME]')
+        if(this.data.length > 0){
+          this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
+            this.times = response.order_accept_time
+            this.data[ndx].order_items.map(el => {
+              if(el.product.category_type === 0){
+                this.restaurant.push(el)
+              }else if(el.product.category_type === 1){
+                this.deliStore.push(el)
+              }
+            })
+          }, error => {
+            console.log('ACCEPT TIME RETRIEVE ERROR: ', error)
           })
-        }, error => {
-          console.log('ACCEPT TIME RETRIEVE ERROR: ', error)
-        })
+        }
+        this.onload = false
+        this.reRender = true
       }
-      this.reRender = true
     },
     switchComponent(component, ndx) {
       this.widerView = this.returnHeaderElements[ndx].wholeView
@@ -484,6 +519,7 @@ export default {
       this.reRenderTable = true
     },
     getDate(date, ndx){
+      console.log('date type: ', date)
       if(date === 'day'){
         var start = new Date()
         start.setHours(0, 0, 0, 0)
@@ -492,7 +528,6 @@ export default {
         this.createdAtMin = start.toISOString().slice(0, 10)
         this.createdAtMax = ''
         console.log('[Current Date]', this.createdAtMin)
-        // this.retrieveOrdersByStatus([10], 1)
       }else if(date === 'week'){
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
@@ -501,23 +536,60 @@ export default {
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         this.createdAtMax = lastDay.toISOString().slice(0, 10)
         console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
-        // this.retrieveOrdersByStatus([20, 25], 1)
       }else{
         console.log('NDX', ndx)
         this.createdAtMin = ''
         this.createdAtMax = ''
         console.log('monthly data: ', date)
       }
-
-      if(ndx === 1){
-        this.retrieveOrdersByStatus([20, 25], 1)
-      }else if(ndx === 2){
-        this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
-      }else if(ndx === 3){
-        this.retrieveOrdersByStatus([70, 60, 50], 1)
-      }else {
-        this.retrieveOrders()
+      console.log('[ndx]', this.widerView && this.typeIndex === 0)
+      if(this.focusIndex === 0){
+        if(!this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([10], 1)
+        }else if(!this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([10], 1)
+        }else if(this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([10], 1)
+        }else if(this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([70, 60, 50], 1)
+        }
+      }else if(this.focusIndex === 1){
+        if(!this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([20, 25], 1)
+        }else if(!this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([20, 25], 1)
+        }else if(this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([20, 25], 1)
+        }else if(this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([70, 60, 50], 1)
+        }
+      }else if(this.focusIndex === 2){
+        if(!this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([30], 1)
+        }else if(!this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([30], 1)
+        }else if(this.widerView && this.typeIndex === 1){
+          this.retrieveOrdersByStatus([30], 1)
+        }else if(this.widerView && this.typeIndex === 0){
+          this.retrieveOrdersByStatus([70, 60, 50], 1)
+        }
       }
+      // if(ndx === 1){
+      //   if(date === 'week'){
+      //     this.retrieveOrdersByStatus([10], 1)
+      //   }else{
+      //     this.retrieveOrdersByStatus([20, 25], 1)
+      //   }
+      // }else if(ndx === 2){
+      //   console.log('[NDX:: 2]')
+      //   this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
+      // }else if(ndx === 3){
+      //   console.log('[NDX:: 3]')
+      //   this.retrieveOrdersByStatus([70, 60, 50], 1)
+      // }else {
+      //   console.log('[NDX:: 4]')
+      //   this.retrieveOrdersByStatus([10], 0)
+      // }
     },
     acceptOrder(data) {
       // let temp = this.data[this.focusIndex]
