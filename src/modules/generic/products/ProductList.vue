@@ -16,7 +16,7 @@
           <div class="right">
             <h5 class="a">AVAILABLE: </h5>
             <label class="switch">
-              <input type="checkbox" :checked="!item.published">
+              <input type="checkbox" :checked="!item.published" @click="updateCheckItem(item)">
               <!-- <p style="position:absolute; z-index:9999"></p> -->
               <span class="slider round">
               </span>
@@ -27,6 +27,30 @@
     </div><br>
   </div>
 </template>
+
+<script>
+export default {
+  props: ['data'],
+  data(){
+    return {
+    }
+  },
+  methods: {
+    retrieve(item) {
+      this.itemId = this.$parent.retrieveOneProduct(item.id)
+      this.$parent.retrieveOneProduct(item.id)
+      this.$parent.isEdit = true
+      this.$parent.bundled = false
+      // this.$parent.retrieveCategory1()
+      // this.$parent.retrieveCategory2()
+      // this.$parent.update(item)
+    },
+    updateCheckItem(item) {
+      this.$emit('updateAvailability', item)
+    }
+  }
+}
+</script>
 <style lang="css" scoped>
 * {
   box-sizing: border-box;
@@ -152,22 +176,4 @@ input:checked + .slider:before {
   cursor: pointer;
 }
 </style>
-<script>
-export default {
-  props: ['data'],
-  data(){
-    return {
-    }
-  },
-  methods: {
-    retrieve(item) {
-      this.$parent.retrieveOneProduct(item.id)
-      this.$parent.isEdit = true
-      this.$parent.bundled = false
-      // this.$parent.retrieveCategory1()
-      // this.$parent.retrieveCategory2()
-      // this.$parent.update(item)
-    }
-  }
-}
-</script>
+

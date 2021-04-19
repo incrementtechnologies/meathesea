@@ -26,11 +26,16 @@
         <div>
           <p style="float:left;margin-left:0 !important" class="name"><b>{{bundle ? 'BUNDLE IMAGE' : 'PRODUCT IMAGE'}}</b></p>
         </div>
-        <div>
+        <div v-if="data">
           <button class="pull-right buttons" style="margin-left:40px !important" @click="del(data)"><i style="color:black;margin-right: 2%" class="fas fa-trash"></i> Remove</button>
         </div>
-        <div style="margin-top:5%;margin-left:0px !important;positon:flex;">
+        <div v-else></div>
+        <div v-if="data" style="margin-top:5%;margin-left:0px !important;positon:flex;">
           <button class="buttons" @click="chooseFile()" >Change picture</button>
+          <input type="file" id="choose_file" accept="image/*" hidden @change="selectFile($event)"/>
+        </div>
+        <div v-else style="margin-top:5%;margin-left:0px !important;positon:flex;">
+          <button class="buttons" @click="chooseFile()" >Add picture</button>
           <input type="file" id="choose_file" accept="image/*" hidden @change="selectFile($event)"/>
         </div>
         <div v-if="data">
@@ -68,10 +73,26 @@
           <div style="width:40%;margin-right:84px !important">
             <p class="name" style="margin-left: 0%;"><b>{{bundle === true ? 'BUNDLE PRICE' : 'REGULAR PRICE'}}</b></p>
             <input type="number" class="w-100 form-control form-control-custom" v-model="price" placeholder="Input Regular Price">
+            <div v-if="price === null">
+              <h6></h6>
+            </div>
+            <div v-else-if="price < 1">
+              <div v-show="price < 1">
+                <h6 style="color:red">Invalid price</h6>
+              </div>
+            </div>
           </div>
           <div style="width:40%">
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
             <input type="number" class="w-100 form-control form-control-custom" v-model="old_price" placeholder="Input Special Offer Price"> 
+            <div v-if="old_price === null">
+              <h6></h6>
+            </div>
+            <div v-else-if="old_price < 1">
+              <div v-show="old_price < 1">
+                <h6 style="color:red">Invalid price</h6>
+              </div>
+            </div>
           </div>       
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left:25%">{{bundle ? 'LIMIT CHOICE TO: -' : 'LIMIT CHOICE TO: 1'}}</b></p>
@@ -159,7 +180,36 @@
         <button class="buttonCommon pull-left" style="background-color: #B7F6D9; border-color: #B7F6D9;height:50px;width:120px" @click.prevent="onSave(data)">SAVE</button>
         <button class="buttonCommon pull-right" style="margin-left:5px !important;height:50px;width:120px" @click="cancel()">DISCARD</button>
       </div>
-      <ErrorModal ref="modal" :message="errorMessage" :title="'Message'"/> 
+      <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content text-center">
+          <span @click="closeModal()" class="close">&times;</span>
+          <p>Added Successfully!!!</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeModal()" class="btn btn-success">OK</button>
+          </center>
+        </div>
+      </div>
+      <div id="updateModal" class="modal" v-if="hasUpdateWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeUpdateModal()" class="close">&times;</span>
+          <p>Updated successfully!!!</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeUpdateModal()" class="btn btn-success">OK</button>
+          </center>
+        </div>
+      </div>
+      <div id="errorModal" class="modal" v-if="hasUpdateErrorWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeErrorModal()" class="close">&times;</span>
+          <p style="color: red">Please fill up all empty fields!!!</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeErrorModal()" class="btn btn-danger">Close</button>
+          </center>
+        </div>
+      </div>
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -175,8 +225,9 @@ import Confirmation from 'src/components/increment/generic/modal/Confirmation.vu
 import axios from 'axios'
 import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
+import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError'],
   data(){
     return {
       bundleProduct: [],
@@ -253,6 +304,10 @@ export default {
         this.bundleCategory.push(element)
       })
     }
+    if(this.hasUpdate === true){
+      let modal = document.getElementById('updateModal')
+      modal.style.display = 'block'
+    }
   },
   computed: {
     filteredCategory() {
@@ -270,6 +325,24 @@ export default {
       return this.autocompleteItems.filter(i => {
         return i.name.toLowerCase().indexOf(this.categories.toLowerCase()) !== -1
       })
+    },
+    hasUpdateWatch(){
+      console.log('[updated::]', this.hasUpdate)
+      if(this.hasUpdate === true){
+        let modal = document.getElementById('updateModal')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
+    },
+    hasUpdateErrorWatch(){
+      console.log('[update eroor', this.updateError)
+      if(this.updateError === true){
+        let modal = document.getElementById('errorModal')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
     }
   },
   methods: {
@@ -280,14 +353,13 @@ export default {
     addProduct() {
       const { user } = AUTH
       let parameter = null
-      var modal = document.getElementById('myModal')
-      // let timeStart = this.time_until.HH + '' + this.time_until.mm
-      // console.log('test', timeStart)
-      // var errModal = document.getElementById('err')
+      let modal = document.getElementById('myModal')
+      let errorModal = document.getElementById('errorModal')
       if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.old_price === null || this.old_price === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
         console.log('error !!!')
-        this.errorMessage = 'Please complete all required fields!'
-        $('#incrementAlert').modal('show')
+        // this.errorMessage = 'Please complete all required fields!'
+        // $('#incrementAlert').modal('show')
+        errorModal.style.display = 'block'
         return
       }
       if(this.all_day === false && (this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9)){
@@ -356,7 +428,8 @@ export default {
             }
           ],
           available_start_date_time_utc: '',
-          available_end_date_time_utc: ''
+          available_end_date_time_utc: '',
+          published: false
         }
       }else{
         parameter = {
@@ -379,7 +452,8 @@ export default {
             return temp
           }),
           available_start_date_time_utc: this.time_from.HH + ':' + this.time_from.mm,
-          available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm
+          available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm,
+          published: false
         }
       }
       if(this.bundle === true) {
@@ -392,7 +466,7 @@ export default {
         let formData = new FormData()
         formData.append('photo', this.images)
         $('#loading').css({'display': 'block'})
-        axios.post(`https://mtsbackenddev.azurewebsites.net/api/upload_photo`, formData,
+        axios.post(`${config.BACKEND_URL}/upload_photo`, formData,
           {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('usertoken')}`
@@ -407,13 +481,13 @@ export default {
             }
           ]
           this.isSuccess = true
-          this.errorMessage = 'Product added successfully!'
-          $('#incrementAlert').modal('show')
           this.APIPostRequest(`products`, {product: parameter}, res => {
+            if(this.isSuccess === true) {
+              console.log('show unta')
+              modal.style.display = 'block'
+            }
             $('#loading').css({'display': 'none'})
-            $('#loading').css({'display': 'block'})
             this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
-              $('#loading').css({'display': 'none'})
               if(response.products.length > 0) {
                 console.log('test', this.$parent.product)
                 this.$parent.products = response.products
@@ -424,12 +498,15 @@ export default {
           console.log('images', this.images)
         })
       }else{
+        this.isSuccess = true
         this.APIPostRequest(`products`, {product: parameter}, res => {
           console.log(res)
-          this.$parent.add = false
-          this.$parent.isEdit = false
           $('#loading').css({'display': 'block'})
           this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
+            if(this.isSuccess === true) {
+              console.log('show unta')
+              modal.style.display = 'block'
+            }
             $('#loading').css({'display': 'none'})
             if(response.products.length > 0) {
               console.log('test', this.$parent.product)
@@ -465,13 +542,17 @@ export default {
     back() {
       this.$parent.isEdit = false
       this.$parent.add = false
-
     },
     cancel(){
       this.$parent.isEdit = false
     },
     onSave(data){
       if(data) {
+        console.log(data)
+        data['all_day'] = this.all_day
+        data['CategoryTags'] = this.CategoryTags
+        data['CategoriesTags'] = this.CategoriesTags
+        data['bundleProduct'] = this.bundleProduct
         data['uploaded_image'] = this.images
         this.$emit('onSave', data)
       } else {
@@ -498,6 +579,30 @@ export default {
         this.updateTimeError = true
         console.log('error unta')
       }
+    },
+    closeModal() {
+      console.log('close na ni')
+      let modal = document.getElementById('myModal')
+      let span = document.getElementsByClassName('close')[0]
+      modal.style.display = 'none'
+      this.$parent.isEdit = false
+      this.$parent.add = false
+      this.$parent.hasUpdate = false
+    },
+    closeErrorModal() {
+      let modal = document.getElementById('errorModal')
+      let span = document.getElementsByClassName('close')[0]
+      modal.style.display = 'none'
+      this.$parent.updateError = false
+    },
+    closeUpdateModal() {
+      let modal = document.getElementById('updateModal')
+      let span = document.getElementsByClassName('close')[0]
+      modal.style.display = 'none'
+      this.$parent.isEdit = false
+      this.$parent.add = false
+      this.$parent.hasUpdate = false
+      console.log(this.hasUpdate)
     }
   }
 }
@@ -643,17 +748,35 @@ img{
   background-color: rgb(0,0,0); /* Fallback color */
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
+
 /* Modal Content */
 .modal-content {
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 30%;
-  height: 20%;
+  width: 20%;
+  min-height: 140px;
+  margin-top: 8%;
   text-align: center;
   color: green;
-  font-size: 30px;
-  margin-top: 2%;
+  font-weight: bold;
+  }
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  margin-left: 90%
 }
+
+.close:hover,
+.close:focus {
+  color: red;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 </style>

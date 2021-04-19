@@ -9,8 +9,8 @@
 		<div class="clearfix">
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
-				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct ref="products" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
+        <EditProduct ref="products" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -22,6 +22,7 @@ import EditProduct from 'modules/generic/products/EditProduct.vue'
 import CategoryList from 'modules/generic/products/CategoryList.vue'
 import axios from 'axios'
 import AUTH from 'src/services/auth'
+import LoginHeaderVue from '../frame/LoginHeader.vue'
 export default {
   data() {
     return {
@@ -42,7 +43,9 @@ export default {
       isError: false,
       errorMessage: null,
       bundleProducts: [],
-      user: AUTH
+      user: AUTH,
+      hasUpdate: false,
+      updateError: false
     }
   },
   watch: {
@@ -136,18 +139,28 @@ export default {
     },
     update(product){
       console.log('[here in list.menu]')
-      let temp = product.available_start_date_time_utc.replace(':', '')
-      let temp1 = product.available_end_date_time_utc.replace(':', '')
-      let timeStart = Number(temp)
-      let timeEnd = Number(temp1)
+      var temp, temp1, timeStart, timeEnd
+      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null){
+        console.log(product.available_end_date_time_utc)
+        temp = ''
+        temp1 = ''
+        timeStart = ''
+        timeEnd = ''
+      }else{
+        temp = product.available_start_date_time_utc.replace(':', '')
+        temp1 = product.available_end_date_time_utc.replace(':', '')
+        timeStart = Number(temp)
+        timeEnd = Number(temp1)
+      }
       let Prod = null
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
         // console.log('error !!!')
-        this.errorMessage = 'Please complete all required fields!'
-        $('#incrementAlert').modal('show')
+        // this.errorMessage = 'Please complete all required fields!'
+        // $('#incrementAlert').modal('show')
+        this.updateError = true
         return
       }
-      if(product.available_start_date_time_utc < product.available_end_date_time_utc && (timeStart > 859 || timeEnd < 1659)){
+      if(product.available_start_date_time_utc < product.available_end_date_time_utc || (timeStart > 859 || timeEnd < 1659)){
         this.isError = false
         console.log('false mn gud', timeStart, timeEnd)
       }else{
@@ -166,18 +179,59 @@ export default {
               old_price: product.old_price,
               available_start_date_time_utc: product.available_start_date_time_utc.HH ? product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm : product.available_start_date_time_utc,
               available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc,
-              add_on_category_1: product.add_on_category_1.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              }),
-              add_on_category_2: product.add_on_category_2.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              })
+              attributes: [
+                {
+                  product_attribute_id: 10, // category 1,
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.CategoryTags.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 11,  // category 2
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.CategoriesTags.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 12,  // category 2
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.bundleProduct.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                }
+              ]
             }
           }
         }else{
@@ -190,18 +244,59 @@ export default {
               old_price: product.old_price,
               available_start_date_time_utc: null,
               available_end_date_time_utc: null,
-              add_on_category_1: product.add_on_category_1.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              }),
-              add_on_category_2: product.add_on_category_2.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              })
+              attributes: [
+                {
+                  product_attribute_id: 10, // category 1,
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.CategoryTags.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 11,  // category 2
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.CategoriesTags.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 12,  // category 2
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.bundleProduct.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                }
+              ]
             }
           }
         }
@@ -224,13 +319,11 @@ export default {
                 position: 0
               }
             ]
-            console.log('update happens')
             $('#loading').css({'display': 'block'})
             this.APIPutRequest(`products/${product.id}`, Prod, response => {
+              this.hasUpdate = true
+              console.log('test ', this.hasUpdate)
               $('#loading').css({'display': 'none'})
-              console.log('[response]', response)
-              console.log('retrieve happens')
-              $('#loading').css({'display': 'block'})
               this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
                 $('#loading').css({'display': 'none'})
                 if(response.products.length > 0) {
@@ -243,7 +336,9 @@ export default {
         }else{
           $('#loading').css({'display': 'block'})
           this.APIPutRequest(`products/${product.id}`, Prod, response => {
-            console.log('[response]', response)
+            this.hasUpdate = true
+            console.log('test ', this.hasUpdate)
+            console.log('[response1]', response)
             $('#loading').css({'display': 'none'})
           })
         }
@@ -262,7 +357,7 @@ export default {
       this.APIGetRequest(`get_addOnCategory_2`, response => {
         this.category2 = response.add_on_category
       })
-    }
+    },
     // save(id) {
     //   $('#loading').css({'display': 'block'})
     //   this.APIPutRequest(`products/${id.id}`, response => {
@@ -277,6 +372,22 @@ export default {
         // }
     //   })
     // }
+    updateAvailability(item){
+      let parameter = {
+        product: {
+          Id: item.id,
+          published: !item.published
+        }
+      }
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`products/${item.id}`, parameter, response => {
+        console.log('[response]', response)
+        console.log('save')
+        $('#loading').css({'display': 'none'})
+        this.retrieveProducts(this.category)
+        console.log('test success')
+      })
+    }
   }
 }
 </script>
