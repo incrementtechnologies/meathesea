@@ -126,7 +126,7 @@
                 <b class="head"> Customer Information </b>
               </div>
               <div class="mt-2">
-                <b class="font-weight-normal"> {{ (data.customer.first_name + ' ' + data.customer.last_name).toUpperCase() }} </b>
+                <b class="font-weight-normal"> {{ (data.customer.first_name !== null && data.customer.first_name !== undefined && data.customer.first_name !== '' ? data.customer.first_name : 'No Name').toUpperCase() }} </b>
               </div>
               <div class="mt-1" style="display: flex; flex-direction: column;">
                 <b class="text-primary"> Contact customer </b>

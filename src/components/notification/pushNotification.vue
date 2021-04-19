@@ -145,13 +145,16 @@ export default {
             if (payload.data.topic !== undefined && payload.data.topic !== null && payload.data.topic !== '' ) {
               switch(payload.data.topic.replace(/-[0-9]/, '').toLowerCase()) {
                 case 'placeorder':
+                  console.log('new order')
                   AUTH.setNotificationType('order')
                   AUTH.setNotificationOrders(payload)
                   this.$emit('new-message', payload)
                   break
                 case 'crockery':
+                  console.log('new crockery')
                   AUTH.setNotificationType('crockery')
                   AUTH.setNotificationCrockery(payload)
+                  this.$emit('new-message', payload)
                   break
               }
               console.log('<new message> ', payload)
