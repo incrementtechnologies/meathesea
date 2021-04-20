@@ -24,7 +24,7 @@
               <div class="card-body p-0 crockeriesBody">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
-                  v-for="(el, ndx) in returnData" 
+                  v-for="(el, ndx) in (typeIndex === 1 && !widerView ? returnSelectedData : returnData )" 
                   :key="ndx + 'body'" 
                   :id="String(ndx) + navs[focusIndex]"
                   :style="'background-color: ' + navs[focusIndex].background"
@@ -34,8 +34,8 @@
                     class="d-flex justify-content-between crockeries"
                     :style="(selectedDataIndex === ndx) ? 'background-color: ' + navs[focusIndex].background : '; background-color: white;'"
                   >
-                    <div v-if="!returnHeaderElements[typeIndex].changeDate && !returnHeaderElements[typeIndex].changeDate">{{el.id}}</div>
-                    <div>
+                    <div v-if="!returnHeaderElements[typeIndex].changeDate">{{el.id}}</div>
+                    <div v-if="!returnHeaderElements[typeIndex].changeDate">
                       {{
                         el.delivery_time_requested === 'ASAP'
                         ?
@@ -44,6 +44,7 @@
                           el.delivery_time_requested
                       }}
                     </div>
+                    <div v-if="returnHeaderElements[typeIndex].changeDate">{{el.date_remarks}}</div>
                   </div>
                 </div>
                 <div v-if="data.length === 0" class="notFoundContainer">
@@ -113,7 +114,7 @@
             <dataTable 
               v-else-if="componentType === 'table' && reRenderTable"
               :headers="tableHeaders"
-              :tableData="allOrders"
+              :tableData="typeIndex === 1 && !widerView? returnTableData : allOrders"
             />
           </div>
         </div>
@@ -167,7 +168,9 @@ export default {
       search: null,
       allOrders: [],
       times: [],
-      onload: true
+      onload: true,
+      isSearching: false,
+      selected_remarks: ''
     }
   },
   // created() {},
@@ -192,6 +195,13 @@ export default {
     }
   },
   computed: {
+    returnSelectedData() {
+      return this.data.filter((thing, index, self) =>
+        index === self.findIndex((t) => (
+          t.date_remarks === thing.date_remarks
+        ))
+      )
+    },
     returnHeaderElements() {
       let a = []
       if(this.widerView) {
@@ -206,7 +216,6 @@ export default {
       return a
     },
     returnCardData() {
-      console.log('[RETURN DATA]', this.data[this.returnSelectedDataIndex])
       return this.data[this.returnSelectedDataIndex]
     },
     returnFocusedData() {
@@ -233,13 +242,17 @@ export default {
     },
     returnTypeIndex() {
       return this.typeIndex
+    },
+    returnTableData() {
+      let temp = this.data.filter(el => {
+        return el.date_remarks === this.returnSelectedData[this.selectedDataIndex].date_remarks
+      })
+      return temp
     }
   },
   methods: {
     onType(event) {
-      console.log(this.search, event.target.value, ' | TESTING LLLL |')
       if(event.target.value === '' && this.search !== null) {
-        console.log('SHOULD RETRIEVE...')
         let date = ''
         if(this.typeIndex === 0) { // today order/s
           date = 'day'
@@ -248,17 +261,17 @@ export default {
         }else if(this.widerView) { // all orders
           date = 'month'
         }
+        this.search = null
         this.getDate(date, null)
         this.retrieveNotification()
-      }else{
+      }else if(event.target.value === ''){
+        this.search = null
+      }else {
         this.search = event.target.value
       }
     },
     onNewMessage(message) {
-      console.log('broadcasted message: ', message)
-      console.log('<TYPE> ', AUTH.notification.type)
       if(AUTH.notification.type === 'order') {
-        console.log('RETRIEVING...')
         this.APIGetRequest(`/orders/${message.data.orderId}`, response => {
           this.reRenderTable = true
           this.data.push(response.orders[0])
@@ -276,31 +289,43 @@ export default {
     },
     searchOrders() {
       const {user} = AUTH
-      console.log('READING ', this.search)
       if(this.search !== '' && this.search !== null) {
         if(this.navs[this.focusIndex].name === 'NEW') {
-          console.log('READING IN NEW')
           this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10&`, response => {
             this.data = response.orders
-            console.log('RESPONSE DATA', this.data)
           })
         } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-          console.log('READING IN PROGRESS')
           this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
             this.data = response.orders
-            console.log('RESPONSE DATA', this.data)
           })
         } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
-          console.log('READING IN DELIVERED')
           this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
             this.data = response.orders
-            console.log('RESPONSE DATA', this.data)
           })
         }
+        // let status = []
+        // if(this.widerView){
+        //   this.getDate('month', 0)
+        // }else if(this.typeIndex === 0) {
+        //   this.getDate('day', 0)
+        //   if(this.focusIndex === 0) {
+        //     status = [10]
+        //   }else if(this.focus)
+        // }else if(this.typeIndex === 1) {
+        //   this.getDate('week', 0)
+        // }
       }
     },
-    sample(e) {
-      console.log('Test::: ', e)
+    returnStatusByFocusIndex() {
+      let status = []
+      if(this.focusIndex === 0) {
+        status = [10]
+      }else if(this.focusIndex === 1) {
+        status = [20, 25]
+      }
+    },
+    searchAPI() {
+
     },
     retrieveOrders () {
       const { user } = AUTH
@@ -310,7 +335,7 @@ export default {
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
-        console.log('[RESPONSE]', response)
+        // console.log('[RESPONSE]', response)
         // response.orders.map((item, ndx) => {
         //   item.local_time_created = moment(item.local_time_created, ['HH:mm']).format('hh:mm')
         // })
@@ -328,12 +353,11 @@ export default {
         //     this.data[2].push(el)
         //   }
         // })
-        console.log(this.data)
         this.selectData(this.selectedDataIndex, 0)
         this.reRender = true
         this.reRenderTable = true
       }, error => {
-        console.log(error, ' <-=---------- ERROR <-|->')
+        console.log(error)
       })
       // }
       // else if(this.widerView) {
@@ -390,11 +414,9 @@ export default {
       }
     },
     change(ndx) {
-      console.log('| TESTING | ', ndx)
       this.reRender = false
       this.focusIndex = ndx
       this.selectedDataIndex = 0
-      // console.log('[test]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
       let status = null
       if(ndx === 0){
         this.currentIndex = 0
@@ -405,7 +427,6 @@ export default {
         status = 30
         this.retrieveOrdersByStatus(status, 0)
       }else{
-        console.log('supposed to be processing')
         this.currentIndex = 2
         status = [20, 25]
         // this.retrieveOrders()
@@ -418,16 +439,13 @@ export default {
       this.data = []
       this.deliStore = []
       this.allOrders = []
-      // console.log('[NDX]', ndx)
       if(Array.isArray(status)){
-        console.log('[orders by status (Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
         $('#loading').css({'display': 'block'})
         let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
         let query = `orders?${date}StoreId=${user.userID}`
         status.forEach((el, ndx) => {
           query += `&Status=${status[ndx]}`
         })
-        console.log('[QUERY] ', query)
         this.APIGetRequest(query, response => {
           $('#loading').css({'display': 'none'})
           this.allOrders = response.orders
@@ -446,7 +464,7 @@ export default {
           this.reRender = true
         })
       }else{
-        console.log('[orders by status (Not Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
+        // console.log('[orders by status (Not Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
         $('#loading').css({'display': 'block'})
         let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
         this.APIGetRequest(`orders?${date}Status=${status}&StoreId=${user.userID}`, response => {
@@ -469,13 +487,13 @@ export default {
       }
     },
     selectData(ndx, popId) {
-      console.log('[selected data index]', ndx)
+      // console.log('[selected data index]', ndx)
       if(this.selectedDataIndex !== ndx || this.onload){
         this.selectedDataIndex = ndx
         this.reRender = false
         this.restaurant = []
         this.deliStore = []
-        console.log('[RESPONSE TIME]')
+        // console.log('[RESPONSE TIME]')
         if(this.data.length > 0){
           this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
             this.times = response.order_accept_time
@@ -487,7 +505,7 @@ export default {
               }
             })
           }, error => {
-            console.log('ACCEPT TIME RETRIEVE ERROR: ', error)
+            console.log(error)
           })
         }
         this.onload = false
@@ -495,6 +513,7 @@ export default {
       }
     },
     switchComponent(component, ndx) {
+      this.selectedDataIndex = 0
       this.widerView = this.returnHeaderElements[ndx].wholeView
       this.reRenderTable = false
       this.typeIndex = ndx
@@ -519,7 +538,6 @@ export default {
       this.reRenderTable = true
     },
     getDate(date, ndx){
-      console.log('date type: ', date)
       if(date === 'day'){
         var start = new Date()
         start.setHours(0, 0, 0, 0)
@@ -527,49 +545,43 @@ export default {
         end.setHours(23, 59, 59, 999)
         this.createdAtMin = start.toISOString().slice(0, 10)
         this.createdAtMax = ''
-        console.log('[Current Date]', this.createdAtMin)
       }else if(date === 'week'){
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        console.log('[THIS IS FIRST DAY]', firstDay.toISOString().slice(0, 10))
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         this.createdAtMax = lastDay.toISOString().slice(0, 10)
-        console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
       }else{
-        console.log('NDX', ndx)
         this.createdAtMin = ''
         this.createdAtMax = ''
-        console.log('monthly data: ', date)
       }
-      console.log('[ndx]', this.widerView && this.typeIndex === 0)
-      if(this.focusIndex === 0){
+      if(this.focusIndex === 0 && !this.isSearching){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([10], 1)
         }else if(!this.widerView && this.typeIndex === 1){
           this.retrieveOrdersByStatus([10], 1)
         }else if(this.widerView && this.typeIndex === 1){
-          this.retrieveOrdersByStatus([10], 1)
+          this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
         }else if(this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
-      }else if(this.focusIndex === 1){
+      }else if(this.focusIndex === 1 && !this.isSearching){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([20, 25], 1)
         }else if(!this.widerView && this.typeIndex === 1){
           this.retrieveOrdersByStatus([20, 25], 1)
         }else if(this.widerView && this.typeIndex === 1){
-          this.retrieveOrdersByStatus([20, 25], 1)
+          this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
         }else if(this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
-      }else if(this.focusIndex === 2){
+      }else if(this.focusIndex === 2 && !this.isSearching){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([30], 1)
         }else if(!this.widerView && this.typeIndex === 1){
           this.retrieveOrdersByStatus([30], 1)
         }else if(this.widerView && this.typeIndex === 1){
-          this.retrieveOrdersByStatus([30], 1)
+          this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
         }else if(this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
@@ -615,13 +627,10 @@ export default {
       // }
       let status = []
       if(this.focusIndex === 0) {
-        console.log('PENDING...')
         status = 10
       }else if(this.focusIndex === 1) {
-        console.log('PROCESSING...')
         status = [20, 25]
       }else if(this.focusIndex === 2) {
-        console.log('COMPLETED...')
         status = 30
       }
       this.retrieveNotification()

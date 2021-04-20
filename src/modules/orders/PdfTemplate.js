@@ -9,24 +9,25 @@ export default {
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
     this.date = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
-    this.name = data.customer.first_name + ' ' + data.customer.last_name
+    this.name = data.customer.first_name !== null ? data.customer.first_name : 'No Name'
     this.order_number = data.id
     this.total = data.order_total
     this.currency = data.customer_currency_code
     this.purpose = data.order_status
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
+    this.deliveryTime = data.order_accept_start_time + '-' + data.order_accept_end_time
     data.order_items.forEach(element => {
       sub.push(element.product.price * element.quantity)
     })
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
-    if(data.delivery_time_requested === 'ASAP'){
-      this.deliveryTime = data.local_time_created
-    }else{
-      this.deliveryTime = data.delivery_time_requested
-    }
+    // if(data.delivery_time_requested === 'ASAP'){
+    //   this.deliveryTime = data.local_time_created
+    // }else{
+    //   this.deliveryTime = data.delivery_time_requested
+    // }
   },
   getImage(image) {
     this.imageLogo = image

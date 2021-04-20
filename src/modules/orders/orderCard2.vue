@@ -294,7 +294,6 @@ export default {
   mounted(){
     const {vfs} = pdfFonts.pdfMake
     PDFTemplate.vfs = vfs
-    console.log('[DATA]', this.data)
     // this.data.foreach((item, index) => {
       // console.log(item)
       // item.local_time_create = moment(item.local_time_create, ['HH.mm']).format('hh:mm')
@@ -390,7 +389,6 @@ export default {
       this.PdfTemplate.template()
     },
     accept(id) {
-      console.log('order Time: ', this.times[this.focusIndex].id)
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20&orderAcceptTimeId=${this.times[this.focusIndex].id}`, {}, response => {
         console.log('Accept order response: ', this.times[this.focusIndex])
@@ -428,10 +426,8 @@ export default {
       }else if(status === 'cancel') {
         tempStatus = 40
       }
-      console.log('status', status, currStatus)
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=${tempStatus}`, {}, response => {
-        console.log('Accept order response: ', response)
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: id, process: status === 'complete' ? 'complete' : 'delivering'})
       }, error => {
@@ -439,10 +435,8 @@ export default {
       })
     },
     reject(id) {
-      console.log('reject reason index : ', id)
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=${this.rejectionReason}`, {}, response => {
-        console.log('Reject order response: ', response)
         $('#loading').css({'display': 'none'})
         this.$refs['xButton'].click()
         this.$emit('orderProcessed', {id: id, process: 'reject'})
@@ -465,7 +459,6 @@ export default {
     }
   },
   updated() {
-    console.log('[status]', this.data)
     if(!_.isEmpty(this.data)){
       if(this.data.order_status.toLowerCase() === 'processing'){
         this.progressButtons[0].status = 'yes'
