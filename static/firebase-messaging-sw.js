@@ -2,7 +2,6 @@ importScripts('https://www.gstatic.com/firebasejs/8.3.3/firebase-app.js')
 importScripts('https://www.gstatic.com/firebasejs/8.3.3/firebase-messaging.js')
 
 try {
-
   if (!firebase.apps.length) {
     firebase.initializeApp({
       apiKey: 'AIzaSyCiYflBpvnQKgJur5yzHrvHieO4MSDyrBU',
@@ -45,5 +44,5 @@ try {
       notificationOptions);
   });
 }catch(error) {
-  console.log(error)
+  firebase.app()
 }

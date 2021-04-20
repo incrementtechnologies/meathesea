@@ -446,7 +446,8 @@ export default {
       prevMenu: 0,
       subPrevMenu: 0,
       menuFlag: true,
-      auth: AUTH
+      auth: AUTH,
+      lastNavigation: ''
     }
   },
   computed: {
@@ -456,19 +457,21 @@ export default {
   },
   methods: {
     setActive(index){
-      let data = this.menu.filter(el => el.flag === true)
-      this.menu[this.menu.indexOf(data[0])].flag = false
-      if(this.prevMenu !== index){
-        this.menu[this.prevMenu].flag = false
-        this.menu[index].flag = true
-        if(this.menu[this.prevMenu].subMenu !== null){
-          this.menu[this.prevMenu].subMenu[this.subPrevMenu].flag = false
+      if(!this.menu[index].flag){
+        let data = this.menu.filter(el => el.flag === true)
+        this.menu[this.menu.indexOf(data[0])].flag = false
+        if(this.prevMenu !== index){
+          this.menu[this.prevMenu].flag = false
+          this.menu[index].flag = true
+          if(this.menu[this.prevMenu].subMenu !== null){
+            this.menu[this.prevMenu].subMenu[this.subPrevMenu].flag = false
+          }
+          this.prevMenu = index
         }
-        this.prevMenu = index
-      }
-      if(this.menu[index].subMenu === null){
-        ROUTER.push('/' + this.menu[this.prevMenu].path)
-        $('.navbar-collapse').collapse('hide')
+        if(this.menu[index].subMenu === null){
+          ROUTER.push('/' + this.menu[this.prevMenu].path)
+          $('.navbar-collapse').collapse('hide')
+        }
       }
     },
     setActiveOff(index){
