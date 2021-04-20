@@ -38,12 +38,12 @@
           <button class="buttons" @click="chooseFile()" >Add picture</button>
           <input type="file" id="choose_file" accept="image/*" hidden @change="selectFile($event)"/>
         </div>
-        <div v-if="data">
-          <p class="name" style="float:left;margin-left:0 !important;margin-top:7%;"><b>{{bundle ? 'BUNDLE TITLE1' : 'PRODUCT TITLE'}}</b></p>
+        <div v-if="data" style="margin-left:0 !important">
+          <p class="name" style="margin-left:0 !important;margin-top:7%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
             <input type="text" style="margin-top:10%;width: 100%" class="col-sm-12 form-control form-control-custom" v-model="data.name" placeholder="Type product title here...">
         </div>
         <div v-else>
-          <p class="name" style="margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE1' : 'PRODUCT TITLE'}}</b></p>
+          <p class="name" style="margin-top: 3%;"><b>{{bundle ? 'BUNDLE TITLE' : 'PRODUCT TITLE'}}</b></p>
           <input type="text" class="col-sm-12 form-control form-control-custom" v-model="name" placeholder="Type product title here..." required>
         </div>
       </div>
@@ -95,26 +95,48 @@
             </div>
           </div>       
         </div>
+      <div v-if="data" style="margin-left: 0%; margin-top: 3%;width:96%">
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left:25%">{{bundle ? 'LIMIT CHOICE TO: -' : 'LIMIT CHOICE TO: 1'}}</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="data ? data.add_on_category_1 : (bundle ? bundleProduct : CategoryTags)"
+            :tags="bundle ? bundleProduct : data.attributes[0].attribute_values"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
-            @tags-changed="newTags => data ? data.add_on_category_1 = newTags : (bundle ? bundleProduct = newTags : CategoryTags = newTags)"
+            @tags-changed="newTags => bundle ? bundleProduct = newTags : data.add_on_category_1 = newTags"
           />
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
-            :tags="data ? data.add_on_category_2 : (bundle ? bundleCategory : CategoriesTags)"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-            @tags-changed="newTags => data ? data.add_on_category_2 = newTags : (bundle ? bundleCategory = newTags : CategoriesTags = newTags)"
           />
         </div>
+      </div>
+      <div v-else style="margin-left: 0%; margin-top: 3%;width:96%">
+        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'BUNDLE ITEMS' : 'ADD-ON CATEGORY 1'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left:25%">{{bundle ? 'LIMIT CHOICE TO: -' : 'LIMIT CHOICE TO: 1'}}</b></p>
+        <div style="width:100%">
+          <vue-tags-input
+            v-model="category"
+            :tags="bundle ? bundleProduct : sample"
+            :autocomplete-items="filteredCategory"
+            placeholder="Add Category"
+            @tags-changed="newTags => bundle ? bundleProduct = newTags : sample = newTags"
+          />
+        </div>
+        <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
+        <div style="width:100%">
+          <vue-tags-input
+            v-model="categories"
+            :tags="newCategories"
+            :autocomplete-items="filteredItems"
+            placeholder="Add Another Category"
+            @tags-changed="newTags => newCategories = newTags"
+          />
+        </div>
+      </div>
         <div v-if="data" class="row" style="margin-left: 0% !important;width: 100%">
           <p class="name" style="margin-left: 0%; margin-top: 3%; width: 100%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
@@ -230,6 +252,8 @@ export default {
   props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError'],
   data(){
     return {
+      newCategories: [],
+      sample: [],
       bundleProduct: [],
       bundleCategory: [],
       updateTimeError: false,
@@ -281,6 +305,7 @@ export default {
         element['text'] = element.name
         this.autocompleteCategory.push(element)
         this.CategoryTags.push(element)
+        console.log('test1 ', this.CategoryTags)
       })
     }
     if(this.category2 !== null){
@@ -288,6 +313,7 @@ export default {
         element['text'] = element.name
         this.autocompleteItems.push(element)
         this.CategoriesTags.push(element)
+        console.log('test2 ', this.CategoriesTags)
       })
     }
     if(this.bundle === true){
@@ -336,7 +362,7 @@ export default {
       return true
     },
     hasUpdateErrorWatch(){
-      console.log('[update eroor', this.updateError)
+      console.log('[update error]', this.updateError)
       if(this.updateError === true){
         let modal = document.getElementById('errorModal')
         modal.style.display = 'block'
@@ -357,8 +383,6 @@ export default {
       let errorModal = document.getElementById('errorModal')
       if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.old_price === null || this.old_price === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
         console.log('error !!!')
-        // this.errorMessage = 'Please complete all required fields!'
-        // $('#incrementAlert').modal('show')
         errorModal.style.display = 'block'
         return
       }
@@ -378,7 +402,78 @@ export default {
             {
               product_attribute_id: 10, // category 1,
               attribute_control_type_name: 'DropdownList',
-              attribute_values: this.CategoryTags.map((el, index) => {
+              attribute_values: this.sample.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            },
+            {
+              product_attribute_id: 11,  // category 2
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.newCategories.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            },
+            {
+              product_attribute_id: 12,  // bundle
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.bundleProduct.map((el, index) => {
+                let temp = {}
+                temp.name = el.name
+                temp.display_order = index + 1
+                temp.quantity = 1
+                temp.price_adjustment = 0
+                temp.weight_adjustment = 0
+                temp.cost = 0
+                temp.type = 'Simple'
+                temp.type_id = 0
+                temp.associated_product_id = 0
+                return temp
+              })
+            }
+          ].filter(el => {
+            if(this.bundle){
+              return [11, 12].includes(el.product_attribute_id)
+            } else {
+              return [10, 11].includes(el.product_attribute_id)
+            }
+          }),
+          available_start_date_time_utc: '',
+          available_end_date_time_utc: '',
+          published: false
+        }
+      }else{
+        parameter = {
+          category_id: this.categoryId,
+          store_ids: [user.userID],
+          name: this.name,
+          full_description: this.full_description,
+          price: this.price,
+          old_price: this.old_price,
+          attributes: [
+            {
+              product_attribute_id: 10, // category 1,
+              attribute_control_type_name: 'DropdownList',
+              attribute_values: this.sample.map((el, index) => {
                 let temp = {}
                 temp.name = el.name
                 temp.display_order = index + 1
@@ -410,7 +505,7 @@ export default {
               })
             },
             {
-              product_attribute_id: 12,  // category 2
+              product_attribute_id: 12,  // bundle
               attribute_control_type_name: 'DropdownList',
               attribute_values: this.bundleProduct.map((el, index) => {
                 let temp = {}
@@ -426,30 +521,12 @@ export default {
                 return temp
               })
             }
-          ],
-          available_start_date_time_utc: '',
-          available_end_date_time_utc: '',
-          published: false
-        }
-      }else{
-        parameter = {
-          category_id: this.categoryId,
-          store_ids: [user.userID],
-          name: this.name,
-          full_description: this.full_description,
-          price: this.price,
-          old_price: this.old_price,
-          AddonCategory1: this.CategoryTags.map(el => {
-            let temp = {}
-            temp.id = el.id
-            temp.namme = el.name
-            return temp
-          }),
-          AddonCategory2: this.CategoriesTags.map(el => {
-            let temp = {}
-            temp.id = el.id
-            temp.namme = el.name
-            return temp
+          ].filter(el => {
+            if(this.bundle){
+              return [11, 12].includes(el.product_attribute_id)
+            } else {
+              return [10, 11].includes(el.product_attribute_id)
+            }
           }),
           available_start_date_time_utc: this.time_from.HH + ':' + this.time_from.mm,
           available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm,

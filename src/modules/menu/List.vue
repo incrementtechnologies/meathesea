@@ -147,16 +147,31 @@ export default {
         timeStart = ''
         timeEnd = ''
       }else{
-        temp = product.available_start_date_time_utc.replace(':', '')
-        temp1 = product.available_end_date_time_utc.replace(':', '')
-        timeStart = Number(temp)
-        timeEnd = Number(temp1)
+        if(product.available_start_date_time_utc === 'object' && product.available_end_date_time_utc === 'object'){
+          console.log('object')
+          timeStart = product.available_start_date_time_utc
+          timeEnd = product.available_end_date_time_utc
+        }else if(product.available_end_date_time_utc === String && product.available_start_date_time_utc === String){
+          console.log('string')
+          console.log(product.available_start_date_time_utc)
+          temp = product.available_start_date_time_utc.replace(':', '')
+          temp1 = product.available_end_date_time_utc.replace(':', '')
+          timeStart = Number(temp)
+          timeEnd = Number(temp1)
+        }else{
+          console.log('hh and mm')
+          temp = product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm
+          temp1 = product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
+          let time = temp.replace(':', '')
+          let time1 = temp1.replace(':', '')
+          timeStart = Number(time)
+          timeEnd = Number(time1)
+          console.log(product.available_start_date_time_utc.HH, product.available_end_date_time_utc.HH)
+          console.log(time, time1)
+        }
       }
       let Prod = null
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
-        // console.log('error !!!')
-        // this.errorMessage = 'Please complete all required fields!'
-        // $('#incrementAlert').modal('show')
         this.updateError = true
         return
       }
@@ -183,7 +198,7 @@ export default {
                 {
                   product_attribute_id: 10, // category 1,
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.CategoryTags.map((el, index) => {
+                  attribute_values: product.sample.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -200,7 +215,7 @@ export default {
                 {
                   product_attribute_id: 11,  // category 2
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.CategoriesTags.map((el, index) => {
+                  attribute_values: product.newCategories.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -231,7 +246,13 @@ export default {
                     return temp
                   })
                 }
-              ]
+              ].filter(el => {
+                if(this.bundle){
+                  return [11, 12].includes(el.product_attribute_id)
+                } else {
+                  return [10, 11].includes(el.product_attribute_id)
+                }
+              })
             }
           }
         }else{
@@ -296,7 +317,13 @@ export default {
                     return temp
                   })
                 }
-              ]
+              ].filter(el => {
+                if(this.bundle){
+                  return [11, 12].includes(el.product_attribute_id)
+                } else {
+                  return [10, 11].includes(el.product_attribute_id)
+                }
+              })
             }
           }
         }
