@@ -14,7 +14,7 @@
           > 
             {{
               (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ? '---' :
-              (h.key.toLowerCase() === 'created_on_utc') ? new Date(el[h.key]).toLocaleDateString().replaceAll("/", "-") : el[h.key]
+              (h.key.toLowerCase() === 'created_on_utc') ? returnDate(el) : el[h.key]
             }} 
           </td>
         </tr>
@@ -45,7 +45,22 @@ export default {
     }
   },
   mounted() {},
-  updated() {}
+  updated() {},
+  methods: {
+    returnDate(el) {
+      let d = new Date(el.created_on_utc)
+      let dd = d.getDate()
+      let mm = d.getMonth() + 1
+      let yy = d.getFullYear()
+      if(String(dd).length < 2) {
+        dd = '0' + dd
+      }
+      if(String(mm).length < 2) {
+        mm = '0' + mm
+      }
+      return yy + '-' + mm + '-' + dd
+    }
+  }
 }
 </script>
 <style scoped>
