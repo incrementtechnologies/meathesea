@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -45,7 +45,9 @@ export default {
       bundleProducts: [],
       user: AUTH,
       hasUpdate: false,
-      updateError: false
+      updateError: false,
+      errorBundleCategory: false,
+      errorProductCategory: false
     }
   },
   watch: {
@@ -183,6 +185,23 @@ export default {
         console.log('true mn gud', timeEnd, timeStart)
         this.isError = true
         return
+      }if(this.bundled === true){
+        if(product.attributes[0].attribute_values.length > 1){
+          this.errorBundleCategory = true
+          console.log('error choose only 1!!!')
+          return
+        }else{
+          this.errorBundleCategory = false
+        }
+      }
+      if(this.bundled === false){
+        if(product.attributes[0].attribute_values.length > 1){
+          this.errorProductCategory = true
+          console.log('error choose only 12!!!')
+          return
+        }else{
+          this.errorProductCategory = false
+        }
       }
       if(product !== null){
         console.log('|PRODUCT ATTRIBUTES| ', product.attributes)
