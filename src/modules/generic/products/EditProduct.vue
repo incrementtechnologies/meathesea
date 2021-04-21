@@ -105,6 +105,11 @@
             placeholder="Add Category"
             @tags-changed="newTags => bundle ? data.attributes[1].attribute_values = newTags : data.attributes[0].attribute_values = newTags"
           />
+          <div v-if="bundle === false">
+            <div v-show="errorProductCategory">
+              <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+            </div>
+          </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
@@ -127,6 +132,11 @@
             placeholder="Add Category"
             @tags-changed="newTags => bundle ? newBundle = newTags : sample = newTags"
           />
+          <div v-if="bundle === false">
+            <div v-show="errorProductCategory">
+              <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+            </div>
+          </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
@@ -137,6 +147,9 @@
             placeholder="Add Another Category"
              @tags-changed="newTags => newCategories = newTags"
           />
+          <div v-show="errorBundleCategory">
+            <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+          </div>
         </div>
       </div>
         <div v-if="data" class="row" style="margin-left: 0% !important;width: 100%">
@@ -251,7 +264,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'errorProductCategory', 'errorBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -388,6 +401,24 @@ export default {
       if(this.all_day === false && (this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9)){
         this.isSuccess = true
         return
+      }
+      if(this.bundle === true){
+        if(this.newCategories.length > 1){
+          this.errorBundleCategory = true
+          console.log('error choose only 1!!!')
+          return
+        }else{
+          this.errorBundleCategory = false
+        }
+      }
+      if(this.bundle === false){
+        if(this.sample.length > 1){
+          this.errorProductCategory = true
+          console.log(this.sample)
+          return
+        }else{
+          this.errorProductCategory = false
+        }
       }
       if(this.all_day === true){
         parameter = {
