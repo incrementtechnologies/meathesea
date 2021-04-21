@@ -123,21 +123,22 @@ export default {
       this.APIGetRequest(`/products/${id}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
+          response.products[0].attributes.forEach(element => {
+            element.attribute_values.forEach(item => {
+              console.log(item)
+              item['text'] = item.name
+            })
+          })
           this.data = response.products[0]
-          response.products[0].add_on_category_1.forEach(element => {
-            element['text'] = element.name
-          })
-          response.products[0].add_on_category_2.forEach(element => {
-            element['text'] = element.name
-          })
           // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
-          console.log('here', this.data)
+          console.log('here123', this.data)
         } else {
           this.data = null
         }
       })
     },
     update(product){
+      console.log('gg', product.attributes)
       console.log('[here in list.menu]')
       var temp, temp1, timeStart, timeEnd
       if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null){
@@ -184,6 +185,7 @@ export default {
         return
       }
       if(product !== null){
+        console.log('|PRODUCT ATTRIBUTES| ', product.attributes)
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
             product: {
@@ -198,7 +200,7 @@ export default {
                 {
                   product_attribute_id: 10, // category 1,
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.sample.map((el, index) => {
+                  attribute_values: product.attributes[0].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -215,7 +217,7 @@ export default {
                 {
                   product_attribute_id: 11,  // category 2
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.newCategories.map((el, index) => {
+                  attribute_values: product.attributes[(this.bundled ? 0 : 1)].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -230,9 +232,9 @@ export default {
                   })
                 },
                 {
-                  product_attribute_id: 12,  // category 2
+                  product_attribute_id: 12,  // bundle
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.bundleProduct.map((el, index) => {
+                  attribute_values: product.attributes[1].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -247,7 +249,7 @@ export default {
                   })
                 }
               ].filter(el => {
-                if(this.bundle){
+                if(this.bundled){
                   return [11, 12].includes(el.product_attribute_id)
                 } else {
                   return [10, 11].includes(el.product_attribute_id)
@@ -269,7 +271,7 @@ export default {
                 {
                   product_attribute_id: 10, // category 1,
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.CategoryTags.map((el, index) => {
+                  attribute_values: product.attributes[0].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -286,7 +288,7 @@ export default {
                 {
                   product_attribute_id: 11,  // category 2
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.CategoriesTags.map((el, index) => {
+                  attribute_values: product.attributes[(this.bundled ? 0 : 1)].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -301,9 +303,9 @@ export default {
                   })
                 },
                 {
-                  product_attribute_id: 12,  // category 2
+                  product_attribute_id: 12,  // bundle
                   attribute_control_type_name: 'DropdownList',
-                  attribute_values: product.bundleProduct.map((el, index) => {
+                  attribute_values: product.attributes[1].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
@@ -318,7 +320,7 @@ export default {
                   })
                 }
               ].filter(el => {
-                if(this.bundle){
+                if(this.bundled){
                   return [11, 12].includes(el.product_attribute_id)
                 } else {
                   return [10, 11].includes(el.product_attribute_id)
