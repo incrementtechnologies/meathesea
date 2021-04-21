@@ -32,8 +32,14 @@
       <div class="marginTop" v-else-if="(data.crockery_status.toLowerCase() === 'processing')">
         <center>
           <div class="successButton buttonCommon progressAccepted"><i class="fas fa-check-circle mr-4"></i> ACCEPTED </div>
-          <div class="mt-3 buttonCommon progressCollect"> COLLECT </div>
-          <div class="mt-5 buttonCommon reschedule"> reschedule collection </div>
+          <div class="mt-3 buttonCommon progressCollect" style="cursor:pointer;" @click="collected(data.id, data.address_id)"> COLLECT </div>
+          <div class="mt-5 buttonCommon reschedule" style="cursor:pointer;" @click="reschedule(data.id, data.address_id)"><p> RESCHEDULE COLLECTION </p></div>
+        </center>
+      </div>
+      <div class="marginTop" v-else-if="(data.crockery_status.toLowerCase() === 'reschedule')">
+        <center>
+          <div class="successButton buttonCommon progressAccepted"><i class="fas fa-check-circle mr-4"></i> ACCEPTED </div>
+          <div class="mt-5 buttonCommon reschedule" style="cursor:pointer;background-color:#800000;color:white;height: 80px;border-radius: 30px;border: 1px solid black;"><p> RESCHEDULE REQUESTED </p></div>
         </center>
       </div>
       <div class="marginTop" v-else-if="data.order_details.order_status.toLowerCase() === 'complete'">
@@ -47,14 +53,35 @@
 </template>
 <script>
 import props from '../../components/stripe/props'
+import AUTH from 'src/services/auth'
 export default {
   data() {
     return {}
   },
   methods: {
-    acceptCrockery(id, addID){
-      console.log('ADDRESS ID', addID)
-      this.$parent.acceptCrockery(id, addID)
+    acceptCrockery(id, addID) {
+      const { user } = AUTH
+      this.APIPutRequest(`update_crockery?CrockeryId=${id}&AddressId=${addID}&CrockeryStatusId=40`, {}, response => {
+        console.log('READING IN ACCEPT', response)
+        this.$parent.retrieveNotification()
+        this.$parent.retrieveCrockeryByStatus([20, 30], 0)
+      })
+    },
+    reschedule(id, addID) {
+      const { user } = AUTH
+      this.APIPutRequest(`update_crockery?CrockeryId=${id}&AddressId=${addID}&CrockeryStatusId=45`, {}, response => {
+        console.log('READING IN ACCEPT', response)
+        this.$parent.retrieveNotification()
+        this.$parent.retrieveCrockeryByStatus([40, 45], 0)
+      })
+    },
+    collected(id, addID) {
+      this.APIPutRequest(`update_crockery?CrockeryId=${id}&AddressId=${addID}&CrockeryStatusId=50`, {}, response => {
+        console.log('READING IN ACCEPT', response)
+        this.$parent.retrieveNotification()
+        this.$parent.retrieveCrockeryByStatus(50, 0)
+        this.$parent.focusIndex = 2
+      })
     }
   },
   props: ['data'],
@@ -70,6 +97,7 @@ export default {
   border: 1px solid #707070;
   width: 365px !important;
   /* min-height: calc(100vh - 205px) !important; */
+  margin-bottom: 100px;
 }
 .car1Header {
   background-color: #FFFFFF;
@@ -95,7 +123,7 @@ export default {
   box-shadow: none;
 }
 .marginTop {
-  margin-top: 70px;
+  margin-top: 60px;
 }
 .progressAccepted {
   display: flex;
