@@ -44,7 +44,7 @@
                           el.delivery_time_requested
                       }}
                     </div>
-                    <div v-if="returnHeaderElements[typeIndex].changeDate">{{el.date_remarks}}</div>
+                    <div v-if="returnHeaderElements[typeIndex].changeDate">{{el.date_remarks !== '' ? el.date_remarks : returnDate(el)}}</div>
                   </div>
                 </div>
                 <div v-if="data.length === 0" class="notFoundContainer">
@@ -198,7 +198,7 @@ export default {
     returnSelectedData() {
       return this.data.filter((thing, index, self) =>
         index === self.findIndex((t) => (
-          t.date_remarks === thing.date_remarks
+          this.returnDate(t) === this.returnDate(thing)
         ))
       )
     },
@@ -245,7 +245,7 @@ export default {
     },
     returnTableData() {
       let temp = this.data.filter(el => {
-        return el.date_remarks === this.returnSelectedData[this.selectedDataIndex].date_remarks
+        return this.returnDate(el) === this.returnDate(this.returnSelectedData[this.selectedDataIndex])
       })
       return temp
     }
@@ -290,19 +290,19 @@ export default {
     searchOrders() {
       const {user} = AUTH
       if(this.search !== '' && this.search !== null) {
-        if(this.navs[this.focusIndex].name === 'NEW') {
-          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10&`, response => {
-            this.data = response.orders
-          })
-        } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
-            this.data = response.orders
-          })
-        } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
-          this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
-            this.data = response.orders
-          })
-        }
+        // if(this.navs[this.focusIndex].name === 'NEW') {
+        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10&`, response => {
+        //     this.data = response.orders
+        //   })
+        // } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
+        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
+        //     this.data = response.orders
+        //   })
+        // } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
+        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
+        //     this.data = response.orders
+        //   })
+        // }
         // let status = []
         // if(this.widerView){
         //   this.getDate('month', 0)
@@ -314,6 +314,37 @@ export default {
         // }else if(this.typeIndex === 1) {
         //   this.getDate('week', 0)
         // }
+        if(this.focusIndex === 0){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([10])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([10])
+          }else if(this.widerView && this.typeIndex === 1){
+            this.searchAPI([10, 20, 25, 30, 40, 50, 60, 70])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([70, 60, 50])
+          }
+        }else if(this.focusIndex === 1){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([20, 25])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([20, 25])
+          }else if(this.widerView && this.typeIndex === 1){
+            this.searchAPI([10, 20, 25, 30, 40, 50, 60, 70])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([70, 60, 50])
+          }
+        }else if(this.focusIndex === 2){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([30])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([30])
+          }else if(this.widerView && this.typeIndex === 1){
+            this.searchAPI([10, 20, 25, 30, 40, 50, 60, 70])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([70, 60, 50])
+          }
+        }
       }
     },
     returnStatusByFocusIndex() {
@@ -324,8 +355,30 @@ export default {
         status = [20, 25]
       }
     },
-    searchAPI() {
-
+    searchAPI(status) {
+      const {user} = AUTH
+      this.restaurant = []
+      this.data = []
+      this.deliStore = []
+      this.allOrders = []
+      let params = `orders_search?Keyword=${this.search}&StoreId=${user.userID}`
+      status.forEach(el => {
+        params += `&Status=${el}`
+      })
+      this.APIGetRequest(params, response => {
+        this.allOrders = response.orders
+        this.data = response.orders
+        response.orders.map(el => {
+          el.order_items.map(each => {
+            if(each.product.category_type === 1){
+              this.deliStore.push(each)
+            }else{
+              this.restaurant.push(each)
+            }
+          })
+        })
+        this.selectData(this.selectedDataIndex, 0)
+      })
     },
     retrieveOrders () {
       const { user } = AUTH
@@ -410,7 +463,17 @@ export default {
       }else if(new Date(el.created_on_utc).toLocaleDateString().replaceAll('/', '-') === yesterday) {
         return 'Yesterday'
       }else {
-        return new Date(el.created_on_utc).toLocaleDateString().replaceAll('/', '-')
+        let d = new Date(el.created_on_utc)
+        let dd = d.getDate()
+        let mm = d.getMonth() + 1
+        let yy = d.getFullYear()
+        if(String(dd).length < 2) {
+          dd = '0' + dd
+        }
+        if(String(mm).length < 2) {
+          mm = '0' + mm
+        }
+        return yy + '-' + mm + '-' + dd
       }
     },
     change(ndx) {
@@ -555,7 +618,7 @@ export default {
         this.createdAtMin = ''
         this.createdAtMax = ''
       }
-      if(this.focusIndex === 0 && !this.isSearching){
+      if(this.focusIndex === 0){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([10], 1)
         }else if(!this.widerView && this.typeIndex === 1){
@@ -565,7 +628,7 @@ export default {
         }else if(this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
-      }else if(this.focusIndex === 1 && !this.isSearching){
+      }else if(this.focusIndex === 1){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([20, 25], 1)
         }else if(!this.widerView && this.typeIndex === 1){
@@ -575,7 +638,7 @@ export default {
         }else if(this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
-      }else if(this.focusIndex === 2 && !this.isSearching){
+      }else if(this.focusIndex === 2){
         if(!this.widerView && this.typeIndex === 0){
           this.retrieveOrdersByStatus([30], 1)
         }else if(!this.widerView && this.typeIndex === 1){
