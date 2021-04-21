@@ -100,18 +100,20 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="bundle ? bundleProduct : data.attributes[0].attribute_values"
+            :tags="bundle ? (data.attributes.length > 0 ? data.attributes[1].attribute_values : []) : (data.attributes.length > 0 ? data.attributes[0].attribute_values : [])"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
-            @tags-changed="newTags => bundle ? bundleProduct = newTags : data.add_on_category_1 = newTags"
+            @tags-changed="newTags => bundle ? data.attributes[1].attribute_values = newTags : data.attributes[0].attribute_values = newTags"
           />
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
+            :tags="bundle ? data.attributes.length > 0 && data.attributes[0].attribute_values : data.attributes.length > 0 && data.attributes[1].attribute_values"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
+             @tags-changed="newTags => bundle ? data.attributes[0].attribute_values = newTags : data.attributes[1].attribute_values = newTags"
           />
         </div>
       </div>
@@ -120,10 +122,10 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="bundle ? bundleProduct : sample"
+            :tags="bundle ? newBundle : sample"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
-            @tags-changed="newTags => bundle ? bundleProduct = newTags : sample = newTags"
+            @tags-changed="newTags => bundle ? newBundle = newTags : sample = newTags"
           />
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
@@ -133,7 +135,7 @@
             :tags="newCategories"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-            @tags-changed="newTags => newCategories = newTags"
+             @tags-changed="newTags => newCategories = newTags"
           />
         </div>
       </div>
@@ -252,10 +254,10 @@ export default {
   props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError'],
   data(){
     return {
+      newBundle: [],
+      newDataCategory: [],
       newCategories: [],
       sample: [],
-      bundleProduct: [],
-      bundleCategory: [],
       updateTimeError: false,
       isSuccess: false,
       encodedImage: null,
@@ -305,7 +307,6 @@ export default {
         element['text'] = element.name
         this.autocompleteCategory.push(element)
         this.CategoryTags.push(element)
-        console.log('test1 ', this.CategoryTags)
       })
     }
     if(this.category2 !== null){
@@ -313,27 +314,25 @@ export default {
         element['text'] = element.name
         this.autocompleteItems.push(element)
         this.CategoriesTags.push(element)
-        console.log('test2 ', this.CategoriesTags)
       })
     }
     if(this.bundle === true){
       this.bundleProducts.forEach(element => {
         element['text'] = element.Name
         this.autocompleteCategory.push(element)
-        this.bundleProduct.push(element)
-      })
-    }
-    if(this.bundle === true){
-      this.category1.forEach(element => {
-        element['text'] = element.name
-        this.autocompleteItems.push(element)
-        this.bundleCategory.push(element)
       })
     }
     if(this.hasUpdate === true){
       let modal = document.getElementById('updateModal')
       modal.style.display = 'block'
     }
+    // if(this.data.attributes[0].attribute_values !== null){
+    //   this.data.attributes[0].attribute_values.forEach(element => {
+    //     element['text'] = element.name
+    //     this.newDataCategory.push(element)
+    //     console.log('test123 ', this.newDataCategory)
+    //   })
+    // }
   },
   computed: {
     filteredCategory() {
@@ -436,7 +435,7 @@ export default {
             {
               product_attribute_id: 12,  // bundle
               attribute_control_type_name: 'DropdownList',
-              attribute_values: this.bundleProduct.map((el, index) => {
+              attribute_values: this.newBundle.map((el, index) => {
                 let temp = {}
                 temp.name = el.name
                 temp.display_order = index + 1
@@ -450,13 +449,7 @@ export default {
                 return temp
               })
             }
-          ].filter(el => {
-            if(this.bundle){
-              return [11, 12].includes(el.product_attribute_id)
-            } else {
-              return [10, 11].includes(el.product_attribute_id)
-            }
-          }),
+          ],
           available_start_date_time_utc: '',
           available_end_date_time_utc: '',
           published: false
@@ -507,7 +500,7 @@ export default {
             {
               product_attribute_id: 12,  // bundle
               attribute_control_type_name: 'DropdownList',
-              attribute_values: this.bundleProduct.map((el, index) => {
+              attribute_values: this.newBundle.map((el, index) => {
                 let temp = {}
                 temp.name = el.name
                 temp.display_order = index + 1
@@ -521,13 +514,7 @@ export default {
                 return temp
               })
             }
-          ].filter(el => {
-            if(this.bundle){
-              return [11, 12].includes(el.product_attribute_id)
-            } else {
-              return [10, 11].includes(el.product_attribute_id)
-            }
-          }),
+          ],
           available_start_date_time_utc: this.time_from.HH + ':' + this.time_from.mm,
           available_end_date_time_utc: this.time_until.HH + ':' + this.time_until.mm,
           published: false
