@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -40,7 +40,8 @@ export default {
       category: null,
       add: false,
       photo: null,
-      isError: false,
+      isErrorTimeStart: false,
+      isErrorTimeEnd: false,
       errorMessage: null,
       bundleProducts: [],
       user: AUTH,
@@ -127,68 +128,85 @@ export default {
         if(response.products.length > 0) {
           response.products[0].attributes.forEach(element => {
             element.attribute_values.forEach(item => {
-              console.log(item)
               item['text'] = item.name
             })
           })
           this.data = response.products[0]
           // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
-          console.log('here123', this.data)
         } else {
           this.data = null
         }
       })
     },
     update(product){
-      console.log('gg', product.attributes)
-      console.log('[here in list.menu]')
-      var temp, temp1, timeStart, timeEnd
-      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null){
+      var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd
+      newtimeStart = product.available_start_date_time_utc.split('T')
+      newtimeEnd = product.available_end_date_time_utc.split('T')
+      startTime = product.available_start_date_time_utc.split(':')
+      endTime = product.available_end_date_time_utc.split(':')
+      timeStart = product.available_start_date_time_utc.split('')
+      timeEnd = product.available_end_date_time_utc.split('')
+      if(timeStart.length === 5 && timeEnd.length === 5){
+        // console.log('time only')
+        if(parseInt(startTime) > 8){
+          this.isErrorTimeStart = false
+        }else{
+          this.isErrorTimeStart = true
+          return
+        }
+        if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 18){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
+      }else if(timeStart.length > 5 && timeEnd.length === 5){
+        console.log('time start with date')
+        if(parseInt(endTime) < 18){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
+        if(parseInt(endTime) > parseInt(newtimeStart[1])){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
+      }else{
+        console.log('end time with date')
+        if(parseInt(startTime) > 8){
+          this.isErrorTimeStart = false
+          console.log('padayon')
+        }else{
+          this.isErrorTimeStart = true
+          console.log('ni ungot ari', parseInt(startTime))
+          return
+        }
+        if(parseInt(startTime) < parseInt(newtimeEnd[1])){
+          this.isErrorTimeStart = false
+          console.log('padayon japon')
+        }else{
+          this.isErrorTimeStart = true
+          return
+        }
+      }
+      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null && product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
         console.log(product.available_end_date_time_utc)
         temp = ''
         temp1 = ''
         timeStart = ''
         timeEnd = ''
-      }else{
-        if(product.available_start_date_time_utc === 'object' && product.available_end_date_time_utc === 'object'){
-          console.log('object')
-          timeStart = product.available_start_date_time_utc
-          timeEnd = product.available_end_date_time_utc
-        }else if(product.available_end_date_time_utc === String && product.available_start_date_time_utc === String){
-          console.log('string')
-          console.log(product.available_start_date_time_utc)
-          temp = product.available_start_date_time_utc.replace(':', '')
-          temp1 = product.available_end_date_time_utc.replace(':', '')
-          timeStart = Number(temp)
-          timeEnd = Number(temp1)
-        }else{
-          console.log('hh and mm')
-          temp = product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm
-          temp1 = product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm
-          let time = temp.replace(':', '')
-          let time1 = temp1.replace(':', '')
-          timeStart = Number(time)
-          timeEnd = Number(time1)
-          console.log(product.available_start_date_time_utc.HH, product.available_end_date_time_utc.HH)
-          console.log(time, time1)
-        }
       }
       let Prod = null
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
         this.updateError = true
         return
       }
-      if(product.available_start_date_time_utc < product.available_end_date_time_utc || (timeStart > 859 || timeEnd < 1659)){
-        this.isError = false
-        console.log('false mn gud', timeStart, timeEnd)
-      }else{
-        console.log('true mn gud', timeEnd, timeStart)
-        this.isError = true
-        return
-      }if(this.bundled === true){
+      if(this.bundled === true){
         if(product.attributes[0].attribute_values.length > 1){
           this.errorBundleCategory = true
-          console.log('error choose only 1!!!')
           return
         }else{
           this.errorBundleCategory = false
@@ -197,14 +215,12 @@ export default {
       if(this.bundled === false){
         if(product.attributes[0].attribute_values.length > 1){
           this.errorProductCategory = true
-          console.log('error choose only 12!!!')
           return
         }else{
           this.errorProductCategory = false
         }
       }
       if(product !== null){
-        console.log('|PRODUCT ATTRIBUTES| ', product.attributes)
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
           Prod = {
             product: {

@@ -84,15 +84,7 @@
           </div>
           <div style="width:40%">
             <p class="name" style="margin-left: 0%;"><b>SPECIAL OFFER PRICE</b></p>
-            <input type="number" class="w-100 form-control form-control-custom" v-model="old_price" placeholder="Input Special Offer Price"> 
-            <div v-if="old_price === null">
-              <h6></h6>
-            </div>
-            <div v-else-if="old_price < 1">
-              <div v-show="old_price < 1">
-                <h6 style="color:red">Invalid price</h6>
-              </div>
-            </div>
+            <input type="number" class="w-100 form-control form-control-custom" v-model="old_price" placeholder="Input Special Offer Price">
           </div>       
         </div>
       <div v-if="data" style="margin-left: 0%; margin-top: 3%;width:96%">
@@ -166,22 +158,25 @@
             All Day
           </label>
           <label style="width:40%" class="radio">
-            <input @click="isShow = false" type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
+            <input @click="isShow = false, all_day = false" type="radio" name="setTime" id="all" :checked="(data.available_start_date_time_utc != null || data.available_end_date_time_utc != null) ? true : false">
             Set Time
           </label>
           <div v-if="!isShow" style="margin-left:30%">
             <vue-timepicker  v-model="data.available_start_date_time_utc"></vue-timepicker>
             <span> - </span>
             <vue-timepicker v-model="data.available_end_date_time_utc"></vue-timepicker>
-            <div v-show="isError">
-              <h6 style="color:red; margin-left: 2">Invalid time</h6>
+            <div v-show="isErrorTimeStart">
+              <h6 style="color:red; margin-left: 2">Invalid Start Time!</h6>
+            </div>
+            <div v-show="isErrorTimeEnd">
+              <h6 style="color:red; margin-left: 2">Invalid End Time!</h6>
             </div>
           </div>     
         </div>
         <div v-else class="row" style="margin-left: 0% !important;width: 100%">
           <p class="name" style="margin-left: 0%; margin-top: 3%;width: 100%"><b>{{bundle ? 'BUNDLE AVAILABILITY (TIME)' : 'PRODUCT AVAILABILITY (TIME)'}}</b></p>
           <label style="width:40%" class="radio">
-          <input @click="show()" type="radio" name="setTime" id="all" :checked="all_day">
+          <input @click="show(), time_from = null, time_until = null" type="radio" name="setTime" id="all" :checked="all_day">
           All Day
           </label>
           <label style="width:40%" class="radio">
@@ -192,8 +187,18 @@
             <vue-timepicker v-model="time_from" placeholder="from"></vue-timepicker>
             <span> - </span>
             <vue-timepicker v-model="time_until" placeholder="until"></vue-timepicker>
-            <div v-show="isSuccess === true">
-              <h6 style="color:red; margin-left: 2">Invalid time</h6>
+            <div v-if="isErrorTimeStart === true">
+              <div v-show="isErrorTimeStart === true">
+                <h6 style="color:red; margin-left: 2">Invalid Start Time!</h6>
+              </div>
+            </div>
+            <div v-if="isErrorTimeEnd === true">
+              <div v-show="isErrorTimeEnd === true">
+                <h6 style="color:red; margin-left: 2">Invalid End Time!</h6>
+              </div>
+            </div>
+            <div v-else>
+              <h6></h6>
             </div>
           </div>
         </div>
@@ -271,7 +276,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isError', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'errorProductCategory', 'errorBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'errorProductCategory', 'errorBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -396,18 +401,27 @@ export default {
       this.isShow = false
     },
     addProduct() {
-      console.log('[products::]', this.category2)
       const { user } = AUTH
       let parameter = null
       let modal = document.getElementById('myModal')
       let errorModal = document.getElementById('errorModal')
-      if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.old_price === null || this.old_price === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
+      if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
         console.log('error !!!')
         errorModal.style.display = 'block'
         return
       }
-      if(this.all_day === false && (this.time_from.HH > this.time_until.HH || this.time_until.HH > 17 || this.time_from.HH < 9)){
-        this.isSuccess = true
+      if(parseInt(this.time_from.HH) > 8){
+        this.isErrorTimeStart = false
+        console.log('padayon!!!', this.time_from.HH)
+      }else{
+        this.isErrorTimeStart = true
+        return
+      }
+      if(parseInt(this.time_until.HH) > parseInt(this.time_from.HH) && parseInt(this.time_until.HH) < 18){
+        this.isErrorTimeEnd = false
+        console.log('padayon japon!!!', this.time_until.HH)
+      }else{
+        this.isErrorTimeEnd = true
         return
       }
       if(this.bundle === true){
@@ -426,6 +440,9 @@ export default {
           return
         }else{
           this.errorProductCategory = false
+        }
+        if(this.old_price === null || this.old_price === ''){
+          this.old_price = 0
         }
       }
       if(this.all_day === true){
