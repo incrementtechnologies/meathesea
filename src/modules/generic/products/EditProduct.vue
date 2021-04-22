@@ -120,6 +120,11 @@
             placeholder="Add Another Category"
              @tags-changed="newTags => bundle ? data.attributes[0].attribute_values = newTags : data.attributes[1].attribute_values = newTags"
           />
+          <div v-if="bundle === true">
+            <div v-show="errorBundleCategory">
+              <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+            </div>
+          </div>
         </div>
       </div>
       <div v-else style="margin-left: 0%; margin-top: 3%;width:96%">
@@ -147,8 +152,10 @@
             placeholder="Add Another Category"
              @tags-changed="newTags => newCategories = newTags"
           />
-          <div v-show="errorBundleCategory">
-            <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+          <div v-if="bundle === true">
+            <div v-show="errorBundleCategory">
+              <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
+            </div>
           </div>
         </div>
       </div>
@@ -389,6 +396,7 @@ export default {
       this.isShow = false
     },
     addProduct() {
+      console.log('[products::]', this.category2)
       const { user } = AUTH
       let parameter = null
       let modal = document.getElementById('myModal')
@@ -448,13 +456,13 @@ export default {
             },
             {
               product_attribute_id: 11,  // category 2
-              attribute_control_type_name: 'DropdownList',
+              attribute_control_type_name: 'Checkboxes',
               attribute_values: this.newCategories.map((el, index) => {
                 let temp = {}
                 temp.name = el.name
                 temp.display_order = index + 1
                 temp.quantity = 1
-                temp.price_adjustment = 0
+                temp.price_adjustment = el.price_adjustment
                 temp.weight_adjustment = 0
                 temp.cost = 0
                 temp.type = 'Simple'
@@ -513,13 +521,13 @@ export default {
             },
             {
               product_attribute_id: 11,  // category 2
-              attribute_control_type_name: 'DropdownList',
+              attribute_control_type_name: 'Checkboxes',
               attribute_values: this.CategoriesTags.map((el, index) => {
                 let temp = {}
                 temp.name = el.name
                 temp.display_order = index + 1
                 temp.quantity = 1
-                temp.price_adjustment = 0
+                temp.price_adjustment = el.price_adjustment
                 temp.weight_adjustment = 0
                 temp.cost = 0
                 temp.type = 'Simple'
