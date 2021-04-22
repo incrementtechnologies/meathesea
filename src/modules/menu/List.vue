@@ -235,11 +235,12 @@ export default {
                 },
                 {
                   product_attribute_id: 11,  // category 2
-                  attribute_control_type_name: 'DropdownList',
+                  attribute_control_type_name: 'Checkboxes',
                   attribute_values: product.attributes[(this.bundled ? 0 : 1)].attribute_values.map((el, index) => {
                     let temp = {}
                     temp.name = el.name
                     temp.display_order = index + 1
+                    temp.price_adjustment = el.price_adjustment
                     temp.quantity = 1
                     temp.price_adjustment = 0
                     temp.weight_adjustment = 0
@@ -312,7 +313,7 @@ export default {
                     temp.name = el.name
                     temp.display_order = index + 1
                     temp.quantity = 1
-                    temp.price_adjustment = 0
+                    temp.price_adjustment = el.price_adjustment
                     temp.weight_adjustment = 0
                     temp.cost = 0
                     temp.type = 'Simple'
