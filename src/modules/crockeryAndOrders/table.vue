@@ -14,7 +14,7 @@
           > 
             {{
               (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ? '---' :
-              (h.key.toLowerCase() === 'created_on_utc') ? returnDate(el) : el[h.key]
+              (h.key.toLowerCase() === 'created_on_utc' || h.key.toLowerCase() === 'created_date_utc') ? returnDate(el) : el[h.key]
             }} 
           </td>
         </tr>
@@ -48,7 +48,7 @@ export default {
   updated() {},
   methods: {
     returnDate(el) {
-      let d = new Date(el.created_on_utc)
+      let d = new Date(el.created_on_utc ? el.created_on_utc : el.created_date_utc)
       let dd = d.getDate()
       let mm = d.getMonth() + 1
       let yy = d.getFullYear()
