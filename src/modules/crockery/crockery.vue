@@ -33,8 +33,8 @@
                     class="d-flex justify-content-between crockeries"
                     :style="(selectedDataIndex === ndx) ? ( el.crockery_status !== 'Reschedule' ) ? 'background-color: ' + navs[returnFocusIndex].background +';' : 'background-color: #F08080;' : 'background-color: white;'"
                   >
-                    <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">{{el.order_id}}</div>
-                    <div v-if="!headerElements[typeIndex].changeDate && !headerElements[typeIndex].changeDate">
+                    <div v-if="!headerElements[typeIndex].changeDate">{{el.order_id}}</div>
+                    <div v-if="!headerElements[typeIndex].changeDate">
                       {{ el.order_details.local_time_created}}
                       <!-- {{
                         
@@ -43,7 +43,7 @@
                         : headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.delivery_time_requested
                       }} -->
                     </div>
-                    <div v-if="headerElements[typeIndex].changeDate">{{ el.date_remarks }}</div>
+                    <div v-if="headerElements[typeIndex].changeDate">{{ el.date_remarks !== '' ? el.date_remarks : returnDate(el) }}</div>
                   </div>
                 </div>
               </div>
@@ -79,6 +79,7 @@
                   :placeholder="el.text" 
                   v-else-if="el.type.toLowerCase() === 'input'"
                   @keyup.enter="handleSearchChange"
+                  @keyup="onType"
                 >
               </div>
             </div>
@@ -229,9 +230,37 @@ export default {
     },
     returnCardRender() {
       return this.cardRedered
+    },
+    returnSelectedDataIndex() {
+      return this.selectedDataIndex
+    },
+    returnTableData() {
+      let temp = this.data.filter(el => {
+        return this.returnDate(el) === this.returnDate(this.returnSelectedData[this.selectedDataIndex])
+      })
+      return temp
     }
   },
   methods: {
+    onType(event) {
+      if(event.target.value === '' && this.searchValue !== null) {
+        let date = ''
+        if(this.typeIndex === 0) { // today order/s
+          date = 'day'
+        }else if(this.typeIndex === 1) { // weekly order/s
+          date = 'week'
+        }else if(this.widerView) { // all orders
+          date = 'month'
+        }
+        this.searchValue = null
+        this.getDate(date, this.focusIndex)
+        this.retrieveNotification()
+      }else if(event.target.value === ''){
+        this.searchValue = null
+      }else {
+        this.searchValue = event.target.value
+      }
+    },
     retrieveNotification(){
       const { user } = AUTH
       this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
@@ -241,23 +270,41 @@ export default {
         this.navs[1].count = response.crockery.length
       })
     },
+    searchAPI(status) {
+      const {user} = AUTH
+      let params = `crockery_search?Keyword=${this.searchValue}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}`
+      status.forEach(el => {
+        params += `&Status=${el}`
+      })
+      this.APIGetRequest(params, response => {
+        console.log('NIGANA', response.crockery)
+        this.data = [[], [], []]
+        response.crockery.map(el => {
+          let orderDetails1 = this.orders.filter(t => {
+            return t.id === el.order_id
+          })
+          el['order_details'] = orderDetails1[0]
+          this.data[this.focusIndex].push(el)
+          console.log('[ELEMENT]', this.data[this.focusIndex])
+        })
+        this.selectData(this.selectedDataIndex, 0)
+      })
+    },
     getDate(date, ndx) {
       if(date === 'day'){
         var start = new Date()
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        this.createdAtMin = '2021-04-19'
-        // this.createdAtMin = start.toISOString().slice(0, 10)
-        // console.log('[DATE TODAY]', this.createdAtMin)
+        // this.createdAtMin = '2021-04-19'
+        // this.createdAtMax = '2021-04-19'
+        this.createdAtMin = start.toISOString().slice(0, 10)
       } else if(date === 'week') {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        // console.log('[THIS IS FIRST DAY]', firstDay.toISOString().slice(0, 10))
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         // this.createdAtMax = lastDay.toISOString().slice(0, 10)
-        // console.log('DATE::: ', this.createdAtMin, this.createdAtMax)
       }else{
         this.createdAtMin = ''
         this.createdAtMax = ''
@@ -266,7 +313,8 @@ export default {
       if(ndx === 0){
         this.retrieveCrockeryByStatus([20, 30], 0)
       }else if(ndx === 1){
-        this.retrieveCrockeryStatus([40, 45], 1)
+        console.log('THIS SHOULD READ')
+        this.retrieveCrockeryByStatus([40, 45], 0)
       }else if(ndx === 2){
         this.retrieveCrockeryByStatus(50, 2)
       }else {
@@ -300,6 +348,7 @@ export default {
               this.data[1].push(el)
             }
           })
+          console.log('[DATA]', this.data)
         })
       }else{
         $('#loading').css({'display': 'block'})
@@ -338,11 +387,10 @@ export default {
       if(ndx === 0){
         this.focusIndex = 0
         status = [20, 30]
-        console.log('READING IN NEW', ndx)
         this.retrieveCrockeryByStatus(status, 0)
       }else if(ndx === 1){
         this.focusIndex = 1
-        status = [ 40, 45 ]
+        status = [40, 45]
         this.retrieveCrockeryByStatus(status, 1)
       }else{
         this.focusIndex = 2
@@ -390,62 +438,99 @@ export default {
       })
     },
     handleSearchChange(event) {
+      const {user} = AUTH
       this.searchValue = event.target.value
-      console.log('TESTING !!!: ', this.searchValue)
-      const { user } = AUTH
-      let val = Number(this.searchValue)
-      if(this.navs[this.focusIndex].name === 'NEW'){
-        $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=20&Status=30`, response => {
-          $('#loading').css({'display': 'none'})
-          this.data[0] = []
-          response.crockery.forEach((el, ndx) => {
-            if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
-              let orderDetails2 = this.orders.filter(t => {
-                return String(t.id).match(String(el.order_id))
-              })
-              el['order_details'] = orderDetails2[0]
-              this.data[0].push(el)
-              this.navs[0].count = this.data[0].length
-              console.log('DATA1', orderDetails2[0])
-            }
-          })
-          // this.data = response.crockery
-        })
-      } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-        $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=40`, response => {
-          $('#loading').css({'display': 'none'})
-          // this.data = response.crockery
-        })
-      } else if(this.navs[this.focusIndex].name === 'RETURNED') {
-        $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=50`, response => {
-          $('#loading').css({'display': 'none'})
-          // this.data = response.crockery
-        })
+      if(this.search !== '' && this.search !== null) {
+        if(this.focusIndex === 0){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([20, 30])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([20, 30])
+          }else if(this.widerView && this.typeIndex === 2){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }
+        }else if(this.focusIndex === 1){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([40, 45])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([40, 45])
+          }else if(this.widerView && this.typeIndex === 2){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }
+        }else if(this.focusIndex === 2){
+          if(!this.widerView && this.typeIndex === 0){
+            this.searchAPI([50])
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.searchAPI([50])
+          }else if(this.widerView && this.typeIndex === 2){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }else if(this.widerView && this.typeIndex === 0){
+            this.searchAPI([20, 30, 40, 45, 50])
+          }
+        }
       }
-      // $('#loading').css({'display': 'block'})
-      // this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
-      //   $('#loading').css({'display': 'none'})
-      //   console.log('sample_Data:', response)
-      //   console.log('test:', val)
-      //   response.crockery.forEach((el, ndx) => {
-      //     if(String(el.id).match(val)){
-      //       console.log('customer_id:', el)
-      //       this.data[0].push(el.id)
-      //     }
-      //     if(el.id === val) {
-      //       let orderDetails1 = this.orders.filter(t => {
-      //         return t.id === el.order_id
-      //       })
-      //       el['order_details'] = orderDetails1[0]
-      //       this.data[0].push(el)
-      //       console.log(this.data[0])
-      //     }
-      //   })
-      // })
     }
+    // handleSearchChange(event) {
+    //   this.searchValue = event.target.value
+    //   console.log('TESTING !!!: ', this.searchValue)
+    //   const { user } = AUTH
+    //   let val = Number(this.searchValue)
+    //   if(this.navs[this.focusIndex].name === 'NEW'){
+    //     $('#loading').css({'display': 'block'})
+    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=20&Status=30`, response => {
+    //       $('#loading').css({'display': 'none'})
+    //       this.data[0] = []
+    //       response.crockery.forEach((el, ndx) => {
+    //         if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
+    //           let orderDetails2 = this.orders.filter(t => {
+    //             return String(t.id).match(String(el.order_id))
+    //           })
+    //           el['order_details'] = orderDetails2[0]
+    //           this.data[0].push(el)
+    //           this.navs[0].count = this.data[0].length
+    //           console.log('DATA1', orderDetails2[0])
+    //         }
+    //       })
+    //       // this.data = response.crockery
+    //     })
+    //   } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
+    //     $('#loading').css({'display': 'block'})
+    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=40`, response => {
+    //       $('#loading').css({'display': 'none'})
+    //       // this.data = response.crockery
+    //     })
+    //   } else if(this.navs[this.focusIndex].name === 'RETURNED') {
+    //     $('#loading').css({'display': 'block'})
+    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=50`, response => {
+    //       $('#loading').css({'display': 'none'})
+    //       // this.data = response.crockery
+    //     })
+    //   }
+    //   // $('#loading').css({'display': 'block'})
+    //   // this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
+    //   //   $('#loading').css({'display': 'none'})
+    //   //   console.log('sample_Data:', response)
+    //   //   console.log('test:', val)
+    //   //   response.crockery.forEach((el, ndx) => {
+    //   //     if(String(el.id).match(val)){
+    //   //       console.log('customer_id:', el)
+    //   //       this.data[0].push(el.id)
+    //   //     }
+    //   //     if(el.id === val) {
+    //   //       let orderDetails1 = this.orders.filter(t => {
+    //   //         return t.id === el.order_id
+    //   //       })
+    //   //       el['order_details'] = orderDetails1[0]
+    //   //       this.data[0].push(el)
+    //   //       console.log(this.data[0])
+    //   //     }
+    //   //   })
+    //   // })
+    // }
   }
 }
 </script>
