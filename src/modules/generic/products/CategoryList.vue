@@ -100,7 +100,6 @@ export default {
       let active = document.getElementsByClassName('list')
       for (var i = 0; i < active.length; i++) {
         active[i].className = active[i].className.replace('active', '')
-        console.log('test', active[0])
       }
       active[id].classList.add('active')
     },
@@ -125,7 +124,6 @@ export default {
         this.$parent.retrieveProducts(item.id)
         this.$parent.isEdit = false
       }
-      console.log(this.$parent.bundled, 'lkjkljlkjlkj')
     },
     retrieveOne(id) {
       this.$parent.category = id

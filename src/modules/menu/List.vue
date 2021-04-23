@@ -140,64 +140,88 @@ export default {
     },
     update(product){
       var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd
-      newtimeStart = product.available_start_date_time_utc.split('T')
-      newtimeEnd = product.available_end_date_time_utc.split('T')
-      startTime = product.available_start_date_time_utc.split(':')
-      endTime = product.available_end_date_time_utc.split(':')
-      timeStart = product.available_start_date_time_utc.split('')
-      timeEnd = product.available_end_date_time_utc.split('')
-      if(timeStart.length === 5 && timeEnd.length === 5){
-        // console.log('time only')
-        if(parseInt(startTime) > 8){
-          this.isErrorTimeStart = false
-        }else{
-          this.isErrorTimeStart = true
-          return
-        }
-        if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 18){
-          this.isErrorTimeEnd = false
-        }else{
-          this.isErrorTimeEnd = true
-          return
-        }
-      }else if(timeStart.length > 5 && timeEnd.length === 5){
-        console.log('time start with date')
-        if(parseInt(endTime) < 18){
-          this.isErrorTimeEnd = false
-        }else{
-          this.isErrorTimeEnd = true
-          return
-        }
-        if(parseInt(endTime) > parseInt(newtimeStart[1])){
-          this.isErrorTimeEnd = false
-        }else{
-          this.isErrorTimeEnd = true
-          return
-        }
-      }else{
-        console.log('end time with date')
-        if(parseInt(startTime) > 8){
-          this.isErrorTimeStart = false
-          console.log('padayon')
-        }else{
-          this.isErrorTimeStart = true
-          console.log('ni ungot ari', parseInt(startTime))
-          return
-        }
-        if(parseInt(startTime) < parseInt(newtimeEnd[1])){
-          this.isErrorTimeStart = false
-          console.log('padayon japon')
-        }else{
-          this.isErrorTimeStart = true
-          return
-        }
-      }
-      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null && product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
-        console.log(product.available_end_date_time_utc)
-        temp = ''
-        temp1 = ''
+      console.log(product.available_start_date_time_utc, product.available_end_date_time_utc)
+      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null || product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
+        newtimeStart = ''
+        newtimeEnd = ''
+        startTime = ''
+        endTime = ''
         timeStart = ''
         timeEnd = ''
+      }else if(product.available_start_date_time_utc.HH !== undefined && product.available_start_date_time_utc.mm !== undefined && product.available_start_date_time_utc.HH !== null && product.available_start_date_time_utc.mm !== null && product.available_end_date_time_utc.HH !== '' && product.available_end_date_time_utc.mm !== ''){
+        console.log('sa ikaduha', product.available_start_date_time_utc.HH)
+        startTime = product.available_start_date_time_utc.HH
+        endTime = product.available_end_date_time_utc.HH
+        if(startTime > 8){
+          this.isErrorTimeStart = false
+        }else{
+          this.isErrorTimeStart = true
+          return
+        }
+        if(startTime < endTime && endTime < 17){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
+      }else if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== '' && product.available_end_date_time_utc !== ''){
+        // console.log('dre sulod')
+        newtimeStart = product.available_start_date_time_utc.split('T')
+        newtimeEnd = product.available_end_date_time_utc.split('T')
+        startTime = product.available_start_date_time_utc.split(':')
+        endTime = product.available_end_date_time_utc.split(':')
+        timeStart = product.available_start_date_time_utc.split('')
+        timeEnd = product.available_end_date_time_utc.split('')
+        // console.log('sulod hoy!!!', timeStart)
+        // console.log(timeStart.length, timeEnd.length)
+        // console.log(timeStart.length, timeEnd.length)
+        // console.log(timeStart.length, timeEnd.length)
+        if(timeStart.length === 5 && timeEnd.length === 5){
+          console.log('time only')
+          if(parseInt(startTime) > 8){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 18){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+        }else if(timeStart.length > 5 && timeEnd.length === 5){
+          console.log('time start with date')
+          if(parseInt(endTime) < 18){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+          if(parseInt(endTime) > parseInt(newtimeStart[1])){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+        }else if(timeStart.length === 5 && timeEnd.length > 5){
+          console.log('time end with date')
+          if(parseInt(startTime) > 8){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+          if(parseInt(startTime) < parseInt(newtimeEnd[1])){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+        }else{
+          this.isErrorTimeStart = false
+          this.isErrorTimeEnd = false
+        }
       }
       let Prod = null
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
@@ -387,7 +411,6 @@ export default {
             $('#loading').css({'display': 'block'})
             this.APIPutRequest(`products/${product.id}`, Prod, response => {
               this.hasUpdate = true
-              console.log('test ', this.hasUpdate)
               $('#loading').css({'display': 'none'})
               this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
                 $('#loading').css({'display': 'none'})
@@ -402,8 +425,6 @@ export default {
           $('#loading').css({'display': 'block'})
           this.APIPutRequest(`products/${product.id}`, Prod, response => {
             this.hasUpdate = true
-            console.log('test ', this.hasUpdate)
-            console.log('[response1]', response)
             $('#loading').css({'display': 'none'})
           })
         }
@@ -423,20 +444,6 @@ export default {
         this.category2 = response.add_on_category
       })
     },
-    // save(id) {
-    //   $('#loading').css({'display': 'block'})
-    //   this.APIPutRequest(`products/${id.id}`, response => {
-    //     $('#loading').css({'display': 'none'})
-    //     console.log(response)
-        // if(response.products.length > 0) {
-        //   this.data = response.products[0]
-        //   // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
-        //   console.log('here', this.data)
-        // } else {
-        //   this.data = null
-        // }
-    //   })
-    // }
     updateAvailability(item){
       let parameter = {
         product: {
@@ -446,11 +453,8 @@ export default {
       }
       $('#loading').css({'display': 'block'})
       this.APIPutRequest(`products/${item.id}`, parameter, response => {
-        console.log('[response]', response)
-        console.log('save')
         $('#loading').css({'display': 'none'})
         this.retrieveProducts(this.category)
-        console.log('test success')
       })
     }
   }
