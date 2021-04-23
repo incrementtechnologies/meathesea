@@ -112,7 +112,7 @@ export default {
             messaging.getToken().then((token) => {
               if (token !== this.currentToken) {
 
-                let topic = 'MeatTheSea-' + USER.user.userID
+                let topic = 'MeatTheSea-' + USER.user.store_id
                 
                 fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/' + topic, {
                   method: 'POST',

@@ -70,7 +70,7 @@
                 <b class="col-sm-4">{{ data.id }}</b>
                 <div class="col-sm-8 d-flex" :style="'color: #0064B1;'">
                   <b>Delivery Time:</b>
-                  <b :style="'padding-left: 2%;'">{{ data.delivery_time }}</b>
+                  <b :style="'padding-left: 2%;'">{{ data.delivery_time_requested }}</b>
                 </div>
               </div>
             </div>
@@ -81,7 +81,7 @@
               <div v-for="(el, ndx) in restaurant" :key="'restaurant' + ndx" class="mt-2 pr-5">
                 <div class="d-flex justify-content-between">
                   <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} </b>
+                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} X {{el.quantity}}</b>
                 </div>
                 <div class="col-sm-12" :style="'color: #E07700'">
                   + {{el.product.short_description}}
@@ -93,7 +93,7 @@
               <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
                 <div class="d-flex justify-content-between">
                   <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                  <b class="font-weight-normal"> {{data.customer_currency_code}}{{ el.product.price }} X {{el.quantity}} </b>
+                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{ el.product.price }} X {{el.quantity}} </b>
                 </div>
                 <div class="col-sm-12" :style="'color: #E07700'">
                   + {{el.product.short_description}}
@@ -108,7 +108,7 @@
               <div class="mt-2">
                 <b :style="'color: #E07700'"> Add cutlery </b>
               </div>
-              <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0px;background-color: #e0e0e0;">
+              <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0;background-color: #e0e0e0;">
                   <div class="col p-0 m-0">
                     <b style="color: #0064B1;">Total</b>
                   </div>

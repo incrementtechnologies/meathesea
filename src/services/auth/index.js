@@ -31,7 +31,8 @@ export default {
     ledger: {
       amount: 0,
       currency: 'PHP'
-    }
+    },
+    store_id: null
   },
   messenger: {
     messages: [],
@@ -136,8 +137,18 @@ export default {
         localStorage.setItem('email', username)
         localStorage.setItem('password', password)
         this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
-        ROUTER.push('/orders')
-        COMMON.setFag('/orders')
+        this.retrieveStoreId(response.customer.id)
+        .then(res => {
+          if(res.customers.length > 0){
+            this.user.store_id = res.customers[0].registered_in_store_id
+            ROUTER.push('/orders')
+            COMMON.setFag('/orders')
+          }
+        })
+        .catch(error => {
+          error
+          console.log('Retrieving customer information error')
+        })
         $('#loading').css({'display': 'none'})
       }else{
         $('#loading').css({'display': 'none'})
@@ -420,5 +431,15 @@ export default {
       case 101: return 'Lending'
       case 102: return 'Installment'
     }
+  },
+  retrieveStoreId(userID) {
+    return new Promise((resolve, reject) => {
+      let vue = new Vue()
+      vue.APIGetRequest(`customers/${userID}`, response => {
+        resolve(response)
+      }, error => {
+        reject(error)
+      })
+    })
   }
 }
