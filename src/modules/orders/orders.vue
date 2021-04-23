@@ -451,14 +451,14 @@ export default {
     retrieveNotification(){
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/count?Status=10&CustomerId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         console.log('Response: ', response)
         this.navs[0].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=25&Status=20&CustomerId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=30&CustomerId=${user.storeId}`, response => {
+      this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.storeId}`, response => {
         this.navs[2].count = response.count
       })
     },
@@ -529,13 +529,15 @@ export default {
           this.allOrders = response.orders
           this.reRenderTable = true
           this.data = response.orders
-          this.data[this.selectedDataIndex].order_items.forEach((el, index) => {
-            if(el.product.category_type === 1){
-              this.deliStore.push(el)
-            }else if(el.product.category_type === 0){
-              this.restaurant.push(el)
-            }
-          })
+          if(response.orders.length > 0) {
+            this.data[this.selectedDataIndex].order_items.forEach((el, index) => {
+              if(el.product.category_type === 1){
+                this.deliStore.push(el)
+              }else if(el.product.category_type === 0){
+                this.restaurant.push(el)
+              }
+            })
+          }
           this.selectData(0, 0)
           this.reRender = true
         })
