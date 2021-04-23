@@ -369,7 +369,7 @@ export default {
       this.data = []
       this.deliStore = []
       this.allOrders = []
-      let params = `orders_search?Keyword=${this.search}&StoreId=${user.store_id}`
+      let params = `orders_search?Keyword=${this.search}&StoreId=${user.storeId}`
       status.forEach(el => {
         params += `&Status=${el}`
       })
@@ -394,7 +394,7 @@ export default {
       this.data = []
       // if(!this.widerView){
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.store_id}`, response => {
+      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.storeId}`, response => {
         $('#loading').css({'display': 'none'})
         // console.log('[RESPONSE]', response)
         // response.orders.map((item, ndx) => {
@@ -451,13 +451,14 @@ export default {
     retrieveNotification(){
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.store_id}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`/orders/count?Status=10&CustomerId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+        console.log('Response: ', response)
         this.navs[0].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.store_id}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`/orders/count?Status=25&Status=20&CustomerId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.store_id}`, response => {
+      this.APIGetRequest(`/orders/count?Status=30&CustomerId=${user.storeId}`, response => {
         this.navs[2].count = response.count
       })
     },
@@ -517,7 +518,7 @@ export default {
       if(Array.isArray(status)){
         $('#loading').css({'display': 'block'})
         let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
-        let query = `orders?${date}StoreId=${user.store_id}`
+        let query = `orders?${date}StoreId=${user.storeId}`
         status.forEach((el, ndx) => {
           query += `&Status=${status[ndx]}`
         })

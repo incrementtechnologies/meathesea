@@ -32,7 +32,7 @@ export default {
       amount: 0,
       currency: 'PHP'
     },
-    store_id: null
+    storeId: null
   },
   messenger: {
     messages: [],
@@ -80,7 +80,7 @@ export default {
   setNotificationCrockery(payload) {
     this.notification.crockery.push(payload)
   },
-  setUser(userID, username, email, type, status, profile, notifSetting, subAccount, code){
+  setUser(userID, username, email, type, status, profile, notifSetting, subAccount, code, storeId){
     if(userID === null){
       username = null
       email = null
@@ -100,7 +100,9 @@ export default {
     this.user.notifSetting = notifSetting
     this.user.subAccount = subAccount
     this.user.code = code
+    this.user.storeId = storeId
     localStorage.setItem('account_id', this.user.userID)
+    localStorage.setItem('store_id', this.user.storeId)
     setTimeout(() => {
       this.tokenData.loading = false
     }, 1000)
@@ -136,11 +138,10 @@ export default {
         localStorage.setItem('usertoken', token)
         localStorage.setItem('email', username)
         localStorage.setItem('password', password)
-        this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
         this.retrieveStoreId(response.customer.id)
         .then(res => {
           if(res.customers.length > 0){
-            this.user.store_id = res.customers[0].registered_in_store_id
+            this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null, res.customers[0].registered_in_store_id)
             ROUTER.push('/orders')
             COMMON.setFag('/orders')
           }
@@ -181,10 +182,11 @@ export default {
       let vue = new Vue()
       let username = localStorage.getItem('email')
       let password = localStorage.getItem('password')
+      let storeId = localStorage.getItem('store_id')
 
-      let parameter = 'customerlogin' + `?Email=${username}&Password=${password}`
+      let parameter = 'storefront_login' + `?Email=${username}&Password=${password}`
       vue.APIGetRequest(parameter, response => {
-        this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null)
+        this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null, storeId)
         this.tokenData.verifyingToken = false
         this.tokenData.loading = false
         let location = window.location.href
