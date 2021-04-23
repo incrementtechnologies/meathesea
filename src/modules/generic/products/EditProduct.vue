@@ -286,7 +286,7 @@ export default {
       updateTimeError: false,
       isSuccess: false,
       encodedImage: null,
-      all_day: false,
+      all_day: true,
       time_from: null,
       time_until: null,
       isShow: false,
@@ -377,7 +377,6 @@ export default {
       })
     },
     hasUpdateWatch(){
-      console.log('[updated::]', this.hasUpdate)
       if(this.hasUpdate === true){
         let modal = document.getElementById('updateModal')
         modal.style.display = 'block'
@@ -386,7 +385,6 @@ export default {
       return true
     },
     hasUpdateErrorWatch(){
-      console.log('[update error]', this.updateError)
       if(this.updateError === true){
         let modal = document.getElementById('errorModal')
         modal.style.display = 'block'
@@ -410,24 +408,23 @@ export default {
         errorModal.style.display = 'block'
         return
       }
-      if(parseInt(this.time_from.HH) > 8){
-        this.isErrorTimeStart = false
-        console.log('padayon!!!', this.time_from.HH)
-      }else{
-        this.isErrorTimeStart = true
-        return
-      }
-      if(parseInt(this.time_until.HH) > parseInt(this.time_from.HH) && parseInt(this.time_until.HH) < 18){
-        this.isErrorTimeEnd = false
-        console.log('padayon japon!!!', this.time_until.HH)
-      }else{
-        this.isErrorTimeEnd = true
-        return
+      if(this.all_day === false){
+        if(parseInt(this.time_from.HH) > 8){
+          this.isErrorTimeStart = false
+        }else{
+          this.isErrorTimeStart = true
+          return
+        }
+        if(this.all_day === false && parseInt(this.time_until.HH) > parseInt(this.time_from.HH) && parseInt(this.time_until.HH) < 18){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
       }
       if(this.bundle === true){
         if(this.newCategories.length > 1){
           this.errorBundleCategory = true
-          console.log('error choose only 1!!!')
           return
         }else{
           this.errorBundleCategory = false
@@ -436,7 +433,6 @@ export default {
       if(this.bundle === false){
         if(this.sample.length > 1){
           this.errorProductCategory = true
-          console.log(this.sample)
           return
         }else{
           this.errorProductCategory = false
@@ -603,13 +599,11 @@ export default {
           this.isSuccess = true
           this.APIPostRequest(`products`, {product: parameter}, res => {
             if(this.isSuccess === true) {
-              console.log('show unta')
               modal.style.display = 'block'
             }
             $('#loading').css({'display': 'none'})
             this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
               if(response.products.length > 0) {
-                console.log('test', this.$parent.product)
                 this.$parent.products = response.products
               }
             })
@@ -624,12 +618,10 @@ export default {
           $('#loading').css({'display': 'block'})
           this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
             if(this.isSuccess === true) {
-              console.log('show unta')
               modal.style.display = 'block'
             }
             $('#loading').css({'display': 'none'})
             if(response.products.length > 0) {
-              console.log('test', this.$parent.product)
               this.$parent.products = response.products
               this.errorMessage = 'Product added successfully!'
               $('#incrementAlert').modal('show')
@@ -650,7 +642,6 @@ export default {
         this.APIGetRequest(`/products?CategoryId=${data.category_id}`, response => {
           $('#loading').css({'display': 'none'})
           if(response.products.length > 0) {
-            console.log('test', this.$parent.product)
             this.$parent.products = response.products
           }
         })
@@ -697,11 +688,9 @@ export default {
     timeError(){
       if(this.$parent.isError === true){
         this.updateTimeError = true
-        console.log('error unta')
       }
     },
     closeModal() {
-      console.log('close na ni')
       let modal = document.getElementById('myModal')
       let span = document.getElementsByClassName('close')[0]
       modal.style.display = 'none'
