@@ -9,8 +9,8 @@
 		<div class="clearfix">
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
-				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true"/>
-        <EditProduct ref="products" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isError="isError" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -20,12 +20,13 @@
 import ProductList from 'modules/generic/products/ProductList.vue'
 import EditProduct from 'modules/generic/products/EditProduct.vue'
 import CategoryList from 'modules/generic/products/CategoryList.vue'
+import AUTH from 'src/services/auth'
 import axios from 'axios'
 export default {
   data() {
     return {
-      newCategory1: null,
-      newCategory2: null,
+      category1: null,
+      category2: null,
       isActive: false,
       hasError: false,
       isEdit: false,
@@ -39,7 +40,15 @@ export default {
       add: false,
       photo: null,
       isError: false,
-      errorMessage: null
+      errorMessage: null,
+      bundleProducts: [],
+      user: AUTH,
+      hasUpdate: false,
+      updateError: false,
+      errorBundleCategory: false,
+      errorProductCategory: false,
+      isErrorTimeStart: false,
+      isErrorTimeEnd: false
     }
   },
   watch: {
@@ -104,40 +113,123 @@ export default {
       this.APIGetRequest(`/products/${id}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
+          response.products[0].attributes[0].attribute_values.forEach(element => {
+            element['text'] = element.name
+          })
+          response.products[0].attributes[1].attribute_values.forEach(element => {
+            element['text'] = element.name
+          })
           this.data = response.products[0]
-          response.products[0].add_on_category_1.forEach(element => {
-            element['text'] = element.name
-          })
-          response.products[0].add_on_category_2.forEach(element => {
-            element['text'] = element.name
-          })
-          // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
-          console.log('here', this.data)
         } else {
           this.data = null
         }
       })
     },
     update(product){
-      console.log('[here in list.menu]', product)
-      let temp = product.available_start_date_time_utc.replace(':', '')
-      let temp1 = product.available_end_date_time_utc.replace(':', '')
-      let timeStart = Number(temp)
-      let timeEnd = Number(temp1)
+      var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd
+      console.log(product.available_start_date_time_utc, product.available_end_date_time_utc)
+      if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null || product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
+        newtimeStart = ''
+        newtimeEnd = ''
+        startTime = ''
+        endTime = ''
+        timeStart = ''
+        timeEnd = ''
+      }else if(product.available_start_date_time_utc.HH !== undefined && product.available_start_date_time_utc.mm !== undefined && product.available_start_date_time_utc.HH !== null && product.available_start_date_time_utc.mm !== null && product.available_end_date_time_utc.HH !== '' && product.available_end_date_time_utc.mm !== ''){
+        console.log('sa ikaduha', product.available_start_date_time_utc.HH)
+        startTime = product.available_start_date_time_utc.HH
+        endTime = product.available_end_date_time_utc.HH
+        if(startTime > 8){
+          this.isErrorTimeStart = false
+        }else{
+          this.isErrorTimeStart = true
+          return
+        }
+        if(startTime < endTime && endTime < 17){
+          this.isErrorTimeEnd = false
+        }else{
+          this.isErrorTimeEnd = true
+          return
+        }
+      }else if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== '' && product.available_end_date_time_utc !== ''){
+        // console.log('dre sulod')
+        newtimeStart = product.available_start_date_time_utc.split('T')
+        newtimeEnd = product.available_end_date_time_utc.split('T')
+        startTime = product.available_start_date_time_utc.split(':')
+        endTime = product.available_end_date_time_utc.split(':')
+        timeStart = product.available_start_date_time_utc.split('')
+        timeEnd = product.available_end_date_time_utc.split('')
+        // console.log('sulod hoy!!!', timeStart)
+        // console.log(timeStart.length, timeEnd.length)
+        // console.log(timeStart.length, timeEnd.length)
+        // console.log(timeStart.length, timeEnd.length)
+        if(timeStart.length === 5 && timeEnd.length === 5){
+          console.log('time only')
+          if(parseInt(startTime) > 8){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 17){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+        }else if(timeStart.length > 5 && timeEnd.length === 5){
+          console.log('time start with date')
+          if(parseInt(endTime) < 17){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+          if(parseInt(endTime) > parseInt(newtimeStart[1])){
+            this.isErrorTimeEnd = false
+          }else{
+            this.isErrorTimeEnd = true
+            return
+          }
+        }else if(timeStart.length === 5 && timeEnd.length > 5){
+          console.log('time end with date')
+          if(parseInt(startTime) > 8){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+          if(parseInt(startTime) < parseInt(newtimeEnd[1])){
+            this.isErrorTimeStart = false
+          }else{
+            this.isErrorTimeStart = true
+            return
+          }
+        }else{
+          this.isErrorTimeStart = false
+          this.isErrorTimeEnd = false
+        }
+      }
       let Prod = null
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
-        // console.log('error !!!')
-        this.errorMessage = 'Please complete all required fields!'
-        $('#incrementAlert').modal('show')
+        this.updateError = true
         return
       }
-      if(product.available_start_date_time_utc < product.available_end_date_time_utc && (timeStart > 859 && timeEnd < 1659) || (product.available_start_date_time_utc.HH > 9 || product.available_end_date_time_utc.HH < 17)){
-        this.isError = false
-        console.log('not error', timeStart, timeEnd)
-      }else{
-        console.log('true mn gud', timeEnd, timeStart)
-        this.isError = true
-        return
+      if(this.bundled === true){
+        if(product.attributes[0].attribute_values.length > 1){
+          this.errorBundleCategory = true
+          return
+        }else{
+          this.errorBundleCategory = false
+        }
+      }
+      if(this.bundled === false){
+        if(product.attributes[0].attribute_values.length > 1){
+          this.errorProductCategory = true
+          return
+        }else{
+          this.errorProductCategory = false
+        }
       }
       if(product !== null){
         if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== undefined && product.available_end_date_time_utc !== undefined){
@@ -150,17 +242,65 @@ export default {
               old_price: product.old_price,
               available_start_date_time_utc: product.available_start_date_time_utc.HH ? product.available_start_date_time_utc.HH + ':' + product.available_start_date_time_utc.mm : product.available_start_date_time_utc,
               available_end_date_time_utc: product.available_end_date_time_utc.HH ? product.available_end_date_time_utc.HH + ':' + product.available_end_date_time_utc.mm : product.available_end_date_time_utc,
-              add_on_category_1: product.add_on_category_1.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              }),
-              add_on_category_2: product.add_on_category_2.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
+              attributes: [
+                {
+                  product_attribute_id: 10, // category 1,
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.attributes[0].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 11,  // category 2
+                  attribute_control_type_name: 'Checkboxes',
+                  attribute_values: product.attributes[(this.bundled ? 0 : 1)].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.price_adjustment = el.price_adjustment
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 12,  // bundle
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.attributes[1].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                }
+              ].filter(el => {
+                if(this.bundled){
+                  return [11, 12].includes(el.product_attribute_id)
+                } else {
+                  return [10, 11].includes(el.product_attribute_id)
+                }
               })
             }
           }
@@ -174,17 +314,64 @@ export default {
               old_price: product.old_price,
               available_start_date_time_utc: null,
               available_end_date_time_utc: null,
-              add_on_category_1: product.add_on_category_1.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
-              }),
-              add_on_category_2: product.add_on_category_2.map(el => {
-                let temp = {}
-                temp.id = el.id
-                temp.name = el.name
-                return temp
+              attributes: [
+                {
+                  product_attribute_id: 10, // category 1,
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.attributes[0].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 11,  // category 2
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.attributes[(this.bundled ? 0 : 1)].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = el.price_adjustment
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                },
+                {
+                  product_attribute_id: 12,  // bundle
+                  attribute_control_type_name: 'DropdownList',
+                  attribute_values: product.attributes[1].attribute_values.map((el, index) => {
+                    let temp = {}
+                    temp.name = el.name
+                    temp.display_order = index + 1
+                    temp.quantity = 1
+                    temp.price_adjustment = 0
+                    temp.weight_adjustment = 0
+                    temp.cost = 0
+                    temp.type = 'Simple'
+                    temp.type_id = 0
+                    temp.associated_product_id = 0
+                    return temp
+                  })
+                }
+              ].filter(el => {
+                if(this.bundled){
+                  return [11, 12].includes(el.product_attribute_id)
+                } else {
+                  return [10, 11].includes(el.product_attribute_id)
+                }
               })
             }
           }
@@ -208,15 +395,10 @@ export default {
                 position: 0
               }
             ]
-            console.log('update happens')
             $('#loading').css({'display': 'block'})
             this.APIPutRequest(`products/${product.id}`, Prod, response => {
+              this.hasUpdate = true
               $('#loading').css({'display': 'none'})
-              this.isEdit = false
-              this.add = false
-              console.log('[response]', response)
-              console.log('retrieve happens')
-              $('#loading').css({'display': 'block'})
               this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
                 $('#loading').css({'display': 'none'})
                 if(response.products.length > 0) {
@@ -229,7 +411,7 @@ export default {
         }else{
           $('#loading').css({'display': 'block'})
           this.APIPutRequest(`products/${product.id}`, Prod, response => {
-            console.log('[response]', response)
+            this.hasUpdate = true
             $('#loading').css({'display': 'none'})
           })
         }
@@ -247,6 +429,19 @@ export default {
     retrieveCategory2(){
       this.APIGetRequest(`get_addOnCategory_2`, response => {
         this.category2 = response.add_on_category
+      })
+    },
+    updateAvailability(item){
+      let parameter = {
+        product: {
+          Id: item.id,
+          published: !item.published
+        }
+      }
+      $('#loading').css({'display': 'block'})
+      this.APIPutRequest(`products/${item.id}`, parameter, response => {
+        $('#loading').css({'display': 'none'})
+        this.retrieveProducts(this.category)
       })
     }
   }

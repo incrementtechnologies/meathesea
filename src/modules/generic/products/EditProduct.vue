@@ -351,13 +351,6 @@ export default {
       let modal = document.getElementById('updateModal')
       modal.style.display = 'block'
     }
-    // if(this.data.attributes[0].attribute_values !== null){
-    //   this.data.attributes[0].attribute_values.forEach(element => {
-    //     element['text'] = element.name
-    //     this.newDataCategory.push(element)
-    //     console.log('test123 ', this.newDataCategory)
-    //   })
-    // }
   },
   computed: {
     filteredCategory() {
