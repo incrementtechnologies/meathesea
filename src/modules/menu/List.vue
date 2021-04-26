@@ -26,8 +26,8 @@ import LoginHeaderVue from '../frame/LoginHeader.vue'
 export default {
   data() {
     return {
-      newCategory1: null,
-      newCategory2: null,
+      category1: null,
+      category2: null,
       isActive: false,
       hasError: false,
       isEdit: false,
@@ -184,7 +184,7 @@ export default {
             this.isErrorTimeStart = true
             return
           }
-          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 18){
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 17){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
@@ -192,7 +192,7 @@ export default {
           }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
           console.log('time start with date')
-          if(parseInt(endTime) < 18){
+          if(parseInt(endTime) < 17){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
@@ -416,7 +416,6 @@ export default {
                 $('#loading').css({'display': 'none'})
                 if(response.products.length > 0) {
                   this.products = response.products
-                  this.back()
                 }
               })
             })
@@ -426,6 +425,12 @@ export default {
           this.APIPutRequest(`products/${product.id}`, Prod, response => {
             this.hasUpdate = true
             $('#loading').css({'display': 'none'})
+            this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+              $('#loading').css({'display': 'none'})
+              if(response.products.length > 0) {
+                this.products = response.products
+              }
+            })
           })
         }
       }
