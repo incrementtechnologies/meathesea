@@ -1,6 +1,6 @@
 <template>
   <div class="tableContainer">
-    <table class="table table-striped dataTable" v-if="headers.length && tableData.length > 0">
+    <table class="table table-striped dataTable" v-if="headers.length && tableData.length > 0 ">
       <thead>
         <tr class="tableHead">
           <th scope="col" class="font-weight-normal" v-for="(el, ndx) in headers" :key="ndx"> {{el.text}} </th>
@@ -11,6 +11,8 @@
           <td 
             v-for="(h, x) in headers" 
             :key="x"
+            @click="h.key.toLowerCase() === 'id' ? onOrderIdClick(index, el[h.key]) : () => {}"
+            :style="h.key.toLowerCase() === 'id' ? 'color: #0064B1; cursor: pointer' : ''"
           > 
             {{
               (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ? '---' :
@@ -32,9 +34,11 @@
 </template>
 <script>
 export default {
-  props: ['tableData', 'headers'],
+  props: ['tableData', 'headers', 'orderClicked'],
   data() {
-    return {}
+    return {
+      viewType: 'normal_view' // normal_view, weekly_view, view_all
+    }
   },
   watch: {
     headers: function(_new, old) {
@@ -47,6 +51,9 @@ export default {
   mounted() {},
   updated() {},
   methods: {
+    onOrderIdClick(index, orderId) {
+      this.orderClicked(index, orderId)
+    },
     returnDate(el) {
       let d = new Date(el.created_on_utc ? el.created_on_utc : el.created_date_utc)
       let dd = d.getDate()

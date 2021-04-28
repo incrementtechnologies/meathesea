@@ -104,17 +104,18 @@
           <div class="card-body p-0">
             <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
             <card2 
-              :data="returnData[selectedDataIndex]" 
-              v-if="data.length > 0 && componentType === 'card' && returnReRender"
+              :data="typeIndex === 1 && !widerView? returnTableData[returnWeeklySelected] : returnData[selectedDataIndex]" 
+              v-if="data.length > 0 && returnComponentType === 'card' && returnReRender"
               :restaurant="returnRestaurantData"
               :deliStore="returnDeliData"
               :times="times"
               @orderProcessed="acceptOrder"
             />
             <dataTable 
-              v-else-if="componentType === 'table' && reRenderTable"
+              v-else-if="returnComponentType === 'table' && reRenderTable"
               :headers="tableHeaders"
               :tableData="typeIndex === 1 && !widerView? returnTableData : allOrders"
+              :orderClicked="onClickOrderNumber"
             />
           </div>
         </div>
@@ -170,7 +171,9 @@ export default {
       times: [],
       onload: true,
       isSearching: false,
-      selected_remarks: ''
+      selected_remarks: '',
+      weeklySelected: null,
+      editing: false
     }
   },
   // created() {},
@@ -197,6 +200,9 @@ export default {
     }
   },
   computed: {
+    returnComponentType() {
+      return this.componentType
+    },
     returnSelectedData() {
       return this.data.filter((thing, index, self) =>
         index === self.findIndex((t) => (
@@ -256,9 +262,39 @@ export default {
     },
     returnDeliData() {
       return this.deliStore
+    },
+    returnWeeklySelected() {
+      return this.weeklySelected
     }
   },
   methods: {
+    onClickOrderNumber(index, orderId) {
+      if(!this.widerView) {
+        this.editing = true
+      }
+      this.componentType = 'card'
+      this.weeklySelected = index
+      let tempIndex = this.data.findIndex(x => parseInt(x.id) === parseInt(orderId))
+      switch(this.data[tempIndex].order_status){
+        case 'Pending':
+          this.focusIndex = 0
+          break
+        case 'Processing':
+          this.focusIndex = 1
+          break
+        case 'Delivering':
+          this.focusIndex = 1
+          break
+        case 'Complete':
+          this.focusIndex = 2
+          break
+      }
+      if(this.widerView){
+        this.selectedDataIndex = this.data.findIndex(x => parseInt(x.id) === parseInt(orderId))
+        console.log(this.data[this.selectedDataIndex])
+      }
+      console.log('selected data', this.selectedDataIndex)
+    },
     onType(event) {
       if(event.target.value === '' && this.search !== null) {
         let date = ''
@@ -542,6 +578,7 @@ export default {
           this.reRender = true
         })
       }
+      this.retrieveNotification()
       // else{
       //   // console.log('[orders by status (Not Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
       //   $('#loading').css({'display': 'block'})
@@ -569,6 +606,10 @@ export default {
     },
     selectData(ndx, popId) {
       // console.log('[selected data index]', ndx)
+      if(this.editing) {
+        this.componentType = 'table'
+        this.editing = false
+      }
       if(this.selectedDataIndex !== ndx || this.onload){
         this.selectedDataIndex = ndx
         this.reRender = false
@@ -593,6 +634,10 @@ export default {
       }
     },
     switchComponent(component, ndx) {
+      if(this.editing) {
+        this.editing = false
+      }
+      this.componentType = component
       this.selectedDataIndex = 0
       this.widerView = this.returnHeaderElements[ndx].wholeView
       this.reRenderTable = false
@@ -614,7 +659,6 @@ export default {
           this.getDate('month', 3)
         }
       }
-      this.componentType = component
       this.reRenderTable = true
     },
     getDate(date, ndx){
