@@ -1,267 +1,319 @@
 <template>
-  <div style="min-height: 653px">
-    <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)" style="overflow: hidden;position: relative;width: 100%;">
-      <div class="card-header card2Header">
-        <div class="row card2HeaderEl">
-          <div class="col-sm-12 d-flex justify-content-between headerActions" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
-            <div class="col-sm-3 text-center divAsButton">
-              <b>{{data.id}}</b>
-            </div>
-            <div class="col-sm-3 p-0 text-center divAsButton" :style="'color: #0064B1;'">
-              <b class='font-weight-normal'>DELIVERY TIME: {{data.order_accept_start_time +  ' - ' +  data.order_accept_end_time}}</b>
-            </div>
-            <div class="col-sm-3 text-center divAsButton">
-              <b v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'" :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
-            </div>
-            <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'" @click="viewReceipt(data)">
-              <b> PRINT ORDER </b>
+  <div style="min-height: 653px;">
+    <div class="row pr-3 pl-3">
+      <div :class="['Late', 'Busy', 'Unavailable'].includes(data.order_status) ? 'col-sm-8 p-0' : 'col-sm-12 p-0'">
+        <div class="card card2" v-if="Object.keys(data).length > 0 && (restaurant.length > 0 || deliStore.length > 0)"
+          style="overflow: hidden;position: relative;width: 100%;">
+          <div class="card-header card2Header">
+            <div class="row card2HeaderEl">
+              <div class="col-sm-12 d-flex justify-content-between headerActions"
+                v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete' || ['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status)">
+                <div class="col-sm-3 text-center divAsButton">
+                  <b>{{data.id}}</b>
+                </div>
+                <div class="col-sm-3 p-0 text-center divAsButton" :style="'color: #0064B1;'"
+                  v-if="!['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status)">
+                  <b class='font-weight-normal'>DELIVERY TIME: {{data.order_accept_start_time + ' - ' +
+                    data.order_accept_end_time}}</b>
+                </div>
+                <div class="col-sm-3 p-0 text-center divAsButton" :style="'color: #0064B1;'"
+                  v-if="['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status)">
+                  <b class='font-weight-normal'>{{returnDate(data) + ' ' + data.local_time_created}}</b>
+                </div>
+                <div class="col-sm-3 text-center divAsButton">
+                  <b v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete' || ['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status)"
+                    :style="'color: #FFBF51; text-transform: uppercase;'">{{data.order_status}}</b>
+                </div>
+                <div class="col-sm-3 text-center divAsButton" :style="'color: #0064B1;'" @click="viewReceipt(data)">
+                  <b> PRINT ORDER </b>
+                </div>
+              </div>
+              <div v-else-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 text-center">
+                <b style="color: #0064B1;"> NEW ORDER REQUEST AT {{ data.local_time_created }} </b>
+              </div>
             </div>
           </div>
-          <div v-else-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 text-center">
-            <b style="color: #0064B1;"> NEW ORDER REQUEST AT {{ data.local_time_created }} </b> 
-          </div>
-        </div>
-      </div>
-      <div class="card-body p-0" >
-        <div class="col-sm-12">
-        <div class="row">
-          <div class="col-sm-7 p-0">
+          <div class="card-body p-0" style="border: 1px solid #707070">
             <div class="col-sm-12">
               <div class="row">
-                <div v-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 pt-3 pb-3 pendingCustomerInformation">
-                  <div class="row">
-                    <div class="col-sm-5 p-0 pl-3">
-                      <div>
-                        <b> Customer Information </b>
-                      </div>
-                      <div>
-                        <b class="font-weight-normal"> {{
-                          data.customer.first_name !== '' || data.customer.first_name !== NULL ? data.customer.first_name  : '--' 
-                        }} </b>
-                      </div>
-                      <div>
-                        <b style="color: #0064B1;"> Contact number </b>
-                        <p>{{ data.customer.phone_number }}</p>
+                <div class="col-sm-7 p-0">
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div v-if="data.order_status.toLowerCase() === 'pending'"
+                        class="col-sm-12 pt-3 pb-3 pendingCustomerInformation">
+                        <div class="row">
+                          <div class="col-sm-5 p-0 pl-3">
+                            <div>
+                              <b> Customer Information </b>
+                            </div>
+                            <div>
+                              <b class="font-weight-normal"> {{
+                                data.customer.first_name !== '' || data.customer.first_name !== NULL ?
+                                data.customer.first_name : '--'
+                                }} </b>
+                            </div>
+                            <div>
+                              <b style="color: #0064B1;"> Contact number </b>
+                              <p>{{ data.customer.phone_number }}</p>
+                            </div>
+                          </div>
+                          <div class="col-sm-7 pr-0">
+                            <div>
+                              <b>
+                                Deliver to:
+                              </b>
+                            </div>
+                            <div
+                              v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
+                              <b class="font-weight-normal"
+                                v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
+                                {{data.shipping_address.address1}}
+                              </b>
+                              <b class="font-weight-normal"
+                                v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
+                                {{data.shipping_address.address2}}
+                              </b>
+                              <i v-else> No shipment address </i>
+                            </div>
+                            <i v-else> No shipment address </i>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-sm-7 pr-0">
-                      <div>
-                        <b>
-                          Deliver to:
-                        </b>
+                  </div>
+                  <div v-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 p-3"
+                    style="border-left: 1px solid grey;">
+                    <div class="d-flex">
+                      <b class="col-sm-4">{{ data.id }}</b>
+                      <div class="col-sm-8 d-flex" :style="'color: #0064B1;'">
+                        <b>Delivery Time:</b>
+                        <b :style="'padding-left: 2%;'">{{ data.delivery_time_requested }}</b>
                       </div>
-                      <div v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
-                        <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
-                          {{data.shipping_address.address1}}
-                        </b>
-                        <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
-                          {{data.shipping_address.address2}}
-                        </b>
-                        <i v-else> No shipment address </i>
+                    </div>
+                  </div>
+                  <div class="orderInformation col-sm-12"
+                    :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: 513px; margin-top: -1px;' : 'height: 488px;'">
+                    <div class="mt-3">
+                      <b :style="'color: #0064B1'"> Restaurant Items: </b>
+                    </div>
+                    <div v-for="(el, ndx) in restaurant" :key="'restaurant' + ndx" class="mt-2 pr-5">
+                      <div class="d-flex justify-content-between">
+                        <b :style="'color: #E07700'"> {{el.product.name}} </b>
+                        <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} X
+                          {{el.quantity}}</b>
                       </div>
+                      <div class="col-sm-12" :style="'color: #E07700'">
+                        + {{el.product.short_description}}
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <b :style="'color: #0064B1'"> Deli product Items: </b>
+                    </div>
+                    <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
+                      <div class="d-flex justify-content-between">
+                        <b :style="'color: #E07700'"> {{el.product.name}} </b>
+                        <b class="font-weight-normal"> {{data.customer_currency_code}} {{ el.product.price }} X
+                          {{el.quantity}} </b>
+                      </div>
+                      <div class="col-sm-12" :style="'color: #E07700'">
+                        + {{el.product.short_description}}
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <b :style="'color: #0064B1'"> Other add-ons and requests: </b>
+                    </div>
+                    <div class="mt-2">
+                      <b :style="'color: #E07700'"> Contactless delivery </b>
+                    </div>
+                    <div class="mt-2">
+                      <b :style="'color: #E07700'"> Add cutlery </b>
+                    </div>
+                    <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0;background-color: #e0e0e0;">
+                      <div class="col p-0 m-0">
+                        <b style="color: #0064B1;">Total</b>
+                      </div>
+                      <div class="col p-0 m-0">
+                        <p style="float:right;">
+                          {{ data.customer_currency_code }} {{ data.order_total }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-5 customerInformation"
+                  :style="(data.order_status.toLowerCase() === 'pending' ? 'height: 581px !important; padding-bottom: 50px !important; overflow-y: scroll !important;': 'height: 513px; padding-left: 15px; padding-right: 15px;') + (['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status) ? 'border-bottom: 1px solid #707070 !important;': 'border-bottom: 0px !important;')">
+                  <div
+                    v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete' || ['Cancelled', 'Late', 'Busy', 'Unavailable'].includes(data.order_status)">
+                    <div class="mt-3">
+                      <b class="head"> Customer Information </b>
+                    </div>
+                    <div class="mt-2">
+                      <b class="font-weight-normal"> {{ (data.customer.first_name !== null && data.customer.first_name !==
+                        undefined && data.customer.first_name !== '' ? data.customer.first_name : 'No Name').toUpperCase()
+                        }} </b>
+                    </div>
+                    <div class="mt-1" style="display: flex; flex-direction: column;">
+                      <b class="text-primary"> Contact customer </b>
+                      <b class="text-black font-weight-normal"> {{data.customer.phone_number}} </b>
+                    </div>
+                    <br>
+                    <div class="mt-5">
+                      <b class="head"> Address: </b>
+                    </div>
+                    <div
+                      v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
+                      <b class="font-weight-normal"
+                        v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
+                        {{data.shipping_address.address1}}
+                      </b>
+                      <b class="font-weight-normal"
+                        v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
+                        {{data.shipping_address.address2}}
+                      </b>
                       <i v-else> No shipment address </i>
                     </div>
+                    <i v-else> No shipment address </i>
+                    <div class="row sectionRow">
+                      <div class="totalSection">
+                        <div class="d-flex justify-content-between">
+                          <b>
+                            TOTAL
+                          </b>
+                          <b>
+                            {{data.customer_currency_code}} {{data.order_total}}
+                          </b>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else-if="data.order_status.toLowerCase() === 'pending'">
+                    <center>
+                      <div class="mt-4 mb-4" style="width: 100%">
+                        <b style="color: #00AF5F;"> ACCEPT FOR: </b>
+                      </div>
+                      <div class="mt-2" v-for="(el, ndx) in times" :key="'time' + ndx">
+                        <button class="squareButtonCommon" @click="focusIndex = ndx"
+                          :style="(focusIndex != ndx) ? unfocusStyle : focusStyle"> {{el.start_time + ' - ' + el.end_time}}
+                        </button>
+                      </div>
+                      <div class="mt-5">
+                        <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept(data.id)">
+                          ACCEPT </button>
+                      </div>
+                      <div class="mt-3">
+                        <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle" data-toggle="modal"
+                          data-target="#reasonModal"> Unable to fulfill order </button>
+                      </div>
+                    </center>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div v-if="data.order_status.toLowerCase() === 'pending'" class="col-sm-12 p-3" style="border-left: 1px solid grey;">
-              <div class="d-flex" >
-                <b class="col-sm-4">{{ data.id }}</b>
-                <div class="col-sm-8 d-flex" :style="'color: #0064B1;'">
-                  <b>Delivery Time:</b>
-                  <b :style="'padding-left: 2%;'">{{ data.delivery_time_requested }}</b>
-                </div>
-              </div>
-            </div>
-            <div class="orderInformation col-sm-12" :style="(data.order_status.toLowerCase() !== 'pending') ? 'height: 513px; margin-top: -1px;' : 'height: 488px;'">
-              <div class="mt-3">
-                <b :style="'color: #0064B1'"> Restaurant Items: </b>
-              </div>
-              <div v-for="(el, ndx) in restaurant" :key="'restaurant' + ndx" class="mt-2 pr-5">
-                <div class="d-flex justify-content-between">
-                  <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} X {{el.quantity}}</b>
-                </div>
-                <div class="col-sm-12" :style="'color: #E07700'">
-                  + {{el.product.short_description}}
-                </div>
-              </div>
-              <div class="mt-3">
-                <b :style="'color: #0064B1'"> Deli product Items: </b>
-              </div>
-              <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
-                <div class="d-flex justify-content-between">
-                  <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                  <b class="font-weight-normal"> {{data.customer_currency_code}} {{ el.product.price }} X {{el.quantity}} </b>
-                </div>
-                <div class="col-sm-12" :style="'color: #E07700'">
-                  + {{el.product.short_description}}
-                </div>
-              </div>
-              <div class="mt-3">
-                <b :style="'color: #0064B1'"> Other add-ons and requests: </b>
-              </div>
-              <div class="mt-2">
-                <b :style="'color: #E07700'"> Contactless delivery </b>
-              </div>
-              <div class="mt-2">
-                <b :style="'color: #E07700'"> Add cutlery </b>
-              </div>
-              <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0;background-color: #e0e0e0;">
-                  <div class="col p-0 m-0">
-                    <b style="color: #0064B1;">Total</b>
-                  </div>
-                  <div class="col p-0 m-0">
-                    <p style="float:right;">
-                      {{ data.customer_currency_code }} {{ data.order_total }}
-                    </p>
-                  </div>
               </div>
             </div>
           </div>
-          <div class="col-sm-5 customerInformation" :style="data.order_status.toLowerCase() === 'pending' ? 'height: 581px !important; padding-bottom: 50px !important; overflow-y: scroll !important;': 'height: 513px; padding-left: 15px; padding-right: 15px;'">
-            <div v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
-              <div class="mt-3">
-                <b class="head"> Customer Information </b>
-              </div>
-              <div class="mt-2">
-                <b class="font-weight-normal"> {{ (data.customer.first_name !== null && data.customer.first_name !== undefined && data.customer.first_name !== '' ? data.customer.first_name : 'No Name').toUpperCase() }} </b>
-              </div>
-              <div class="mt-1" style="display: flex; flex-direction: column;">
-                <b class="text-primary"> Contact customer </b>
-                <b class="text-black font-weight-normal"> {{data.customer.phone_number}} </b>
-              </div>
-              <br>
-              <div class="mt-5">
-                <b class="head"> Address: </b>
-              </div>
-              <div v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
-                <b class="font-weight-normal" v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
-                  {{data.shipping_address.address1}}
-                </b>
-                <b class="font-weight-normal" v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
-                  {{data.shipping_address.address2}}
-                </b>
-                <i v-else> No shipment address </i>
-              </div>
-              <i v-else> No shipment address </i>
-              <div class="row sectionRow">
-                <div class="totalSection">
-                  <div class="d-flex justify-content-between">
+          <div class="card-footer card2Footer"
+            v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
+            <div class="col-sm-12 p-0">
+              <div class="row">
+                <div class="progressbtnWidth p-1" v-for="(el, ndx) in progressButtons" :key="ndx">
+                  <!-- <div class="" style="width: 100%;"> -->
+                  <div class="col-sm-12 p-1 progressbtn">
+
+                    <div class="p-0">
+                      <b>{{el.text}}</b>
+                    </div>
+
+                    <div class=" p-0 Progress switch"
+                      v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
+                      <div v-if="el.status.toLowerCase() === 'yes'"
+                        :class="el.status === 'no'? 'switchAllowed' : 'switchNotAllowed'"
+                        @click="el.status === 'no' ? updateOrderStatus(data.id, el.stats) : ''">
+                        <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"
+                          disbled></i>
+                        <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)">
+                          {{el.status}} </b>
+                      </div>
+                      <div v-else-if="el.status.toLowerCase() === 'no'"
+                        @click="el.disabled === true ? '' : updateOrderStatus(data.id, el.stats, data.order_status)"
+                        :class="el.disabled === false ? 'switchAllowed' : 'switchNotAllowed'">
+                        <b
+                          style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)">
+                          {{el.status}} </b>
+                        <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
+                      </div>
+                    </div>
+                    <!-- <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'delivered'">
+                        <div v-if="el.status.toLowerCase() === 'yes'">
+                          <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"></i>
+                          <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
+                        </div>
+                        <div v-else-if="el.status.toLowerCase() === 'no'">
+                          <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
+                          <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
+                        </div>
+                      </div> -->
+
+                  </div>
+                  <!-- </div> -->
+                </div>
+                <div class="progressbtnWidth cancelWrapper" :hidden="data.order_status.toLowerCase() === 'complete'">
+                  <div class="cancel" @click="updateOrderStatus(data.id, 'cancel')">
                     <b>
-                      TOTAL
-                    </b>
-                    <b>
-                      {{data.customer_currency_code}} {{data.order_total}}
+                      CANCEL ORDER
                     </b>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else-if="data.order_status.toLowerCase() === 'pending'">
-              <center>
-                <div class="mt-4 mb-4" style="width: 100%">
-                  <b style="color: #00AF5F;"> ACCEPT FOR: </b>
-                </div>
-                <div class="mt-2" v-for="(el, ndx) in times" :key="'time' + ndx">
-                  <button class="squareButtonCommon" @click="focusIndex = ndx" :style="(focusIndex != ndx) ? unfocusStyle : focusStyle"> {{el.start_time + ' - ' + el.end_time}} </button>
-                </div>
-                <div class="mt-5">
-                  <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept(data.id)"> ACCEPT </button>
-                </div>
-                <div class="mt-3">
-                  <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle" data-toggle="modal" data-target="#reasonModal"> Unable to fulfill order </button>
-                </div>
-              </center>
-            </div>
           </div>
-        </div>
-        </div>
-      </div>
-      <div class="card-footer card2Footer" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
-        <div class="col-sm-12 p-0">
-          <div class="row">
-            <div class="progressbtnWidth p-1" v-for="(el, ndx) in progressButtons" :key="ndx">
-              <!-- <div class="" style="width: 100%;"> -->
-                <div class="col-sm-12 p-1 progressbtn">
-
-                  <div class="p-0">
-                    <b>{{el.text}}</b>
-                  </div>
-
-                  <div class=" p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'processing' || data.order_status.toLowerCase() === 'delivering' || data.order_status.toLowerCase() === 'complete'">
-                    <div v-if="el.status.toLowerCase() === 'yes'" :class="el.status === 'no'? 'switchAllowed' : 'switchNotAllowed'"  @click="el.status === 'no' ? updateOrderStatus(data.id, el.stats) : ''">
-                      <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'" disbled></i>
-                      <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
-                    </div>
-                    <div v-else-if="el.status.toLowerCase() === 'no'" @click="el.disabled === true ? '' : updateOrderStatus(data.id, el.stats, data.order_status)" :class="el.disabled === false ? 'switchAllowed' : 'switchNotAllowed'">
-                      <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
-                      <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
-                    </div>
-                  </div>
-                  <!-- <div class="col-sm-4 p-0 Progress switch" v-if="data.order_status.toLowerCase() === 'delivered'">
-                    <div v-if="el.status.toLowerCase() === 'yes'">
-                      <i class="fas fa-check-circle switchIcon" :style="'margin-left: -6.5px; color: #7ABC87;'"></i>
-                      <b style="position: absolute; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
-                    </div>
-                    <div v-else-if="el.status.toLowerCase() === 'no'">
-                      <b style="position: absolute; right: 0; margin-right: 2px; margin-top: -2px; top: 50%; transform: translate(0, -50%)"> {{el.status}} </b>
-                      <i class="fas fa-circle switchIcon" :style="emptyCircle"></i>
-                    </div>
-                  </div> -->
-
+          <div class="modal fade bd-example-modal-lg reasonModalContainer" id="reasonModal" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg reasonModal" role="document">
+              <div class="modal-content">
+                <div class="modal-header modalHeader">
+                  <b class="font-weight-bold reasonHeader"> UNABLE TO FULFILL ORDER </b>
+                  <button type="button" ref="xButton" class="xButton close" data-dismiss="modal" aria-label="Close"
+                    @click="rejectionReason = null">
+                    <b>&times;</b>
+                  </button>
                 </div>
-              <!-- </div> -->
-            </div>
-            <div class="progressbtnWidth cancelWrapper" :hidden="data.order_status.toLowerCase() === 'complete'">
-              <div class="cancel" @click="updateOrderStatus(data.id, 'cancel')">
-                <b>
-                  CANCEL ORDER
-                </b>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade bd-example-modal-lg reasonModalContainer" id="reasonModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg reasonModal" role="document">
-          <div class="modal-content">
-            <div class="modal-header modalHeader">
-              <b class="font-weight-bold reasonHeader"> UNABLE TO FULFILL ORDER </b>
-              <button type="button" ref="xButton" class="xButton close" data-dismiss="modal" aria-label="Close" @click="rejectionReason = null">
-                <b>&times;</b>
-              </button>
-            </div>
-            <div class="modal-body pt-2">
-              <div class="col-sm-12">
-                <div class="row">
-                  <div class="col-sm-4" v-for="(el, ndx) in rejectReasons" :key="'reason' + ndx">
-                    <div class="reasonCard">
-                      <div class="mb-2">
-                        <input type="radio" class="radio" :name="'reason'" v-model="rejectionReason"  :value="el.id">
-                      </div>
-                      <div>
-                        <b>{{el.text}}</b>
+                <div class="modal-body pt-2">
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div class="col-sm-4" v-for="(el, ndx) in rejectReasons" :key="'reason' + ndx">
+                        <div class="reasonCard">
+                          <div class="mb-2">
+                            <input type="radio" class="radio" :name="'reason'" v-model="rejectionReason" :value="el.id">
+                          </div>
+                          <div>
+                            <b>{{el.text}}</b>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <div class="modal-footer modalFooter">
+                  <button class="roundButtonCommon rejectButton font-weight-bold" @click="reject(data.id)"
+                    :disabled="rejectionReason === null" :style="rejectionReason === null ? 'cursor: not-allowed;' : ''">
+                    REJECT ORDER </button>
+                </div>
               </div>
             </div>
-            <div class="modal-footer modalFooter">
-              <button class="roundButtonCommon rejectButton font-weight-bold" @click="reject(data.id)" :disabled="rejectionReason === null" :style="rejectionReason === null ? 'cursor: not-allowed;' : ''"> REJECT ORDER </button>
+          </div>
+        </div>
+        <div v-else class="notFoundContainer">
+          <div class="notFound text-center">
+            <img :src="require('src/assets/img/logo_white.png')" style="width: 20%; height: auto;" />
+            <div class="mt-2">
+              <b class="font-weight-normal"> 404 | No data yet</b>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div v-else class="notFoundContainer">
-      <div class="notFound text-center">
-        <img :src="require('src/assets/img/logo_white.png')" style="width: 20%; height: auto;"/>
-        <div class="mt-2">
-          <b class="font-weight-normal"> 404 | No data yet</b>
-        </div>
+      <div class="col-sm-4 p-0 d-flex justify-content-center align-items-center reasonSection" v-if="['Late', 'Busy', 'Unavailable'].includes(data.order_status)">
+        <b v-if="data.order_status === 'Unavailable'">{{'Item unavailable'}}</b>
+        <b v-else-if="data.order_status === 'Busy'">{{'Too busy to process order'}}</b>
+        <b v-else-if="data.order_status === 'Late'">{{'Too late to take order'}}</b>
       </div>
     </div>
   </div>
@@ -448,6 +500,19 @@ export default {
       if(status.toLowerCase() === 'out for delivery') {
         console.log('<------- =========== --------->', e)
       }
+    },
+    returnDate(el) {
+      let d = new Date(el.created_on_utc ? el.created_on_utc : el.created_date_utc)
+      let dd = d.getDate()
+      let mm = d.getMonth() + 1
+      let yy = d.getFullYear()
+      if(String(dd).length < 2) {
+        dd = '0' + dd
+      }
+      if(String(mm).length < 2) {
+        mm = '0' + mm
+      }
+      return yy + '-' + mm + '-' + dd
     }
   },
   watch: {
@@ -479,6 +544,9 @@ export default {
 }
 </script>
 <style scoped>
+.reasonSection {
+  border: 1px solid #707070
+}
 .notFoundContainer {
   min-height: 581px;
 }
@@ -497,11 +565,15 @@ export default {
   padding-bottom: 50px !important;
   border-left: 1px solid #707070;
   border-top: 1px solid #707070;
+  /* border-bottom: 1px solid #707070; */
+  border-right: 1px solid #707070;
   /* border: 1px solid #707070; */
 }
 .orderInformation {
   border-left: 1px solid #707070;
   border-top: 1px solid #707070;
+  border-bottom: 1px solid #707070;
+  border-right: 1px solid #707070;
   /* height: calc(100vh - 378px) !important; */
   overflow-y: scroll;
   padding-bottom: 50px;
@@ -514,6 +586,7 @@ export default {
   align-items: center;
   border-top: 1px solid #707070;
   border-left: 1px solid #707070;
+  border-right: 1px solid #707070;
   /* border: 1px solid #707070; */
   border-radius: 0px;
   min-height: 72px;
@@ -529,6 +602,8 @@ export default {
   background-color: #FFFFFF;
   border-left: 1px solid #707070;
   border-top: 1px solid #707070;
+  border-bottom: 1px solid #707070;
+  border-right: 1px solid #707070;
   padding-top: 2px;
   padding-bottom: 2px;
   display: flex;
