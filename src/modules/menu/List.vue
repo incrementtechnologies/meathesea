@@ -282,7 +282,6 @@ export default {
                     temp.display_order = index + 1
                     temp.price_adjustment = el.price_adjustment
                     temp.quantity = 1
-                    temp.price_adjustment = 0
                     temp.weight_adjustment = 0
                     temp.cost = 0
                     temp.type = 'Simple'
@@ -354,7 +353,6 @@ export default {
                     temp.display_order = index + 1
                     temp.quantity = 1
                     temp.price_adjustment = el.price_adjustment
-                    temp.weight_adjustment = 0
                     temp.cost = 0
                     temp.type = 'Simple'
                     temp.type_id = 0
