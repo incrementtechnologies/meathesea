@@ -193,7 +193,8 @@ export default {
       searchValue: '',
       notifications: [],
       createdAtMin: '',
-      createdAtMax: ''
+      createdAtMax: '',
+      currentDate: new Date()
     }
   },
   mounted() {},
@@ -263,16 +264,16 @@ export default {
     },
     retrieveNotification(){
       const { user } = AUTH
-      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[0].count = response.crockery.length
       })
-      this.APIGetRequest(`get_crockery?Status=40&Status=45&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`get_crockery?Status=40&Status=45&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.crockery.length
       })
     },
     searchAPI(status) {
       const {user} = AUTH
-      let params = `crockery_search?Keyword=${this.searchValue}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}`
+      let params = `crockery_search?Keyword=${this.searchValue}&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}`
       status.forEach(el => {
         params += `&Status=${el}`
       })
@@ -304,7 +305,7 @@ export default {
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
-        // this.createdAtMax = lastDay.toISOString().slice(0, 10)
+        this.createdAtMax = lastDay.toISOString().slice(0, 10)
       }else{
         this.createdAtMin = ''
         this.createdAtMax = ''
@@ -325,9 +326,9 @@ export default {
       const { user } = AUTH
       if(Array.isArray(status)){
         console.log('READING IN ARRAY BY STATUS', status)
-        let query = `get_crockery?StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`
+        let query = `get_crockery?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`
         status.forEach((item, ndx) => {
-          query += `&Status=${item[ndx]}`
+          query += `&Status=${item}`
         })
         $('#loading').css({'display': 'block'})
         this.APIGetRequest(query, response => {
@@ -404,14 +405,24 @@ export default {
       this.selectedDataIndex = ndx
     },
     switchComponent(component, ndx) {
-      this.widerView = this.headerElements[ndx].wholeView
+      this.widerView = this.returnHeaderElements[ndx].wholeView
+      console.log('WHOLE VIEW: ', this.widerView)
       this.typeIndex = ndx
       this.componentType = component
+      if(!this.widerView){
+        if(ndx === 0) {
+          this.getDate('day', this.focusIndex)
+        }else if(ndx === 1){
+          this.getDate('week', this.focusIndex)
+        }
+      }else{
+        this.getDate('', 3)
+      }
     },
     retrieveCrockery() {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         response.crockery.forEach((el, ndx) => {
           if(el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
@@ -429,7 +440,7 @@ export default {
     retrieveOrders() {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`orders?StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`orders?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         this.orders = response.orders
         this.retrieveCrockery()
