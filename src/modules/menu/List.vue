@@ -439,6 +439,7 @@ export default {
     },
     retrieveCategory1(){
       this.APIGetRequest(`get_addOnCategory_1`, response => {
+        console.log('[hallo]', response)
         this.category1 = response.add_on_category
       })
     },
