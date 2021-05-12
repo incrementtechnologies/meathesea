@@ -92,7 +92,7 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="bundle ? (data.attributes.length > 0 ? data.attributes[1].attribute_values : []) : (data.attributes.length > 0 ? data.attributes[0].attribute_values : [])"
+            :tags="bundle ? ((data.attributes.length > 0) ? (data.attributes[1].attribute_values != undefined ? data.attributes[1].attribute_values : []) : []) : (data.attributes.length > 0 ? (data.attributes[0].attribute_values != undefined ? data.attributes[0].attribute_values : []) : [])"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
             @tags-changed="newTags => bundle ? data.attributes[1].attribute_values = newTags : data.attributes[0].attribute_values = newTags"
@@ -107,10 +107,10 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
-            :tags="bundle ? data.attributes.length > 0 && data.attributes[0].attribute_values : data.attributes.length > 0 && data.attributes[1].attribute_values"
+            :tags="bundle ? ((data.attributes.length > 0) ? (data.attributes[0].attribute_values != undefined ? data.attributes[0].attribute_values : []) : []) : (data.attributes.length > 0 ? (data.attributes[1].attribute_values != undefined ? data.attributes[1].attribute_values : []) : [])"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-             @tags-changed="newTags => bundle ? data.attributes[0].attribute_values = newTags : data.attributes[1].attribute_values = newTags"
+            @tags-changed="newTags => bundle ? data.attributes[0].attribute_values = newTags : data.attributes[1].attribute_values = newTags"
           />
           <div v-if="bundle === true">
             <div v-show="errorBundleCategory">
@@ -435,6 +435,7 @@ export default {
         }
       }
       if(this.all_day === true){
+        console.log('here')
         parameter = {
           category_id: this.categoryId,
           store_ids: [user.userID],
@@ -500,6 +501,7 @@ export default {
           published: false
         }
       }else{
+        console.log('else ')
         parameter = {
           category_id: this.categoryId,
           store_ids: [user.userID],

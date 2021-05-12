@@ -113,13 +113,19 @@ export default {
       this.APIGetRequest(`/products/${id}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.products.length > 0) {
-          response.products[0].attributes[0].attribute_values.forEach(element => {
-            element['text'] = element.name
-          })
-          response.products[0].attributes[1].attribute_values.forEach(element => {
-            element['text'] = element.name
+          response.products[0].attributes.forEach(element => {
+            element.attribute_values.forEach(item => {
+              item['text'] = item.name
+            })
           })
           this.data = response.products[0]
+          // response.products[0].attributes[0].attribute_values.forEach(element => {
+          //   element['text'] = element.name
+          // })
+          // response.products[0].attributes[1 ].attribute_values.forEach(element => {
+          //   element['text'] = element.name
+          // })
+          // this.data = response.products[0]
         } else {
           this.data = null
         }
@@ -269,7 +275,7 @@ export default {
                     temp.display_order = index + 1
                     temp.price_adjustment = el.price_adjustment
                     temp.quantity = 1
-                    temp.price_adjustment = 0
+                    // temp.price_adjustment = 0
                     temp.weight_adjustment = 0
                     temp.cost = 0
                     temp.type = 'Simple'
@@ -403,8 +409,17 @@ export default {
                 $('#loading').css({'display': 'none'})
                 if(response.products.length > 0) {
                   this.products = response.products
-                  this.back()
                 }
+            // $('#loading').css({'display': 'block'})
+            // this.APIPutRequest(`products/${product.id}`, Prod, response => {
+            //   this.hasUpdate = true
+            //   $('#loading').css({'display': 'none'})
+            //   this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+            //     $('#loading').css({'display': 'none'})
+            //     if(response.products.length > 0) {
+            //       this.products = response.products
+            //       this.back()
+            //     }
               })
             })
           })
@@ -413,6 +428,14 @@ export default {
           this.APIPutRequest(`products/${product.id}`, Prod, response => {
             this.hasUpdate = true
             $('#loading').css({'display': 'none'})
+            this.APIGetRequest(`/products?CategoryId=${this.category}`, response => {
+              $('#loading').css({'display': 'none'})
+              if(response.products.length > 0) {
+                this.products = response.products
+              }
+            })
+            // this.hasUpdate = true
+            // $('#loading').css({'display': 'none'})
           })
         }
       }
