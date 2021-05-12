@@ -202,26 +202,11 @@
             </div>
           </div>
         </div>
-        <div v-if="data" class="row" style="width:100%;margin-left:0 !important">
+        <div class="row" style="width:100%;margin-left:0 !important">
           <div class="column" style="width:100%;margin-left:0px !important">
             <p class="name" style="margin-left: 0%; margin-top: 2%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
-            <input type="radio" value="loc" v-model="setLocation" class="in">
-            <label for="loc" class="on">88 Queens Road W</label>
-            <input type="radio" value="location" v-model="setLocation" class="in">
-            <label for="location" class="on">Location 2</label>
-            <input type="radio" value="allLocations" v-model="setLocation" class="in">
-            <label for="allLocations" class="on">All Locations</label>
-          </div>
-        </div>
-        <div v-else class="row" style="width:100%">
-          <div class="column" style="width:100%;margin-left:0px !important">
-          <p class="name" style="margin-left: 0%;margin-top:2%"><b>{{bundle ? 'BUNDLE AVAILABILITY (LOCATION)' : 'PRODUCT AVAILABILITY (LOCATION)'}}</b></p>
-            <input type="radio" value="loc" v-model="setLocation" class="in">
-            <label for="loc" class="on">88 Queens Road W</label>
-            <input type="radio" value="location" v-model="setLocation" class="in">
-            <label for="location" class="on">Location 2</label>
-            <input type="radio" value="allLocations" v-model="setLocation" class="in">
-            <label for="allLocations" class="on">All Locations</label>
+            <input type="radio" name="loc" class="in" checked="checked">
+            <label for="loc" class="on">{{store}}</label>
           </div>
         </div>
       </div>
@@ -259,6 +244,16 @@
           </center>
         </div>
       </div>
+      <div id="errorModal" class="modal" v-if="hasNoUpdateErrorWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeErrorModal()" class="close">&times;</span>
+          <p style="color: red">Nothing was Updated.</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeErrorModal()" class="btn btn-danger">Close</button>
+          </center>
+        </div>
+      </div>
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -276,7 +271,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'errorProductCategory', 'errorBundleCategory'],
+  props: ['bundle', 'data', 'store', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'errorProductCategory', 'errorBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -299,7 +294,6 @@ export default {
       available_start_date_time_utc: null,
       available_end_date_time_utc: null,
       clickSetTime: false,
-      setLocation: null,
       category: '',
       categories: '',
       CategoryTags: [],
@@ -384,6 +378,14 @@ export default {
         return true
       }
       return true
+    },
+    hasNoUpdateErrorWatch(){
+      if(this.noUpdateError === true){
+        let modal = document.getElementById('errorModal')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
     }
   },
   methods: {
@@ -435,7 +437,6 @@ export default {
         }
       }
       if(this.all_day === true){
-        console.log('here')
         parameter = {
           category_id: this.categoryId,
           store_ids: [user.userID],
@@ -501,7 +502,6 @@ export default {
           published: false
         }
       }else{
-        console.log('else ')
         parameter = {
           category_id: this.categoryId,
           store_ids: [user.userID],
@@ -572,7 +572,6 @@ export default {
       } else {
         parameter.attributes.splice(2, 1)
       }
-      console.log(parameter)
       if(this.images !== null){
         let formData = new FormData()
         formData.append('photo', this.images)
@@ -604,12 +603,10 @@ export default {
             })
           })
           $('#loading').css({'display': 'none'})
-          console.log('images', this.images)
         })
       }else{
         this.isSuccess = true
         this.APIPostRequest(`products`, {product: parameter}, res => {
-          console.log(res)
           $('#loading').css({'display': 'block'})
           this.APIGetRequest(`/products?CategoryId=${this.categoryId}`, response => {
             if(this.isSuccess === true) {
@@ -624,11 +621,9 @@ export default {
           })
         })
         $('#loading').css({'display': 'none'})
-        console.log('images', this.images)
       }
     },
     remove(data){
-      console.log(data.category_id)
       $('#loading').css({'display': 'block'})
       this.APIDeleteRequest(`products/${data.id}`, {}, response => {
         $('#loading').css({'display': 'none'})
@@ -654,7 +649,6 @@ export default {
     },
     onSave(data){
       if(data) {
-        console.log(data)
         data['all_day'] = this.all_day
         data['CategoryTags'] = this.CategoryTags
         data['CategoriesTags'] = this.CategoriesTags
@@ -673,7 +667,6 @@ export default {
       this.images = event.target.files[0]
       let image = event.target.files[0].name
       // this.encodedImage = btoa(image);
-      console.log(this.images)
       const reader = new FileReader()
       reader.onloadend = (e) => {
         this.encodedImage = e.target.result
@@ -698,6 +691,7 @@ export default {
       let span = document.getElementsByClassName('close')[0]
       modal.style.display = 'none'
       this.$parent.updateError = false
+      this.$parent.noUpdateError = false
     },
     closeUpdateModal() {
       let modal = document.getElementById('updateModal')
@@ -706,7 +700,6 @@ export default {
       this.$parent.isEdit = false
       this.$parent.add = false
       this.$parent.hasUpdate = false
-      console.log(this.hasUpdate)
     }
   }
 }
