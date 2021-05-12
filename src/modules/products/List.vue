@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :store="store" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -43,8 +43,10 @@ export default {
       errorMessage: null,
       bundleProducts: [],
       user: AUTH,
+      store: null,
       hasUpdate: false,
       updateError: false,
+      noUpdateError: false,
       errorBundleCategory: false,
       errorProductCategory: false,
       isErrorTimeStart: false,
@@ -53,7 +55,6 @@ export default {
   },
   watch: {
     $route(to, from){
-      console.log(to)
       this.isEdit = false
     }
   },
@@ -81,16 +82,14 @@ export default {
       active[id].classList.add('active')
     },
     retrieveCategories() {
+      const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest('/get_deli_shop_categories?storeId=1', response => {
+      this.APIGetRequest(`/get_deli_shop_categories?storeId=${user.userID}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
           this.category = response.categories[0].id
-          console.log(response.categories[0].id, 'kkkl')
-          console.log(this.categories, 'kkkhhhhhl')
           if(this.firstRetrieve === true) {
-            console.log(this.categories[0].id)
             this.retrieveProducts(this.categories[0].id)
             this.firstRetrieve = false
           }
@@ -118,6 +117,9 @@ export default {
               item['text'] = item.name
             })
           })
+          this.APIGetRequest('stores', response => {
+            this.store = response.stores[0].name
+          })
           this.data = response.products[0]
           // response.products[0].attributes[0].attribute_values.forEach(element => {
           //   element['text'] = element.name
@@ -133,7 +135,6 @@ export default {
     },
     update(product){
       var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd
-      console.log(product.available_start_date_time_utc, product.available_end_date_time_utc)
       if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null || product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
         newtimeStart = ''
         newtimeEnd = ''
@@ -142,7 +143,6 @@ export default {
         timeStart = ''
         timeEnd = ''
       }else if(product.available_start_date_time_utc.HH !== undefined && product.available_start_date_time_utc.mm !== undefined && product.available_start_date_time_utc.HH !== null && product.available_start_date_time_utc.mm !== null && product.available_end_date_time_utc.HH !== '' && product.available_end_date_time_utc.mm !== ''){
-        console.log('sa ikaduha', product.available_start_date_time_utc.HH)
         startTime = product.available_start_date_time_utc.HH
         endTime = product.available_end_date_time_utc.HH
         if(startTime > 8){
@@ -158,19 +158,16 @@ export default {
           return
         }
       }else if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== '' && product.available_end_date_time_utc !== ''){
-        // console.log('dre sulod')
         newtimeStart = product.available_start_date_time_utc.split('T')
         newtimeEnd = product.available_end_date_time_utc.split('T')
         startTime = product.available_start_date_time_utc.split(':')
         endTime = product.available_end_date_time_utc.split(':')
         timeStart = product.available_start_date_time_utc.split('')
         timeEnd = product.available_end_date_time_utc.split('')
-        // console.log('sulod hoy!!!', timeStart)
         // console.log(timeStart.length, timeEnd.length)
         // console.log(timeStart.length, timeEnd.length)
         // console.log(timeStart.length, timeEnd.length)
         if(timeStart.length === 5 && timeEnd.length === 5){
-          console.log('time only')
           if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
           }else{
@@ -184,7 +181,6 @@ export default {
             return
           }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
-          console.log('time start with date')
           if(parseInt(endTime) < 17){
             this.isErrorTimeEnd = false
           }else{
@@ -198,7 +194,6 @@ export default {
             return
           }
         }else if(timeStart.length === 5 && timeEnd.length > 5){
-          console.log('time end with date')
           if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
           }else{
@@ -217,6 +212,10 @@ export default {
         }
       }
       let Prod = null
+      if(product.name === this.data.name && product.categoryId === this.data.category_id && product.full_description === this.data.full_description && product.price === this.data.price && product.old_price === this.data.old_price && product.CategoriesTags === this.data.CategoriesTags && product.CategoryTags === this.data.CategoryTags && (product.available_start_date_time_utc === this.data.available_start_date_time_utc && product.available_end_date_time_utc === this.data.available_end_date_time_utc)){
+        this.noUpdateError = true
+        return
+      }
       if(product.name === null || product.name === '' || product.categoryId === null || product.categoryId === '' || product.full_description === null || product.full_description === '' || product.price === null || product.categoryId === '' || product.old_price === null || product.old_price === '' || product.CategoriesTags === null || product.CategoriesTags === '' || product.CategoryTags === null || product.CategoryTags === '') {
         this.updateError = true
         return
@@ -383,7 +382,6 @@ export default {
           }
         }
         if(product.uploaded_image !== null && product.uploaded_image !== undefined){
-          console.log('test')
           let formData = new FormData()
           formData.append('photo', product.uploaded_image)
           $('#loading').css({'display': 'block'})
