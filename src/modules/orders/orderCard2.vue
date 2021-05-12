@@ -41,8 +41,8 @@
                     <div class="row">
                       <div v-if="data.order_status.toLowerCase() === 'pending'"
                         class="col-sm-12 pt-3 pb-3 pendingCustomerInformation">
-                        <div class="row">
-                          <div class="col-sm-5 p-0 pl-3">
+                        <div class="row contact_information_row">
+                          <div class="col-sm-5 p-0 pl-3 contact_information">
                             <div>
                               <b> Customer Information </b>
                             </div>
@@ -57,7 +57,7 @@
                               <p>{{ data.customer.phone_number }}</p>
                             </div>
                           </div>
-                          <div class="col-sm-7 pr-0">
+                          <div class="col-sm-7 pr-0 contact_information">
                             <div>
                               <b>
                                 Deliver to:
@@ -102,8 +102,18 @@
                         <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} X
                           {{el.quantity}}</b>
                       </div>
-                      <div class="col-sm-12" :style="'color: #E07700'">
+                      <!-- <div class="col-sm-12" :style="'color: #E07700'">
                         + {{el.product.short_description}}
+                      </div> -->
+                      <div v-if="el.product.attributes[0] !== undefined">
+                        <div v-for="(i, ndx) in el.product.attributes[0].attribute_values" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700; padding-right: 1px !important;'">
+                          <div>
+                            + {{i.name}}
+                          </div>
+                          <div style="color: black; font-size: 12px;">
+                            {{data.customer_currency_code}} {{i.price_adjustment}}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div class="mt-3">
@@ -115,8 +125,18 @@
                         <b class="font-weight-normal"> {{data.customer_currency_code}} {{ el.product.price }} X
                           {{el.quantity}} </b>
                       </div>
-                      <div class="col-sm-12" :style="'color: #E07700'">
+                      <!-- <div class="col-sm-12" :style="'color: #E07700'">
                         + {{el.product.short_description}}
+                      </div> -->
+                      <div v-if="el.product.attributes[0] !== undefined" style="background-color: yellow; width: 100%;">
+                        <div v-for="(i, ndx) in el.product.attributes[0].attribute_values" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700'">
+                          <div>
+                            + {{i.name}}
+                          </div>
+                          <div style="color: black; font-size: 12px;">
+                            {{data.customer_currency_code}} {{i.price_adjustment}}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div class="mt-3">
@@ -874,6 +894,27 @@ input[type="radio"]:checked {
   }
   .progressbtnWidth {
     width: 100%;
+  }
+  .contact_information{
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 !important;
+  }
+  .contact_information_row {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+@media (max-width: 576px) {
+  .contact_information{
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 !important;
+  }
+
+  .contact_information_row {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 .headerActions {

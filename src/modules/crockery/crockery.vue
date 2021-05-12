@@ -23,7 +23,7 @@
               <div class="card-body initialHeight p-0">
                 <div
                   class="col-sm-12 mt-3 crockeriesContainer"
-                  v-for="(el, ndx) in returnData[returnFocusIndex]" 
+                  v-for="(el, ndx) in (returnTypeIndex === 1 && !widerView ? returnSelectedData : returnData )" 
                   :key="ndx + 'body'" 
                   :id="String(ndx) + navs[focusIndex]"
                   :style="(el.crockery_status !== 'Reschedule' ) ? 'background-color: ' + navs[returnFocusIndex].background + ';' : 'background-color: #F08080;' "
@@ -35,7 +35,7 @@
                   >
                     <div v-if="!headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div v-if="!headerElements[typeIndex].changeDate">
-                      {{ el.order_details.local_time_created}}
+                      <!-- {{ el.order_details.local_time_created}} -->
                       <!-- {{
                         
                         el.order_details.delivery_time_requested === "ASAP"
@@ -85,12 +85,19 @@
             </div>
           </div>
           <div class="card-body p-0 initialHeight tableArea">
-            <card1 :data="(this.searchValue !== '') ? [] :(data[returnFocusIndex][returnSelectedIndex] !== undefined) ? data[returnFocusIndex][returnSelectedIndex] : {}" v-if="componentType === 'card' && returnCardRender"/>
+            <card1 
+              :data="typeIndex === 1 && !widerView? returnTableData[returnWeeklySelected] : returnData[returnSelectedIndex]"
+              v-if="componentType === 'card' && returnCardRender"
+            />
             <!-- <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card' && $route.path === '/orders'"/> -->
             <div 
               v-else-if="componentType === 'table'"
             >
-              <dataTable :headers="tableHeaders" :tableData="data[returnFocusIndex]"/>
+              <dataTable 
+                :headers="tableHeaders" 
+                :tableData="typeIndex === 1 && !widerView? returnTableData : returnData" 
+                :orderClicked="orderClicked"
+              />
             </div>
           </div>
         </div>
@@ -103,6 +110,7 @@ import card1 from './orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
 import AUTH from 'src/services/auth'
+import property from './property'
 export default {
   components: {
     card1,
@@ -111,76 +119,10 @@ export default {
   },
   data() {
     return {
-      tableHeaders: [
-        {text: 'Order date/time', key: 'created_date_utc'},
-        {text: 'Order number', key: 'order_id'},
-        {text: 'Order Status', key: 'crockery_status'},
-        {text: 'Plate returned', key: 'returned'}
-      ],
-      navs: [
-        {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
-        {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
-        {name: 'RETURNED', background: '#E1E1E1', color: '#878787', count: 0}
-      ],
-      headerElements: [
-        {
-          text: 'TODAY',
-          style: 'border: 1px solid #0064B1; color: #0064B1;',
-          type: 'button',
-          componentTocall: 'card',
-          focusedBackground: '#FFFACA',
-          focusedColor: '#0064B1',
-          unfocusedColor: '#000000',
-          wholeView: false,
-          shorterView: true,
-          column: '20%',
-          changeDate: false
-        },
-        {
-          text: 'THIS WEEK',
-          style: 'border: 1px solid #0064B1; color: #000000;',
-          type: 'button',
-          componentTocall: 'table',
-          focusedBackground: '#FFFACA',
-          focusedColor: '#0064B1',
-          unfocusedColor: '#000000',
-          wholeView: false,
-          shorterView: true,
-          column: '20%',
-          changeDate: true
-        },
-        {
-          text: 'ALL OUTSTANDING',
-          style: 'border: 1px solid #BE0000; color: #BE0000;',
-          type: 'button',
-          componentTocall: 'table',
-          focusedBackground: '#BE0000',
-          focusedColor: '#FFFFFF',
-          unfocusedColor: '#BE0000',
-          wholeView: true,
-          shorterView: true,
-          column: '20%',
-          wholeViewColumn: '20%',
-          changeDate: false
-        },
-        {
-          text: 'Search',
-          style: 'border: 1px solid #707070; background-color: #FFFFFF; color: #000000;',
-          type: 'input',
-          componentTocall: 'table',
-          wholeView: true,
-          shorterView: true,
-          column: '40%',
-          focusedBackground: '#0064B1',
-          wholeViewColumn: '70%',
-          changeDate: false
-        }
-      ],
-      data: [
-        [], // new
-        [], // in progress
-        [] // returned
-      ],
+      tableHeaders: property.tableHeaders,
+      navs: property.navs,
+      headerElements: property.headerElements,
+      data: [],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
       focusIndex: 0, // new, in progress, returned
@@ -194,12 +136,15 @@ export default {
       notifications: [],
       createdAtMin: '',
       createdAtMax: '',
-      currentDate: new Date()
+      currentDate: new Date(),
+      weeklySelected: null,
+      isMounted: false,
+      editing: false
     }
   },
   mounted() {},
   created() {
-    this.getDate('day', null)
+    this.retrieveOrders()
     this.retrieveNotification()
   },
   watch: {},
@@ -240,9 +185,45 @@ export default {
         return this.returnDate(el) === this.returnDate(this.returnSelectedData[this.selectedDataIndex])
       })
       return temp
+    },
+    returnSelectedData() {
+      return this.data.filter((thing, index, self) =>
+        index === self.findIndex((t) => (
+          this.returnDate(t) === this.returnDate(thing)
+        ))
+      )
+    },
+    returnWeeklySelected() {
+      return this.weeklySelected
     }
   },
   methods: {
+    orderClicked(index, orderId) {
+      console.log('index: ', index, 'order id: ', orderId)
+      if(!this.widerView) {
+        this.editing = true
+      }
+      this.componentType = 'card'
+      this.weeklySelected = index
+      let tempIndex = this.data.findIndex(x => parseInt(x.order_id) === parseInt(orderId))
+      switch(this.data[tempIndex].order_status){
+        case 'Pickup':
+          this.focusIndex = 0
+          break
+        case 'ReturnInPerson':
+          this.focusIndex = 0
+          break
+        case 'Processing':
+          this.focusIndex = 1
+          break
+        case 'Complete':
+          this.focusIndex = 2
+          break
+      }
+      if(this.widerView){
+        this.selectedDataIndex = this.data.findIndex(x => parseInt(x.order_id) === parseInt(orderId))
+      }
+    },
     onType(event) {
       if(event.target.value === '' && this.searchValue !== null) {
         let date = ''
@@ -278,20 +259,19 @@ export default {
         params += `&Status=${el}`
       })
       this.APIGetRequest(params, response => {
-        console.log('NIGANA', response.crockery)
-        this.data = [[], [], []]
+        this.data = []
         response.crockery.map(el => {
           let orderDetails1 = this.orders.filter(t => {
             return t.id === el.order_id
           })
           el['order_details'] = orderDetails1[0]
-          this.data[this.focusIndex].push(el)
-          console.log('[ELEMENT]', this.data[this.focusIndex])
+          this.data.push(el)
         })
         this.selectData(this.selectedDataIndex, 0)
       })
     },
     getDate(date, ndx) {
+      const { user } = AUTH
       if(date === 'day'){
         var start = new Date()
         start.setHours(0, 0, 0, 0)
@@ -307,65 +287,106 @@ export default {
         this.createdAtMin = firstDay.toISOString().slice(0, 10)
         this.createdAtMax = lastDay.toISOString().slice(0, 10)
       }else{
+        console.log('FOCUS INDEX: ', this.focusIndex)
         this.createdAtMin = ''
         this.createdAtMax = ''
       }
 
-      if(ndx === 0){
-        this.retrieveCrockeryByStatus([20, 30], 0)
-      }else if(ndx === 1){
-        console.log('THIS SHOULD READ')
-        this.retrieveCrockeryByStatus([40, 45], 0)
-      }else if(ndx === 2){
-        this.retrieveCrockeryByStatus(50, 2)
-      }else {
-        this.retrieveOrders()
-      }
+      // if(ndx === 0){
+      //   this.retrieveCrockeryByStatus([20, 30], 0)
+      // }else if(ndx === 1){
+      //   console.log('THIS SHOULD READ')
+      //   this.retrieveCrockeryByStatus([40, 45], 0)
+      // }else if(ndx === 2){
+      //   this.retrieveCrockeryByStatus([50], 2)
+      // }
+
+      $('#loading').css({'display': 'block'})
+      this.APIGetRequest(`orders?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+        $('#loading').css({'display': 'none'})
+        this.orders = response.orders
+        if(this.focusIndex === 0){
+          console.log('date: ', date)
+          if(!this.widerView && this.typeIndex === 0){
+            console.log('testing: 1: ')
+            this.retrieveCrockeryByStatus([20, 30], 1)
+          }else if(!this.widerView && this.typeIndex === 1){
+            console.log('testing: 2: ')
+            this.retrieveCrockeryByStatus([20, 30], 1)
+          }else if(this.widerView && this.typeIndex === 2){
+            console.log('testing: 3: ')
+            this.retrieveCrockeryByStatus([20, 30, 40, 45, 50], 1)
+          }
+        }else if(this.focusIndex === 1){
+          if(!this.widerView && this.typeIndex === 0){
+            this.retrieveCrockeryByStatus([40, 45], 1)
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.retrieveCrockeryByStatus([40, 45], 1)
+          }else if(this.widerView && this.typeIndex === 2){
+            this.retrieveCrockeryByStatus([20, 30, 40, 45, 50], 1)
+          }
+        }else if(this.focusIndex === 2){
+          if(!this.widerView && this.typeIndex === 0){
+            this.retrieveCrockeryByStatus([50], 1)
+          }else if(!this.widerView && this.typeIndex === 1){
+            this.retrieveCrockeryByStatus([50], 1)
+          }else if(this.widerView && this.typeIndex === 2){
+            this.retrieveCrockeryByStatus([20, 30, 40, 45, 50], 1)
+          }
+        }
+
+      }, error => {
+        console.log('Retrieving All Orders ERROR: ', error)
+      })
     },
     retrieveCrockeryByStatus(status, index){
+      console.log('status: ', status)
       const { user } = AUTH
       if(Array.isArray(status)){
-        console.log('READING IN ARRAY BY STATUS', status)
         let query = `get_crockery?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`
         status.forEach((item, ndx) => {
           query += `&Status=${item}`
         })
         $('#loading').css({'display': 'block'})
         this.APIGetRequest(query, response => {
+          console.log('TESTINGKLKLK: ', response)
           $('#loading').css({'display': 'none'})
-          this.data = [ [], [], [] ]
+
+          this.data = []
           response.crockery.forEach((el, ndx) => {
-            if(el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson'){
-              let orderDetails1 = this.orders.filter(t => {
-                return t.id === el.order_id
-              })
-              el['order_details'] = orderDetails1[0]
-              this.data[0].push(el)
-            } else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'reschedule'){
-              let orderDetails1 = this.orders.filter(t => {
-                return t.id === el.order_id
-              })
-              el['order_details'] = orderDetails1[0]
-              this.data[1].push(el)
-            }
-          })
-          console.log('[DATA]', this.data)
-        })
-      }else{
-        $('#loading').css({'display': 'block'})
-        this.APIGetRequest(`get_crockery?Status=${status}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
-          $('#loading').css({'display': 'none'})
-          this.data = [ [], [], [] ]
-          response.crockery.forEach((el, ndx) => {
+            // if(el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson'){
             let orderDetails1 = this.orders.filter(t => {
               return t.id === el.order_id
             })
             el['order_details'] = orderDetails1[0]
-            this.data[this.focusIndex].push(el)
+            this.data.push(el)
+            // console.log('TEMP DATA: ', el)
+
+            // } else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'reschedule'){
+            //   let orderDetails1 = this.orders.filter(t => {
+            //     return t.id === el.order_id
+            //   })
+            //   el['order_details'] = orderDetails1[0]
+            //   this.data.push(el)
+            // }
           })
-          console.log('[DATA]', this.data[this.focusIndex])
         })
       }
+      // else{
+      //   $('#loading').css({'display': 'block'})
+      //   this.APIGetRequest(`get_crockery?Status=${status}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      //     $('#loading').css({'display': 'none'})
+      //     this.data = []
+      //     response.crockery.forEach((el, ndx) => {
+      //       let orderDetails1 = this.orders.filter(t => {
+      //         return t.id === el.order_id
+      //       })
+      //       el['order_details'] = orderDetails1[0]
+      //       this.data.push(el)
+      //     })
+      //     console.log('[DATA]', this.data[this.focusIndex])
+      //   })
+      // }
     },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
@@ -384,6 +405,7 @@ export default {
       this.cardRedered = false
       this.focusIndex = ndx
       this.cardRedered = true
+      this.selectedDataIndex = 0
       let status = null
       if(ndx === 0){
         this.focusIndex = 0
@@ -395,18 +417,20 @@ export default {
         this.retrieveCrockeryByStatus(status, 1)
       }else{
         this.focusIndex = 2
-        status = 50
+        status = [50]
         this.retrieveCrockeryByStatus(status, 2)
       }
     },
     selectData(ndx, popId) {
-      this.$root.$emit('bv::hide::popover')
-      this.$root.$emit('bv::show::popover', popId)
+      if(this.editing) {
+        this.componentType = 'table'
+        this.editing = false
+      }
       this.selectedDataIndex = ndx
     },
     switchComponent(component, ndx) {
+      this.selectedDataIndex = 0
       this.widerView = this.returnHeaderElements[ndx].wholeView
-      console.log('WHOLE VIEW: ', this.widerView)
       this.typeIndex = ndx
       this.componentType = component
       if(!this.widerView){
@@ -416,12 +440,18 @@ export default {
           this.getDate('week', this.focusIndex)
         }
       }else{
-        this.getDate('', 3)
+        console.log('not: not wider view')
+        this.getDate('month', 3)
       }
     },
     retrieveCrockery() {
       const { user } = AUTH
       $('#loading').css({'display': 'block'})
+      var start = new Date()
+      start.setHours(0, 0, 0, 0)
+      var end = new Date(start.getTime())
+      end.setHours(23, 59, 59, 999)
+      this.createdAtMin = start.toISOString().slice(0, 10)
       this.APIGetRequest(`get_crockery?Status=20&Status=30&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         response.crockery.forEach((el, ndx) => {
@@ -439,11 +469,16 @@ export default {
     },
     retrieveOrders() {
       const { user } = AUTH
+      var start = new Date()
+      start.setHours(0, 0, 0, 0)
+      var end = new Date(start.getTime())
+      end.setHours(23, 59, 59, 999)
+      this.createdAtMin = start.toISOString().slice(0, 10)
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`orders?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})
         this.orders = response.orders
-        this.retrieveCrockery()
+        this.getDate('day', null)
       }, error => {
         console.log('Retrieving All Orders ERROR: ', error)
       })
@@ -485,63 +520,6 @@ export default {
         }
       }
     }
-    // handleSearchChange(event) {
-    //   this.searchValue = event.target.value
-    //   console.log('TESTING !!!: ', this.searchValue)
-    //   const { user } = AUTH
-    //   let val = Number(this.searchValue)
-    //   if(this.navs[this.focusIndex].name === 'NEW'){
-    //     $('#loading').css({'display': 'block'})
-    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=20&Status=30`, response => {
-    //       $('#loading').css({'display': 'none'})
-    //       this.data[0] = []
-    //       response.crockery.forEach((el, ndx) => {
-    //         if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson') {
-    //           let orderDetails2 = this.orders.filter(t => {
-    //             return String(t.id).match(String(el.order_id))
-    //           })
-    //           el['order_details'] = orderDetails2[0]
-    //           this.data[0].push(el)
-    //           this.navs[0].count = this.data[0].length
-    //           console.log('DATA1', orderDetails2[0])
-    //         }
-    //       })
-    //       // this.data = response.crockery
-    //     })
-    //   } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-    //     $('#loading').css({'display': 'block'})
-    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=40`, response => {
-    //       $('#loading').css({'display': 'none'})
-    //       // this.data = response.crockery
-    //     })
-    //   } else if(this.navs[this.focusIndex].name === 'RETURNED') {
-    //     $('#loading').css({'display': 'block'})
-    //     this.APIGetRequest(`crockery_search?Keyword=${val}&StoreId=${user.userID}&Status=50`, response => {
-    //       $('#loading').css({'display': 'none'})
-    //       // this.data = response.crockery
-    //     })
-    //   }
-    //   // $('#loading').css({'display': 'block'})
-    //   // this.APIGetRequest(`get_crockery?StoreId=${user.userID}`, response => {
-    //   //   $('#loading').css({'display': 'none'})
-    //   //   console.log('sample_Data:', response)
-    //   //   console.log('test:', val)
-    //   //   response.crockery.forEach((el, ndx) => {
-    //   //     if(String(el.id).match(val)){
-    //   //       console.log('customer_id:', el)
-    //   //       this.data[0].push(el.id)
-    //   //     }
-    //   //     if(el.id === val) {
-    //   //       let orderDetails1 = this.orders.filter(t => {
-    //   //         return t.id === el.order_id
-    //   //       })
-    //   //       el['order_details'] = orderDetails1[0]
-    //   //       this.data[0].push(el)
-    //   //       console.log(this.data[0])
-    //   //     }
-    //   //   })
-    //   // })
-    // }
   }
 }
 </script>
