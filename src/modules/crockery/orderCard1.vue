@@ -5,7 +5,13 @@
         <b>{{ data.order_id }}</b>
       </div>
       <div class="col-sm-12 p-0 d-flex justify-content-center mt-2 mb-3">
-        <b class="font-weight-normal">PICK-UP TIME: {{ data.pickup_time }}</b>
+        <b class="font-weight-normal">PICK-UP TIME: {{
+          data.order_details.delivery_time_requested === 'ASAP'
+          ?
+            data.order_details.local_time_created
+          :
+            data.order_details.delivery_time_requested
+        }}</b>
       </div>
     </div>
     <div class="card-body">

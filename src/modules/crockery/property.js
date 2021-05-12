@@ -27,7 +27,7 @@ export default {
       changeDate: true
     },
     {
-      text: 'SEE REJECTED',
+      text: 'ALL OUTSTANDING',
       style: 'border: 1px solid #BE0000; color: #BE0000;',
       type: 'button',
       componentTocall: 'table',
@@ -35,23 +35,9 @@ export default {
       focusedColor: '#FFFFFF',
       unfocusedColor: '#BE0000',
       wholeView: true,
-      shorterView: false,
-      column: '20%',
-      wholeViewColumn: '25%',
-      changeDate: false
-    },
-    {
-      text: 'ALL ORDERS',
-      style: 'border: 1px solid #0064B1; color: #0064B1;',
-      type: 'button',
-      componentTocall: 'table',
-      focusedBackground: '#FFFACA',
-      focusedColor: '#0064B1',
-      unfocusedColor: '#000000',
-      wholeView: true,
       shorterView: true,
       column: '20%',
-      wholeViewColumn: '25%',
+      wholeViewColumn: '20%',
       changeDate: false
     },
     {
@@ -63,20 +49,20 @@ export default {
       shorterView: true,
       column: '40%',
       focusedBackground: '#0064B1',
-      wholeViewColumn: '42%',
+      wholeViewColumn: '70%',
       changeDate: false
     }
   ],
   tableHeaders: [
-    {text: 'Order date/time', key: 'created_on_utc'},
-    {text: 'Order number', key: 'id'},
-    {text: 'Order Status', key: 'order_status'},
+    {text: 'Order date/time', key: 'created_date_utc'},
+    {text: 'Order number', key: 'order_id'},
+    {text: 'Order Status', key: 'crockery_status'},
     {text: 'Plate returned', key: 'returned'},
     {text: 'Total Sales', key: 'order_total'}
   ],
   navs: [
     {name: 'NEW', isNotification: true, notificationColor: '#FF0045', notificationTextColor: '#FFFFFF', background: '#B7F6D9', color: '#0064B1', count: 0},
     {name: 'IN PROGRESS', isNotification: true, notificationColor: '#F3E4A7', notificationTextColor: '#0064B1', background: '#FFBF51', color: '#0064B1', count: 0},
-    {name: 'DELIVERED', background: '#E1E1E1', color: '#878787', count: 0}
+    {name: 'RETURNED', background: '#E1E1E1', color: '#878787', count: 0}
   ]
 }

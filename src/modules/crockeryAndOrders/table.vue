@@ -11,12 +11,33 @@
           <td 
             v-for="(h, x) in headers" 
             :key="x"
-            @click="h.key.toLowerCase() === 'id' ? onOrderIdClick(index, el[h.key]) : () => {}"
-            :style="h.key.toLowerCase() === 'id' ? 'color: #0064B1; cursor: pointer' : ''"
+            @click="h.key.toLowerCase() === 'id' || h.key.toLowerCase() === 'order_id' ? onOrderIdClick(index, el[h.key]) : () => {}"
+            :style="h.key.toLowerCase() === 'id' || h.key.toLowerCase() === 'order_id' ? 'color: #0064B1; cursor: pointer' : ''"
           > 
             {{
-              (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ? '---' :
-              (h.key.toLowerCase() === 'created_on_utc' || h.key.toLowerCase() === 'created_date_utc') ? returnDate(el) : el[h.key]
+              (el[h.key] === null || el[h.key] === "" || el[h.key] === undefined) ?
+                h.key === 'returned' ? 
+                  el['crockery_status'] === 'Complete' ?
+                    'Yes'
+                  :
+                    'No'
+                :
+                  h.key === 'order_total' ?
+                    el['order_details'] !== undefined ?
+                      'HK$ ' + el['order_details'][h.key]
+                    :
+                      ''
+                  :
+                    '----'
+              :
+                (h.key.toLowerCase() === 'created_on_utc' || h.key.toLowerCase() === 'created_date_utc') 
+                ? 
+                  returnDate(el) 
+                : 
+                  (h.key === 'order_total' ?
+                    'HK$ ' + el[h.key] 
+                  : 
+                    el[h.key])
             }} 
           </td>
         </tr>
