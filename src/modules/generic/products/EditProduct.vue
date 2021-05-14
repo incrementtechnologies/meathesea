@@ -271,7 +271,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'store', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'errorProductCategory', 'errorBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'errorProductCategory', 'errorBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -288,6 +288,7 @@ export default {
       images: null,
       setTime: null,
       name: null,
+      store: null,
       full_description: null,
       price: null,
       old_price: null,
@@ -321,6 +322,7 @@ export default {
     ErrorModal
   },
   mounted(){
+    this.retrieveStore()
     if(this.category1 !== null){
       this.category1.forEach(element => {
         element['text'] = element.name
@@ -389,6 +391,11 @@ export default {
     }
   },
   methods: {
+    retrieveStore() {
+      this.APIGetRequest('stores', response => {
+        this.store = response.stores[0].name
+      })
+    },
     show() {
       this.all_day = true
       this.isShow = false
@@ -439,7 +446,7 @@ export default {
       if(this.all_day === true){
         parameter = {
           category_id: this.categoryId,
-          store_ids: [user.userID],
+          store_ids: [user.storeId],
           name: this.name,
           full_description: this.full_description,
           price: this.price,
@@ -504,7 +511,7 @@ export default {
       }else{
         parameter = {
           category_id: this.categoryId,
-          store_ids: [user.userID],
+          store_ids: [user.storeId],
           name: this.name,
           full_description: this.full_description,
           price: this.price,

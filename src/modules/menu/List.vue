@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :store="store" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -39,7 +39,6 @@ export default {
       firstRetrieve: true,
       category: null,
       add: false,
-      store: null,
       photo: null,
       isErrorTimeStart: false,
       isErrorTimeEnd: false,
@@ -71,7 +70,8 @@ export default {
   },
   methods: {
     retrieve() {
-      this.APIGetRequest(`/products_restaurant?StoreId=${this.user.user.userID}`, response => {
+      const {user} = AUTH
+      this.APIGetRequest(`/products_restaurant?StoreId=${user.storeId}`, response => {
         if(response.products.length > 0) {
           response.products.forEach(item => {
             item['name'] = item.Name
@@ -95,7 +95,7 @@ export default {
     retrieveCategories() {
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/get_restaurant_categories?storeId=${user.userID}`, response => {
+      this.APIGetRequest(`/get_restaurant_categories?storeId=${user.storeId}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
@@ -129,9 +129,6 @@ export default {
             element.attribute_values.forEach(item => {
               item['text'] = item.name
             })
-          })
-          this.APIGetRequest('stores', response => {
-            this.store = response.stores[0].name
           })
           this.data = response.products[0]
           // this.detail = response.products[0].full_description.replace('&lt;p&gt;', '')
