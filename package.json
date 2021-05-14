@@ -1,7 +1,7 @@
 {
-  "name": "PayHiram",
+  "name": "MeatTheSea",
   "version": "1.0.0",
-  "description": "Tutorial",
+  "description": "Delivery App",
   "author": "kennCK <kennettecanales@gmail.com>",
   "private": true,
   "scripts": {
@@ -146,6 +146,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://kennCK@bitbucket.org/kennCK/classworx.git"
+    "url": "git+https://github.com/incrementtechnologies/meatthesea"
   }
 }
