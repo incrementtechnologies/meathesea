@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :store="store" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -43,7 +43,6 @@ export default {
       errorMessage: null,
       bundleProducts: [],
       user: AUTH,
-      store: null,
       hasUpdate: false,
       updateError: false,
       noUpdateError: false,
@@ -84,7 +83,7 @@ export default {
     retrieveCategories() {
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/get_deli_shop_categories?storeId=${user.userID}`, response => {
+      this.APIGetRequest(`/get_deli_shop_categories?storeId=${user.storeId}`, response => {
         $('#loading').css({'display': 'none'})
         if(response.categories.length > 0) {
           this.categories = response.categories
@@ -116,9 +115,6 @@ export default {
             element.attribute_values.forEach(item => {
               item['text'] = item.name
             })
-          })
-          this.APIGetRequest('stores', response => {
-            this.store = response.stores[0].name
           })
           this.data = response.products[0]
           // response.products[0].attributes[0].attribute_values.forEach(element => {
