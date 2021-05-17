@@ -217,8 +217,8 @@
                         </button>
                       </div>
                       <div class="mt-5">
-                        <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept(data.id)">
-                          ACCEPT </button>
+                        <button class="roundButtonCommon font-weight-bold" :style="focusStyle" @click="accept()">
+                          ACCEPT</button>
                       </div>
                       <div class="mt-3">
                         <button class="roundButtonCommon font-weight-normal" :style="dangerUnfocusStyle" data-toggle="modal"
@@ -460,12 +460,12 @@ export default {
       this.PdfTemplate.getItem(data)
       this.PdfTemplate.template()
     },
-    accept(id) {
+    accept() {
       $('#loading').css({'display': 'block'})
-      this.APIPutRequest(`update_order_status?orderId=${id}&orderStatusId=20&orderAcceptTimeId=${this.times[this.focusIndex].id}`, {}, response => {
+      this.APIPutRequest(`update_order_status?orderId=${this.data.id}&orderStatusId=20&${typeof this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`, {}, response => {
         console.log('Accept order response: ', this.times[this.focusIndex])
         $('#loading').css({'display': 'none'})
-        this.$emit('orderProcessed', {id: id, process: 'accepted'})
+        this.$emit('orderProcessed', {id: this.data.id, process: 'accepted'})
         this.$parent.retrieveNotification()
       }, error => {
         console.log('Accepting order error: ', error)
