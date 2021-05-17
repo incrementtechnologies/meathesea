@@ -656,6 +656,7 @@ export default {
     },
     onSave(data){
       if(data) {
+        //
         data['all_day'] = this.all_day
         data['CategoryTags'] = this.CategoryTags
         data['CategoriesTags'] = this.CategoriesTags
