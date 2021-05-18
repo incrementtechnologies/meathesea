@@ -84,9 +84,9 @@ export default {
     collected(id, addID) {
       this.APIPutRequest(`update_crockery?CrockeryId=${id}&AddressId=${addID}&CrockeryStatusId=50`, {}, response => {
         console.log('READING IN ACCEPT', response)
+        this.$parent.change(2)
         this.$parent.retrieveNotification()
-        this.$parent.retrieveCrockeryByStatus(50, 0)
-        this.$parent.focusIndex = 2
+        // this.$parent.focusIndex = 2
       })
     }
   },
