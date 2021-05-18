@@ -487,7 +487,8 @@ export default {
     },
     accept() {
       $('#loading').css({'display': 'block'})
-      this.APIPutRequest(`update_order_status?orderId=${this.data.id}&orderStatusId=20&${typeof this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`, {}, response => {
+      console.log('ORDER ACCEPT TIME ID: ', `${typeof this.times !== 'string' && this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`)
+      this.APIPutRequest(`update_order_status?orderId=${this.data.id}&orderStatusId=20&${typeof this.times !== 'string' && this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`, {}, response => {
         console.log('Accept order response: ', this.times[this.focusIndex])
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: this.data.id, process: 'accepted'})
