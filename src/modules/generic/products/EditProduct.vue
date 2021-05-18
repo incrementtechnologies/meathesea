@@ -124,7 +124,6 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
-            :tags="bundle ? newBundle : sample"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
             @tags-changed="newTags => bundle ? newBundle = newTags : sample = newTags"
@@ -139,7 +138,6 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
-            :tags="newCategories"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
              @tags-changed="newTags => newCategories = newTags"
@@ -254,6 +252,16 @@
           </center>
         </div>
       </div>
+      <div id="errorModal" class="modal" v-if="dontExistWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeErrorModal()" class="close">&times;</span>
+          <p style="color: red">Please don't add another category.</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeErrorModal()" class="btn btn-danger">Close</button>
+          </center>
+        </div>
+      </div>
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -271,7 +279,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'errorProductCategory', 'errorBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'errorProductCategory', 'errorBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -388,6 +396,14 @@ export default {
         return true
       }
       return true
+    },
+    dontExistWatch(){
+      if(this.dontExist === true){
+        let modal = document.getElementById('errorModal')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
     }
   },
   methods: {
@@ -405,6 +421,14 @@ export default {
       let parameter = null
       let modal = document.getElementById('myModal')
       let errorModal = document.getElementById('errorModal')
+      this.category1.map(el => {
+        this.sample.map(ele => {
+          if(el.name !== ele.name){
+            errorModal.style.display = 'block'
+            return
+          }
+        })
+      })
       if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
         console.log('error !!!')
         errorModal.style.display = 'block'
@@ -656,7 +680,6 @@ export default {
     },
     onSave(data){
       if(data) {
-        //
         data['all_day'] = this.all_day
         data['CategoryTags'] = this.CategoryTags
         data['CategoriesTags'] = this.CategoriesTags
@@ -700,6 +723,7 @@ export default {
       modal.style.display = 'none'
       this.$parent.updateError = false
       this.$parent.noUpdateError = false
+      this.$parent.dontExist = false
     },
     closeUpdateModal() {
       let modal = document.getElementById('updateModal')
@@ -853,7 +877,6 @@ img{
   background-color: rgb(0,0,0); /* Fallback color */
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
-
 /* Modal Content */
 .modal-content {
   background-color: #fefefe;
@@ -867,7 +890,6 @@ img{
   color: green;
   font-weight: bold;
   }
-
 /* The Close Button */
 .close {
   color: #aaaaaa;
@@ -876,12 +898,10 @@ img{
   font-weight: bold;
   margin-left: 90%
 }
-
 .close:hover,
 .close:focus {
   color: red;
   text-decoration: none;
   cursor: pointer;
 }
-
 </style>
