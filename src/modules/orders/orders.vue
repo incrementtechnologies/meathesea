@@ -63,13 +63,6 @@
 
       <div :class="'p-0 ' + ((widerView) ? 'col-sm-12': 'col-sm-7')">
         <div class="card infoCard">
-          <!-- <navbar v-bind:buttons="[
-          { text: 'TODAY', colorLine: 'blue', type: 'button', componentTocall: 'card', wholeView: 'false', shorterView: 'true' },
-          { text: 'THIS WEEK', colorLine: 'blue', type: 'button', componentTocall: 'table', wholeView: 'false', shorterView: 'true' },
-          { text: 'ALL ORDERS', colorLine: 'red', type: 'button', componentTocall: 'table', wholeView: 'true', shorterView: 'true' }
-          ]"
-          @btnClick="sample"
-          /> -->
           <div class="card-header infoCardHeader" :style="widerView ? 'border-left: 1px solid white; margin-left: -1px !important;' : ''">
             <div class="row">
               <div class="mt-1" v-if="widerView" style="width: 7%;">
@@ -102,7 +95,6 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <!-- <card1 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card'"/> -->
             <card2 
               :data="typeIndex === 1 && !widerView? returnTableData[returnWeeklySelected] : returnData[selectedDataIndex]" 
               v-if="data.length > 0 && returnComponentType === 'card' && returnReRender"
@@ -149,7 +141,7 @@ export default {
       tableHeaders: property.tableHeaders,
       navs: property.navs,
       headerElements: property.headerElements,
-      data: [[], [], []],
+      data: [],
       focusStyle: 'border-left: 1px solid #707070; border-right: 1px solid #707070; background-color: white;',
       unfocusStyle: 'border: 1px solid #707070; border-bottom: 1px solid #707070; border-top: none; background-color: #E1E1E1;',
       focusIndex: 0,
@@ -176,7 +168,6 @@ export default {
       editing: false
     }
   },
-  // created() {},
   created() {
     const {user} = AUTH
     console.log(user)
@@ -275,6 +266,16 @@ export default {
       this.componentType = 'card'
       this.weeklySelected = index
       let tempIndex = this.data.findIndex(x => parseInt(x.id) === parseInt(orderId))
+      this.deliStore = []
+      this.restaurant = []
+      let temp1 = this.typeIndex === 1 && !this.widerView ? this.returnTableData[this.returnWeeklySelected] : this.returnData[tempIndex]
+      temp1.order_items.map(each => {
+        if(each.product.category_type === 1){
+          this.deliStore.push(each)
+        }else{
+          this.restaurant.push(each)
+        }
+      })
       switch(this.data[tempIndex].order_status){
         case 'Pending':
           this.focusIndex = 0
@@ -291,9 +292,7 @@ export default {
       }
       if(this.widerView){
         this.selectedDataIndex = this.data.findIndex(x => parseInt(x.id) === parseInt(orderId))
-        console.log(this.data[this.selectedDataIndex])
       }
-      console.log('selected data', this.selectedDataIndex)
     },
     onType(event) {
       if(event.target.value === '' && this.search !== null) {
@@ -334,30 +333,6 @@ export default {
     searchOrders() {
       const {user} = AUTH
       if(this.search !== '' && this.search !== null) {
-        // if(this.navs[this.focusIndex].name === 'NEW') {
-        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=10&`, response => {
-        //     this.data = response.orders
-        //   })
-        // } else if(this.navs[this.focusIndex].name === 'IN PROGRESS') {
-        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}&Status=20&Status=25`, response => {
-        //     this.data = response.orders
-        //   })
-        // } else if(this.navs[this.focusIndex].name === 'DELIVERED') {
-        //   this.APIGetRequest(`orders_search?Keyword=${this.search}&StoreId=${user.userID}Status=30`, response => {
-        //     this.data = response.orders
-        //   })
-        // }
-        // let status = []
-        // if(this.widerView){
-        //   this.getDate('month', 0)
-        // }else if(this.typeIndex === 0) {
-        //   this.getDate('day', 0)
-        //   if(this.focusIndex === 0) {
-        //     status = [10]
-        //   }else if(this.focus)
-        // }else if(this.typeIndex === 1) {
-        //   this.getDate('week', 0)
-        // }
         if(this.focusIndex === 0){
           if(!this.widerView && this.typeIndex === 0){
             this.searchAPI([10])
@@ -428,61 +403,16 @@ export default {
       const { user } = AUTH
       this.reRender = true
       this.data = []
-      // if(!this.widerView){
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.storeId}`, response => {
         $('#loading').css({'display': 'none'})
-        // console.log('[RESPONSE]', response)
-        // response.orders.map((item, ndx) => {
-        //   item.local_time_created = moment(item.local_time_created, ['HH:mm']).format('hh:mm')
-        // })
         this.data = response.orders
-        // response.orders.forEach(el => {
-        //   console.log(el)
-        //   if(el.order_status.toLowerCase() === 'pending' && el !== undefined) {
-        //     this.currentIndex = 0
-        //     this.data[0].push(el)
-        //   }else if((el.order_status.toLowerCase() === 'processing' || el.order_status.toLowerCase() === 'delivering') && el !== undefined) {
-        //     this.currentIndex = 1
-        //     this.data[1].push(el)
-        //   }else if(el.order_status.toLowerCase() === 'complete' && el !== undefined){
-        //     this.currentIndex = 2
-        //     this.data[2].push(el)
-        //   }
-        // })
         this.selectData(this.selectedDataIndex, 0)
         this.reRender = true
         this.reRenderTable = true
       }, error => {
         console.log(error)
       })
-      // }
-      // else if(this.widerView) {
-      //   console.log('wider view all ')
-      //   if(this.typeIndex === 0){
-      //     $('#loading').css({'display': 'block'})
-      //     this.reRenderTable = false
-      //     this.APIGetRequest(`orders?Status=50&Status=60&Status=70&StoreId=${user.userID}`, response => {
-      //       console.log('Rejected data : ', response)
-      //       $('#loading').css({'display': 'none'})
-      //       this.allOrders = response.orders
-      //       this.reRenderTable = true
-      //     }, error => {
-      //       console.log('Retrieving All Orders ERROR: ', error)
-      //     })
-      //   }else if(this.typeIndex === 1) {
-      //     $('#loading').css({'display': 'block'})
-      //     this.reRenderTable = false
-      //     this.APIGetRequest(`orders?StoreId=${user.userID}`, response => {
-      //       console.log('All Orders : ', response)
-      //       $('#loading').css({'display': 'none'})
-      //       this.allOrders = response.orders
-      //       this.reRenderTable = true
-      //     }, error => {
-      //       console.log('Retrieving All Orders ERROR: ', error)
-      //     })
-      //   }
-      // }
     },
     retrieveNotification(){
       const {user} = AUTH
@@ -579,33 +509,8 @@ export default {
         })
       }
       this.retrieveNotification()
-      // else{
-      //   // console.log('[orders by status (Not Array)]', `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`)
-      //   $('#loading').css({'display': 'block'})
-      //   this.reRender = false
-      //   this.reRenderTable = false
-      //   let date = this.widerView === false ? `CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&` : ''
-      //   this.APIGetRequest(`orders?${date}Status=${status}&StoreId=${user.userID}`, response => {
-      //     $('#loading').css({'display': 'none'})
-      //     this.allOrders = response.orders
-      //     this.reRenderTable = true
-      //     this.data = response.orders
-      //     response.orders.map(el => {
-      //       el.order_items.map(each => {
-      //         if(each.product.category_type === 1){
-      //           this.deliStore.push(each)
-      //         }else if(each.product.category_type === 0){
-      //           this.restaurant.push(each)
-      //         }
-      //       })
-      //     })
-      //     this.selectData(this.selectedDataIndex, 0)
-      //     this.reRender = true
-      //   })
-      // }
     },
     selectData(ndx, popId) {
-      // console.log('[selected data index]', ndx)
       if(this.editing) {
         this.componentType = 'table'
         this.editing = false
@@ -710,45 +615,8 @@ export default {
           this.retrieveOrdersByStatus([70, 60, 50], 1)
         }
       }
-      // if(ndx === 1){
-      //   if(date === 'week'){
-      //     this.retrieveOrdersByStatus([10], 1)
-      //   }else{
-      //     this.retrieveOrdersByStatus([20, 25], 1)
-      //   }
-      // }else if(ndx === 2){
-      //   console.log('[NDX:: 2]')
-      //   this.retrieveOrdersByStatus([10, 20, 25, 30, 40, 50, 60, 70], 1)
-      // }else if(ndx === 3){
-      //   console.log('[NDX:: 3]')
-      //   this.retrieveOrdersByStatus([70, 60, 50], 1)
-      // }else {
-      //   console.log('[NDX:: 4]')
-      //   this.retrieveOrdersByStatus([10], 0)
-      // }
     },
     acceptOrder(data) {
-      // let temp = this.data[this.focusIndex]
-      // let temp2 = this.data
-      // let temp3 = {}
-      // temp = temp.filter(el => {
-      //   if(el.id === data.id && data.process === 'accepted') {
-      //     console.log(el)
-      //     temp3 = el
-      //   }else if(el.id === data.id && data.process === 'complete'){
-      //     temp3 = el
-      //   }
-      //   return el.id !== data.id
-      // })
-      // temp2[1].push(temp3)
-      // temp2[this.focusIndex] = temp
-      // this.data = temp2
-      // if(this.selectedDataIndex - 1 >= 0) {
-      //   this.selectedDataIndex -= 1
-      // }else {
-      //   this.selectedDataIndex += 1
-      //   this.selectedDataIndex -= 1
-      // }
       let status = []
       if(this.focusIndex === 0) {
         status = [10]

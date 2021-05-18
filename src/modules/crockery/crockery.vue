@@ -35,13 +35,6 @@
                   >
                     <div v-if="!headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div v-if="!headerElements[typeIndex].changeDate">
-                      <!-- {{ el.order_details.local_time_created}} -->
-                      <!-- {{
-                        
-                        el.order_details.delivery_time_requested === "ASAP"
-                        ? headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.local_time_created
-                        : headerElements[typeIndex].changeDate === true ? returnDate(el) : el.order_details.delivery_time_requested
-                      }} -->
                     </div>
                     <div v-if="headerElements[typeIndex].changeDate">{{ el.date_remarks !== '' ? el.date_remarks : returnDate(el) }}</div>
                   </div>
@@ -89,7 +82,6 @@
               :data="typeIndex === 1 && !widerView? returnTableData[returnWeeklySelected] : returnData[returnSelectedIndex]"
               v-if="componentType === 'card' && returnCardRender"
             />
-            <!-- <card2 :data="data[focusIndex][selectedDataIndex]" v-if="componentType === 'card' && $route.path === '/orders'"/> -->
             <div 
               v-else-if="componentType === 'table'"
             >
@@ -277,8 +269,6 @@ export default {
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        // this.createdAtMin = '2021-04-19'
-        // this.createdAtMax = '2021-04-19'
         this.createdAtMin = start.toISOString().slice(0, 10)
       } else if(date === 'week') {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
@@ -291,15 +281,6 @@ export default {
         this.createdAtMin = ''
         this.createdAtMax = ''
       }
-
-      // if(ndx === 0){
-      //   this.retrieveCrockeryByStatus([20, 30], 0)
-      // }else if(ndx === 1){
-      //   console.log('THIS SHOULD READ')
-      //   this.retrieveCrockeryByStatus([40, 45], 0)
-      // }else if(ndx === 2){
-      //   this.retrieveCrockeryByStatus([50], 2)
-      // }
 
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`orders?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
@@ -354,39 +335,14 @@ export default {
 
           this.data = []
           response.crockery.forEach((el, ndx) => {
-            // if(el.crockery_status.toLowerCase() === 'pickup' || el.crockery_status.toLowerCase() === 'returninperson'){
             let orderDetails1 = this.orders.filter(t => {
               return t.id === el.order_id
             })
             el['order_details'] = orderDetails1[0]
             this.data.push(el)
-            // console.log('TEMP DATA: ', el)
-
-            // } else if(el.crockery_status.toLowerCase() === 'processing' || el.crockery_status.toLowerCase() === 'reschedule'){
-            //   let orderDetails1 = this.orders.filter(t => {
-            //     return t.id === el.order_id
-            //   })
-            //   el['order_details'] = orderDetails1[0]
-            //   this.data.push(el)
-            // }
           })
         })
       }
-      // else{
-      //   $('#loading').css({'display': 'block'})
-      //   this.APIGetRequest(`get_crockery?Status=${status}&StoreId=${user.userID}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
-      //     $('#loading').css({'display': 'none'})
-      //     this.data = []
-      //     response.crockery.forEach((el, ndx) => {
-      //       let orderDetails1 = this.orders.filter(t => {
-      //         return t.id === el.order_id
-      //       })
-      //       el['order_details'] = orderDetails1[0]
-      //       this.data.push(el)
-      //     })
-      //     console.log('[DATA]', this.data[this.focusIndex])
-      //   })
-      // }
     },
     returnDate(el) {
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
@@ -530,7 +486,6 @@ export default {
 }
 .initialHeight {
   min-height: 80vh;
-  /* min-height: calc(100vh - 95px - 8rem) !important; */
 }
 .nav_container{
   border: 1px solid gray;

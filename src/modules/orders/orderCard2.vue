@@ -105,8 +105,18 @@
                       <!-- <div class="col-sm-12" :style="'color: #E07700'">
                         + {{el.product.short_description}}
                       </div> -->
-                      <div v-if="el.product.attributes[0] !== undefined">
+                      <!-- <div v-if="el.product.attributes[0] !== undefined">
                         <div v-for="(i, ndx) in el.product.attributes[0].attribute_values" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700; padding-right: 1px !important;'">
+                          <div>
+                            + {{i.name}}
+                          </div>
+                          <div style="color: black; font-size: 12px;">
+                            {{data.customer_currency_code}} {{i.price_adjustment}}
+                          </div>
+                        </div>
+                      </div> -->
+                      <div>
+                        <div v-for="(i, ndx) in renderAddOns(el)" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700; padding-right: 1px !important;'">
                           <div>
                             + {{i.name}}
                           </div>
@@ -128,8 +138,8 @@
                       <!-- <div class="col-sm-12" :style="'color: #E07700'">
                         + {{el.product.short_description}}
                       </div> -->
-                      <div v-if="el.product.attributes[0] !== undefined" style="background-color: yellow; width: 100%;">
-                        <div v-for="(i, ndx) in el.product.attributes[0].attribute_values" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700'">
+                      <div>
+                        <div v-for="(i, ndx) in renderAddOns(el)" :key="'addOns' + ndx " class="col-sm-12 d-flex justify-content-between pr-0" :style="'color: #E07700'">
                           <div>
                             + {{i.name}}
                           </div>
@@ -142,10 +152,10 @@
                     <div class="mt-3">
                       <b :style="'color: #0064B1'"> Other add-ons and requests: </b>
                     </div>
-                    <div class="mt-2">
+                    <!-- <div class="mt-2">
                       <b :style="'color: #E07700'"> Contactless delivery </b>
-                    </div>
-                    <div class="mt-2">
+                    </div> -->
+                    <div class="mt-2" v-if="data.add_cutlery == true">
                       <b :style="'color: #E07700'"> Add cutlery </b>
                     </div>
                     <div class="row col-sm-12 pt-3 pb-3 mb-0" style="position:absolute;bottom:0;background-color: #e0e0e0;">
@@ -434,6 +444,21 @@ export default {
     }
   },
   methods: {
+    renderAddOns(element) {
+      let addons = []
+      element.product_attributes.forEach((el, ndx) => {
+        element.product.attributes.forEach((le, index) => {
+          if(le.id === el.id) {
+            le.attribute_values.forEach((me, indx) => {
+              if(parseInt(el.value) === me.id) {
+                addons.push(me)
+              }
+            })
+          }
+        })
+      })
+      return addons
+    },
     switch(event) {
     },
     getImage() {
