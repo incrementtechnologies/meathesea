@@ -124,6 +124,7 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="category"
+            :tags="bundle ? newBundle : sample"
             :autocomplete-items="filteredCategory"
             placeholder="Add Category"
             @tags-changed="newTags => bundle ? newBundle = newTags : sample = newTags"
@@ -138,6 +139,7 @@
         <div style="width:100%">
           <vue-tags-input
             v-model="categories"
+            :tags="newCategories"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
              @tags-changed="newTags => newCategories = newTags"
