@@ -1,3 +1,9 @@
 export default{
-  hasShownModal: false
+  hasShownModal: false,
+  currency: [
+    {
+      text: 'HKD',
+      value: 'HKD'
+    }
+  ]
 }

@@ -95,6 +95,10 @@
         </div>
       </div>
     </div>
+    <PushNotification
+      ref="pushNotification"
+      id="pushNotification"
+      @new-message="onNewMessage"/>
   </div>
 </template>
 <script>
@@ -102,12 +106,14 @@ import card1 from './orderCard1.vue'
 import card2 from '../orders/orderCard2.vue'
 import dataTable from '../crockeryAndOrders/table'
 import AUTH from 'src/services/auth'
+import PushNotification from '../../components/notification/pushNotification.vue'
 import property from './property'
 export default {
   components: {
     card1,
     card2,
-    dataTable
+    dataTable,
+    PushNotification
   },
   data() {
     return {
@@ -190,6 +196,9 @@ export default {
     }
   },
   methods: {
+    onNewMessage(message) {
+      console.log('NEW CROCKERY: ', message)
+    },
     orderClicked(index, orderId) {
       console.log('index: ', index, 'order id: ', orderId)
       if(!this.widerView) {
@@ -262,6 +271,25 @@ export default {
         this.selectData(this.selectedDataIndex, 0)
       })
     },
+    convertDate(str) {
+      let mnths = {
+        Jan: '01',
+        Feb: '02',
+        Mar: '03',
+        Apr: '04',
+        May: '05',
+        Jun: '06',
+        Jul: '07',
+        Aug: '08',
+        Sep: '09',
+        Oct: '10',
+        Nov: '11',
+        Dec: '12'
+      }
+      let date = str.split(' ')
+
+      return [date[3], mnths[date[1]], date[2]].join('-')
+    },
     getDate(date, ndx) {
       const { user } = AUTH
       if(date === 'day'){
@@ -269,13 +297,13 @@ export default {
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        this.createdAtMin = start.toISOString().slice(0, 10)
+        this.createdAtMin = this.convertDate(String(start))
       } else if(date === 'week') {
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        this.createdAtMin = firstDay.toISOString().slice(0, 10)
-        this.createdAtMax = lastDay.toISOString().slice(0, 10)
+        this.createdAtMin = this.convertDate(String(firstDay))
+        this.createdAtMax = this.convertDate(String(lastDay))
       }else{
         console.log('FOCUS INDEX: ', this.focusIndex)
         this.createdAtMin = ''
@@ -289,13 +317,10 @@ export default {
         if(this.focusIndex === 0){
           console.log('date: ', date)
           if(!this.widerView && this.typeIndex === 0){
-            console.log('testing: 1: ')
             this.retrieveCrockeryByStatus([20, 30], 1)
           }else if(!this.widerView && this.typeIndex === 1){
-            console.log('testing: 2: ')
             this.retrieveCrockeryByStatus([20, 30], 1)
           }else if(this.widerView && this.typeIndex === 2){
-            console.log('testing: 3: ')
             this.retrieveCrockeryByStatus([20, 30, 40, 45, 50], 1)
           }
         }else if(this.focusIndex === 1){
@@ -363,18 +388,25 @@ export default {
       this.cardRedered = true
       this.selectedDataIndex = 0
       let status = null
-      if(ndx === 0){
-        this.focusIndex = 0
-        status = [20, 30]
-        this.retrieveCrockeryByStatus(status, 0)
-      }else if(ndx === 1){
-        this.focusIndex = 1
-        status = [40, 45]
-        this.retrieveCrockeryByStatus(status, 1)
-      }else{
-        this.focusIndex = 2
-        status = [50]
-        this.retrieveCrockeryByStatus(status, 2)
+      // if(ndx === 0){
+      //   this.focusIndex = 0
+      //   status = [20, 30]
+      //   this.retrieveCrockeryByStatus(status, 0)
+      // }else if(ndx === 1){
+      //   this.focusIndex = 1
+      //   status = [40, 45]
+      //   this.retrieveCrockeryByStatus(status, 1)
+      // }else{
+      //   this.focusIndex = 2
+      //   status = [50]
+      //   this.retrieveCrockeryByStatus(status, 2)
+      // }
+      if(this.typeIndex === 0 && !this.widerView) {
+        this.getDate('day')
+      }else if(this.typeIndex === 1 && !this.widerView) {
+        this.getDate('week')
+      }else if(this.typeIndex === 2 && this.widerView) {
+        this.getDate('month')
       }
     },
     selectData(ndx, popId) {
@@ -429,7 +461,7 @@ export default {
       start.setHours(0, 0, 0, 0)
       var end = new Date(start.getTime())
       end.setHours(23, 59, 59, 999)
-      this.createdAtMin = start.toISOString().slice(0, 10)
+      this.createdAtMin = this.convertDate(String(start))
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`orders?StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         $('#loading').css({'display': 'none'})

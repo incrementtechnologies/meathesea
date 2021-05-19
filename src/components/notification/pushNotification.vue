@@ -144,7 +144,7 @@ export default {
                   AUTH.setNotificationOrders(payload)
                   this.$emit('new-message', payload)
                   break
-                case 'crockery':
+                case 'returncrockery':
                   console.log('new crockery')
                   AUTH.setNotificationType('crockery')
                   AUTH.setNotificationCrockery(payload)

@@ -315,18 +315,19 @@ export default {
     },
     onNewMessage(message) {
       if(AUTH.notification.type === 'order') {
-        this.APIGetRequest(`/orders/${message.data.orderId}`, response => {
-          this.reRenderTable = true
-          this.data.push(response.orders[0])
-          response.orders.order_items.map(each => {
+        this.APIGetRequest(`orders/${message.data.orderId}`, async response => {
+          this.reRenderTable = await true
+          await this.data.push(response.orders[0])
+          console.log('NEW ORDER TO: ', this.data)
+          await this.selectData(this.selectedDataIndex, 0)
+          await response.orders.order_items.map(each => {
             if(each.product.category_type === 1){
               this.deliStore.push(each)
             }else{
               this.restaurant.push(each)
             }
           })
-          this.selectData(this.selectedDataIndex, 0)
-          this.reRender = true
+          this.reRender = await true
         })
       }
     },
@@ -404,7 +405,7 @@ export default {
       this.reRender = true
       this.data = []
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.storeId}`, response => {
+      this.APIGetRequest(`orders?CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}&Status=10&StoreId=${user.storeId}`, response => {
         $('#loading').css({'display': 'none'})
         this.data = response.orders
         this.selectData(this.selectedDataIndex, 0)
@@ -417,14 +418,14 @@ export default {
     retrieveNotification(){
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
-      this.APIGetRequest(`/orders/count?Status=10&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`orders/count?Status=10&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         console.log('Response: ', response)
         this.navs[0].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=25&Status=20&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
+      this.APIGetRequest(`orders/count?Status=25&Status=20&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.count
       })
-      this.APIGetRequest(`/orders/count?Status=30&StoreId=${user.storeId}`, response => {
+      this.APIGetRequest(`orders/count?Status=30&StoreId=${user.storeId}`, response => {
         this.navs[2].count = response.count
       })
     },
@@ -460,20 +461,46 @@ export default {
       this.data = []
       this.deliStore = []
       this.allOrders = []
-      if(ndx === 0){
-        this.currentIndex = ndx
-        status = [10]
-        this.retrieveOrdersByStatus(status, 0)
-      }else if(ndx === 2){
-        this.currentIndex = ndx
-        status = [30]
-        this.retrieveOrdersByStatus(status, 0)
-      }else{
-        this.currentIndex = ndx
-        status = [20, 25]
-        // this.retrieveOrders()
-        this.retrieveOrdersByStatus(status, 0)
+      // if(ndx === 0){
+      //   this.currentIndex = ndx
+      //   status = [10]
+      //   this.retrieveOrdersByStatus(status, 0)
+      // }else if(ndx === 2){
+      //   this.currentIndex = ndx
+      //   status = [30]
+      //   this.retrieveOrdersByStatus(status, 0)
+      // }else{
+      //   this.currentIndex = ndx
+      //   status = [20, 25]
+      //   // this.retrieveOrders()
+      //   this.retrieveOrdersByStatus(status, 0)
+      // }
+      if(this.typeIndex === 0 && !this.widerView) {
+        this.getDate('day')
+      }else if(this.typeIndex === 1 && !this.widerView) {
+        this.getDate('week')
+      }else if((this.typeIndex === 0 || this.typeIndex === 1) && this.widerView) {
+        this.getDate('month')
       }
+    },
+    convertDate(str) {
+      let mnths = {
+        Jan: '01',
+        Feb: '02',
+        Mar: '03',
+        Apr: '04',
+        May: '05',
+        Jun: '06',
+        Jul: '07',
+        Aug: '08',
+        Sep: '09',
+        Oct: '10',
+        Nov: '11',
+        Dec: '12'
+      }
+      let date = str.split(' ')
+
+      return [date[3], mnths[date[1]], date[2]].join('-')
     },
     retrieveOrdersByStatus(status, ndxs){
       const { user } = AUTH
@@ -511,6 +538,7 @@ export default {
       this.retrieveNotification()
     },
     selectData(ndx, popId) {
+      console.log('ENTERING SELECT FIRST: ', ndx)
       if(this.editing) {
         this.componentType = 'table'
         this.editing = false
@@ -521,7 +549,9 @@ export default {
         this.restaurant = []
         this.deliStore = []
         if(this.data.length > 0){
+          console.log('DATA:>>>> ', this.data[ndx])
           this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
+            console.log('ORDER ACCEPT TIME: ', response)
             this.times = response.order_accept_time
             this.data[ndx].order_items.map(el => {
               if(el.product.category_type === 0){
@@ -572,14 +602,14 @@ export default {
         start.setHours(0, 0, 0, 0)
         var end = new Date(start.getTime())
         end.setHours(23, 59, 59, 999)
-        this.createdAtMin = start.toISOString().slice(0, 10)
+        this.createdAtMin = this.convertDate(String(start))
         this.createdAtMax = ''
       }else if(date === 'week'){
         let first = this.currentDate.getDate() - this.currentDate.getDay()
         let firstDay = new Date(this.currentDate.setDate(first))
         let lastDay = new Date(this.currentDate.setDate(this.currentDate.getDate() + 6))
-        this.createdAtMin = firstDay.toISOString().slice(0, 10)
-        this.createdAtMax = lastDay.toISOString().slice(0, 10)
+        this.createdAtMin = this.convertDate(String(firstDay))
+        this.createdAtMax = this.convertDate(String(lastDay))
       }else{
         this.createdAtMin = ''
         this.createdAtMax = ''
