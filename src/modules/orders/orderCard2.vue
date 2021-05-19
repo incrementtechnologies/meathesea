@@ -99,7 +99,7 @@
                     <div v-for="(el, ndx) in restaurant" :key="'restaurant' + ndx" class="mt-2 pr-5">
                       <div class="d-flex justify-content-between">
                         <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                        <b class="font-weight-normal"> {{data.customer_currency_code}} {{el.product.price}} X
+                        <b class="font-weight-normal"> {{global.currency[0].text}} {{el.product.price}} X
                           {{el.quantity}}</b>
                       </div>
                       <!-- <div class="col-sm-12" :style="'color: #E07700'">
@@ -121,7 +121,7 @@
                             + {{i.name}}
                           </div>
                           <div style="color: black; font-size: 12px;">
-                            {{data.customer_currency_code}} {{i.price_adjustment}}
+                            {{global.currency[0].text}} {{i.price_adjustment}}
                           </div>
                         </div>
                       </div>
@@ -132,7 +132,7 @@
                     <div v-for="(el, ndx) in deliStore" :key="'deli' + ndx" class="mt-2 pr-5">
                       <div class="d-flex justify-content-between">
                         <b :style="'color: #E07700'"> {{el.product.name}} </b>
-                        <b class="font-weight-normal"> {{data.customer_currency_code}} {{ el.product.price }} X
+                        <b class="font-weight-normal"> {{global.currency[0].text}} {{ el.product.price }} X
                           {{el.quantity}} </b>
                       </div>
                       <!-- <div class="col-sm-12" :style="'color: #E07700'">
@@ -144,7 +144,7 @@
                             + {{i.name}}
                           </div>
                           <div style="color: black; font-size: 12px;">
-                            {{data.customer_currency_code}} {{i.price_adjustment}}
+                            {{global.currency[0].text}} {{i.price_adjustment}}
                           </div>
                         </div>
                       </div>
@@ -353,6 +353,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts'
 import PDFTemplate from 'pdfmake'
 import TemplatePdf from './PdfTemplate.js'
 import moment from 'moment'
+import global from 'src/helpers/global'
 import _ from 'lodash'
 export default {
   props: {
@@ -439,7 +440,8 @@ export default {
       dataRes: [],
       dataDel: [],
       rejectionReason: null,
-      image: null
+      image: null,
+      global: global
       // localTime: moment(this.data.local_time_created, ['HH:mm']).format('hh:mm')
     }
   },

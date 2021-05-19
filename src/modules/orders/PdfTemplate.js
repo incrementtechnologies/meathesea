@@ -1,4 +1,5 @@
 import PDFTemplate from 'pdfmake'
+import global from 'src/helpers/global.js'
 
 export default {
   dataContainer: [],
@@ -12,7 +13,7 @@ export default {
     this.name = data.customer.first_name !== null ? data.customer.first_name : 'No Name'
     this.order_number = data.id
     this.total = data.order_total
-    this.currency = data.customer_currency_code
+    this.currency = global.currency[0].text
     this.purpose = data.order_status
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
