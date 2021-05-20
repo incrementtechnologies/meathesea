@@ -165,7 +165,8 @@ export default {
       isSearching: false,
       selected_remarks: '',
       weeklySelected: null,
-      editing: false
+      editing: false,
+      isNewMessage: false
     }
   },
   created() {
@@ -315,10 +316,11 @@ export default {
     },
     onNewMessage(message) {
       if(AUTH.notification.type === 'order') {
+        this.isNewMessage = true
+        this.retrieveNotification()
         this.APIGetRequest(`orders/${message.data.orderId}`, async response => {
           this.reRenderTable = await true
           await this.data.push(response.orders[0])
-          console.log('NEW ORDER TO: ', this.data)
           await this.selectData(this.selectedDataIndex, 0)
           await response.orders.order_items.map(each => {
             if(each.product.category_type === 1){
@@ -419,14 +421,16 @@ export default {
       const {user} = AUTH
       $('#loading').css({'display': 'block'})
       this.APIGetRequest(`orders/count?Status=10&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
-        console.log('Response: ', response)
         this.navs[0].count = response.count
+        $('#loading').css({'display': 'none'})
       })
       this.APIGetRequest(`orders/count?Status=25&Status=20&StoreId=${user.storeId}&CreatedAtMin=${this.createdAtMin}&CreatedAtMax=${this.createdAtMax}`, response => {
         this.navs[1].count = response.count
+        $('#loading').css({'display': 'none'})
       })
       this.APIGetRequest(`orders/count?Status=30&StoreId=${user.storeId}`, response => {
         this.navs[2].count = response.count
+        $('#loading').css({'display': 'none'})
       })
     },
     returnDate(el) {
@@ -538,18 +542,16 @@ export default {
       this.retrieveNotification()
     },
     selectData(ndx, popId) {
-      console.log('ENTERING SELECT FIRST: ', ndx)
       if(this.editing) {
         this.componentType = 'table'
         this.editing = false
       }
-      if(this.selectedDataIndex !== ndx || this.onload){
+      if(this.selectedDataIndex !== ndx || this.onload || this.isNewMessage){
         this.selectedDataIndex = ndx
         this.reRender = false
         this.restaurant = []
         this.deliStore = []
         if(this.data.length > 0){
-          console.log('DATA:>>>> ', this.data[ndx])
           this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
             console.log('ORDER ACCEPT TIME: ', response)
             this.times = response.order_accept_time
@@ -566,6 +568,7 @@ export default {
         }
         this.onload = false
         this.reRender = true
+        this.isNewMessage = false
       }
     },
     switchComponent(component, ndx) {
