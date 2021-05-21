@@ -1,5 +1,5 @@
 import config from 'src/config.js'
-let APP_EMAIL = 'support@payhiram.ph'
+let APP_EMAIL = 'info@meatthesea.com'
 export default {
   sidebarMenu: [
     // {accountType: 'ALL', showOnAdmin: true, accountStatus: 'ALL', description: 'Dashboard', icon: 'fa fa-arrow-right', path: 'dashboard', flag: false, subMenu: null}
@@ -16,6 +16,7 @@ export default {
       {id: 4, users: 'ALL', parent_id: 0, description: 'ANALYTICS', icon: 'fa fa-money', path: 'analytics', flag: false, subMenu: null}
   ],
   APP_NAME: 'MTS',
+  APP_ADDRESS: "Meat the Sea - 88 Queen's Rd W",
   APP_NAME_HTML: 'MTS',
   APP_EMAIL: APP_EMAIL,
   APP_SITE: 'https://mts.ph',

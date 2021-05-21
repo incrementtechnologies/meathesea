@@ -16,7 +16,7 @@
         <lazy-loading></lazy-loading>
       </div>
       <div v-else-if="tokenData.token === null && parseInt(user.userID) <= 0 && tokenData.loading === false">
-        <login-header v-if="$route.name === 'loginAccount' || $route.name === 'signup' "></login-header>
+        <!-- <login-header v-if="$route.name === 'loginAccount' || $route.name === 'signup' "></login-header> -->
         <system-content v-if="$route.name === 'loginAccount' || $route.name === 'signup' "></system-content>
         <div v-else>
         <!-- <custom-header></custom-header>
