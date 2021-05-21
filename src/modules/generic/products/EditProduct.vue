@@ -102,6 +102,11 @@
               <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
             </div>
           </div>
+          <div v-else>
+            <div v-show="errorNoBundleCategory">
+              <h6 style="color:red; margin-left: 2">Please choose a bundle</h6>
+            </div>
+          </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
@@ -134,6 +139,11 @@
               <h6 style="color:red; margin-left: 2">Choose only 1 Category</h6>
             </div>
           </div>
+          <div v-else>
+            <div v-show="errorNoBundleCategory">
+              <h6 style="color:red; margin-left: 2">Please choose a bundle</h6>
+            </div>
+          </div>
         </div>
         <p class="name" style="margin-left: 0%; margin-top: 3%;width:96%"><b>{{bundle ? 'ADD-ON CATEGORY' : 'ADD-ON CATEGORY 2'}}</b>&nbsp;&nbsp;&nbsp;<b style="margin-left: 25%">{{bundle ? 'LIMIT CHOICE TO: 1' : 'LIMIT CHOICE TO: -'}}</b></p>
         <div style="width:100%">
@@ -142,7 +152,7 @@
             :tags="newCategories"
             :autocomplete-items="filteredItems"
             placeholder="Add Another Category"
-             @tags-changed="newTags => newCategories = newTags"
+            @tags-changed="newTags => newCategories = newTags"
           />
           <div v-if="bundle === true">
             <div v-show="errorBundleCategory">
@@ -218,7 +228,7 @@
         <!-- Modal content -->
         <div class="modal-content text-center">
           <span @click="closeModal()" class="close">&times;</span>
-          <p>Added Successfully!!!</p>
+          <p>Added Successfully.</p>
           <center>
             <button style="width: 30%;" type="button" @click="closeModal()" class="btn btn-success">OK</button>
           </center>
@@ -228,7 +238,7 @@
         <!-- Modal content -->
         <div class="modal-content">
           <span @click="closeUpdateModal()" class="close">&times;</span>
-          <p>Updated successfully!!!</p>
+          <p>Updated successfully.</p>
           <center>
             <button style="width: 30%;" type="button" @click="closeUpdateModal()" class="btn btn-success">OK</button>
           </center>
@@ -238,7 +248,7 @@
         <!-- Modal content -->
         <div class="modal-content">
           <span @click="closeErrorModal()" class="close">&times;</span>
-          <p style="color: red">Please fill up all empty fields!!!</p>
+          <p style="color: red">Please fill up all empty fields.</p>
           <center>
             <button style="width: 30%;" type="button" @click="closeErrorModal()" class="btn btn-danger">Close</button>
           </center>
@@ -254,13 +264,13 @@
           </center>
         </div>
       </div>
-      <div id="errorModal" class="modal" v-if="dontExistWatch">
+      <div id="other" class="modal" v-if="dontExistWatch">
         <!-- Modal content -->
         <div class="modal-content">
-          <span @click="closeErrorModal()" class="close">&times;</span>
-          <p style="color: red">Please don't add another category.</p>
+          <span @click="closeOtherModal()" class="close">&times;</span>
+          <p style="color: red">Please select existing category.</p>
           <center>
-            <button style="width: 30%;" type="button" @click="closeErrorModal()" class="btn btn-danger">Close</button>
+            <button style="width: 30%;" type="button" @click="closeOtherModal()" class="btn btn-danger">Close</button>
           </center>
         </div>
       </div>
@@ -281,7 +291,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'errorProductCategory', 'errorBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'errorProductCategory', 'errorBundleCategory', 'errorNoBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -401,7 +411,7 @@ export default {
     },
     dontExistWatch(){
       if(this.dontExist === true){
-        let modal = document.getElementById('errorModal')
+        let modal = document.getElementById('other')
         modal.style.display = 'block'
         return true
       }
@@ -423,17 +433,29 @@ export default {
       let parameter = null
       let modal = document.getElementById('myModal')
       let errorModal = document.getElementById('errorModal')
-      this.category1.map(el => {
-        this.sample.map(ele => {
-          if(el.name !== ele.name){
-            errorModal.style.display = 'block'
-            return
-          }
-        })
-      })
+      let other = document.getElementById('other')
       if(this.name === null || this.name === '' || this.categoryId === null || this.categoryId === '' || this.full_description === null || this.full_description === '' || this.price === null || this.categoryId === '' || this.CategoriesTags === null || this.CategoriesTags === '' || this.CategoryTags === null || this.CategoryTags === '') {
-        console.log('error !!!')
         errorModal.style.display = 'block'
+        return
+      }
+      let a = null
+      if(this.sample.length >= 1){
+        this.sample.map(ele => {
+          a = ele.id
+        })
+      }
+      if(this.sample.length >= 1 && (a === null || a === undefined)){
+        other.style.display = 'block'
+        return
+      }
+      let b = null
+      if(this.newCategories.length >= 1 && this.bundle === false){
+        this.newCategories.map(el => {
+          b = el.id
+        })
+      }
+      if(b === undefined && this.newCategories.length >= 1 && this.bundle === false){
+        other.style.display = 'block'
         return
       }
       if(this.all_day === false){
@@ -467,6 +489,13 @@ export default {
         }
         if(this.old_price === null || this.old_price === ''){
           this.old_price = 0
+        }
+      }else{
+        if(this.newBundle.length === 0){
+          this.errorNoBundleCategory = true
+          return
+        }else{
+          this.errorNoBundleCategory = false
         }
       }
       if(this.all_day === true){
@@ -660,8 +689,8 @@ export default {
       $('#loading').css({'display': 'block'})
       this.APIDeleteRequest(`products/${data.id}`, {}, response => {
         $('#loading').css({'display': 'none'})
-        $('#loading').css({'display': 'block'})
         this.back()
+        $('#loading').css({'display': 'block'})
         this.APIGetRequest(`/products?CategoryId=${data.category_id}`, response => {
           $('#loading').css({'display': 'none'})
           if(response.products.length > 0) {
@@ -725,6 +754,14 @@ export default {
       modal.style.display = 'none'
       this.$parent.updateError = false
       this.$parent.noUpdateError = false
+      this.$parent.dontExist = false
+    },
+    closeOtherModal() {
+      let modal = document.getElementById('other')
+      // let span = document.getElementsByClassName('close')[0]
+      modal.style.display = 'none'
+      // this.$parent.updateError = false
+      // this.$parent.noUpdateError = false
       this.$parent.dontExist = false
     },
     closeUpdateModal() {

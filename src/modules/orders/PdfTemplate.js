@@ -5,8 +5,10 @@ export default {
   dataContainer: [],
   dataContainerDel: [],
   imageLogo: [],
+  dataAddOn: [],
   getItem(data) {
     let sub = []
+    this.cutlery = data.add_cutlery
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
     this.date = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
@@ -24,12 +26,10 @@ export default {
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
     }, 0)
-    // if(data.delivery_time_requested === 'ASAP'){
-    //   this.deliveryTime = data.local_time_created
-    // }else{
-    //   this.deliveryTime = data.delivery_time_requested
-    // }
   },
+  // getAddOn(addOn){
+  //   this.dataAddOn = addOn
+  // },
   getImage(image) {
     this.imageLogo = image
   },
@@ -101,10 +101,11 @@ export default {
       ]
     )
     this.dataContainer.map(key => {
+      console.log('jey', key)
       retrieve.push([
-        { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        {text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }]},
         { text: key.quantity, fontSize: 10, margin: [65, 0, 0, 0], border: [false, false, false, false] },
-        { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        { text: (this.currency + ' ' + key.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
     this.dataContainerDel.map(key => {
@@ -262,15 +263,21 @@ export default {
         {
           text: '________________________________________________'
         },
-        {
+        this.cutlery === true
+        ? {
           text: [ { text: 'Note:', italics: true }, { text: 'ADD CUTLERY' } ],
           alignment: 'left',
           fontSize: 10,
           margin: [0, 5, 0, -5],
           bold: true
+        }
+        : {
         },
-        {
+        this.cutlery === true
+        ? {
           text: '________________________________________________'
+        }
+        : {
         },
         {
           style: 'tableExample',

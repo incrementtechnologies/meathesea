@@ -164,7 +164,7 @@
                       </div>
                       <div class="col p-0 m-0">
                         <p style="float:right;">
-                          {{ data.customer_currency_code }} {{ data.order_total }}
+                          {{global.currency[0].text}} {{ data.order_total }}
                         </p>
                       </div>
                     </div>
@@ -210,7 +210,7 @@
                             TOTAL
                           </b>
                           <b>
-                            {{data.customer_currency_code}} {{data.order_total}}
+                            {{global.currency[0].text}} {{data.order_total}}
                           </b>
                         </div>
                       </div>
@@ -439,6 +439,9 @@ export default {
       dataPdf: [],
       dataRes: [],
       dataDel: [],
+      addOn: [],
+      prod: [],
+      addons: [],
       rejectionReason: null,
       image: null,
       global: global
@@ -475,12 +478,27 @@ export default {
       this.dataPdf = data
       this.dataRes = []
       this.dataDel = []
-      this.dataPdf.order_items.map(key => {
-        if(key.product.category_type === 0){
-          this.dataRes.push(key)
+      this.prod = []
+      this.addons = []
+      this.dataPdf.order_items.forEach(element => {
+        console.log('[element]', element)
+        if(element.product.category_type === 0){
+          this.dataRes.push(element.product)
+          element.product_attributes.forEach((el, ndx) => {
+            element.product.attributes.forEach((le, index) => {
+              if(le.id === el.id) {
+                le.attribute_values.forEach((me, indx) => {
+                  if(parseInt(el.value) === me.id) {
+                    this.addons.push(me)
+                  }
+                })
+              }
+            })
+          })
+          this.dataRes[1] = this.addons
           this.PdfTemplate.getData(this.dataRes)
-        }else if(key.product.category_type === 1){
-          this.dataDel.push(key)
+        }else if(element.product.category_type === 1){
+          this.dataDel.push(element)
           this.PdfTemplate.getDel(this.dataDel)
         }
       })
