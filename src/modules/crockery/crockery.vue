@@ -370,17 +370,51 @@ export default {
       }
     },
     returnDate(el) {
+      // let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
+      // let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
+      // if(!this.headerElements[this.typeIndex].changeDate) {
+      //   return new Date(el.created_date_utc).toLocaleTimeString()
+      // }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
+      //   return 'Today'
+      // }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === yesterday) {
+      //   return 'Yesterday'
+      // }else {
+      //   return new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-')
+      // }
       let date = new Date(new Date().toLocaleDateString().replaceAll('/', '-'))
       let yesterday = ('' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + (date.getDate() - 1)).slice(-2) + '-' + date.getFullYear()
-      if(!this.headerElements[this.typeIndex].changeDate) {
+      if(!this.returnHeaderElements[this.typeIndex].changeDate) {
         return new Date(el.created_date_utc).toLocaleTimeString()
       }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === new Date().toLocaleDateString().replaceAll('/', '-')) {
         return 'Today'
       }else if(new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-') === yesterday) {
         return 'Yesterday'
       }else {
-        return new Date(el.created_date_utc).toLocaleDateString().replaceAll('/', '-')
+        let d = new Date(el.created_date_utc)
+        let dd = d.getDate()
+        let mm = d.getMonth() + 1
+        let yy = d.getFullYear()
+        if(String(dd).length < 2) {
+          dd = '0' + dd
+        }
+        if(String(mm).length < 2) {
+          mm = '0' + mm
+        }
+        return yy + '-' + mm + '-' + dd
       }
+    },
+    returnHHMMformat(data) {
+      var time = data
+      var hours = Number(time.match(/^(\d+)/)[1])
+      var minutes = Number(time.match(/:(\d+)/)[1])
+      var AMPM = time.match(/\s(.*)$/)[1]
+      if(AMPM.toLowerCase() === 'pm' && hours < 12) hours = hours + 12
+      if(AMPM.toLowerCase() === 'am' && hours === 12) hours = hours - 12
+      var sHours = hours.toString()
+      var sMinutes = minutes.toString()
+      if(hours < 10) sHours = '0' + sHours
+      if(minutes < 10) sMinutes = '0' + sMinutes
+      return sHours + ':' + sMinutes
     },
     change(ndx) {
       this.cardRedered = false
