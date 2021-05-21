@@ -228,6 +228,30 @@ export default {
         this.updateError = true
         return
       }
+      let a = null
+      if(product.attributes[0].attribute_values.length >= 1){
+        product.attributes[0].attribute_values.map(ele => {
+          a = ele.id
+        })
+      }
+      if(product.attributes[0].attribute_values.length >= 1 && (a === null || a === undefined)){
+        this.dontExist = true
+        return
+      }else{
+        this.dontExist = false
+      }
+      let b = null
+      if(product.attributes[1].attribute_values.length >= 1){
+        product.attributes[1].attribute_values.map(el => {
+          b = el.id
+        })
+      }
+      if(b === undefined && product.attributes[1].attribute_values.length >= 1 && this.bundled === false){
+        this.dontExist = true
+        return
+      }else{
+        this.dontExist = false
+      }
       if(this.bundled === true){
         if(product.attributes[0].attribute_values.length > 1){
           this.errorBundleCategory = true

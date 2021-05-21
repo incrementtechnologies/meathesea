@@ -10,7 +10,7 @@
 			<CategoryList :type="'menu'"  :data="categories"/>
 			<div class="column content">
 				<ProductList v-if="!isEdit" :data="products" @showAddForm="isEdit = true" @updateAvailability="updateAvailability"/>
-        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
+        <EditProduct ref="products" :errorProductCategory="errorProductCategory" :dontExist="dontExist" :errorBundleCategory="errorBundleCategory" :updateError="updateError" :noUpdateError="noUpdateError" :hasUpdate="hasUpdate" :bundleProducts="bundleProducts" :categoryId="category" v-if="isEdit" :errorMessage="errorMessage" :isErrorTimeEnd="isErrorTimeEnd" :isErrorTimeStart="isErrorTimeStart" :category1="category1" :category2="category2" :data=" add === true ? null : data" @onSave="update($event)" :bundle="bundled"/>
 			</div>
 		</div>
 	</div>
@@ -48,6 +48,7 @@ export default {
       noUpdateError: false,
       errorBundleCategory: false,
       errorProductCategory: false,
+      dontExist: false,
       isErrorTimeStart: false,
       isErrorTimeEnd: false
     }
@@ -224,6 +225,30 @@ export default {
         }else{
           this.errorBundleCategory = false
         }
+      }
+      let a = null
+      if(product.attributes[0].attribute_values.length >= 1){
+        product.attributes[0].attribute_values.map(ele => {
+          a = ele.id
+        })
+      }
+      if(product.attributes[0].attribute_values.length >= 1 && (a === null || a === undefined)){
+        this.dontExist = true
+        return
+      }else{
+        this.dontExist = false
+      }
+      let b = null
+      if(product.attributes[1].attribute_values.length >= 1){
+        product.attributes[1].attribute_values.map(el => {
+          b = el.id
+        })
+      }
+      if(b === undefined && product.attributes[1].attribute_values.length >= 1 && this.bundled === false){
+        this.dontExist = true
+        return
+      }else{
+        this.dontExist = false
       }
       if(this.bundled === false){
         if(product.attributes[0].attribute_values.length > 1){
