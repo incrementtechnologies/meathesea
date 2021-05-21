@@ -102,6 +102,7 @@ export default {
           this.products = response.products
           $('#loading').css({'display': 'none'})
         } else {
+          this.products = []
           $('#loading').css({'display': 'none'})
         }
       })
