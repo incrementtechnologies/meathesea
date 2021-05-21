@@ -184,7 +184,7 @@ export default {
       let password = localStorage.getItem('password')
       let storeId = localStorage.getItem('store_id')
 
-      let parameter = 'storefront_login' + `?Email=${username}&Password=${password}`
+      let parameter = 'storefront_login' + `?Usercode=${username}&Password=${password}`
       vue.APIGetRequest(parameter, response => {
         this.setUser(response.customer.id, null, response.customer.email, null, null, null, null, null, null, storeId)
         this.tokenData.verifyingToken = false
