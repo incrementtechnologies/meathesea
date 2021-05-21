@@ -128,7 +128,7 @@ export default {
     //   password: password,
     //   status: 'VERIFIED'
     // }
-    let parameter = 'storefront_login' + `?Email=${username}&Password=${password}`
+    let parameter = 'storefront_login' + `?Usercode=${username}&Password=${password}`
     vue.APIGetRequest(parameter, (response) => {
       this.tokenData.loading = false
       this.tokenData.verifyingToken = false
