@@ -35,6 +35,7 @@
                   >
                     <div v-if="!headerElements[typeIndex].changeDate">{{el.order_id}}</div>
                     <div v-if="!headerElements[typeIndex].changeDate">
+                      {{el.local_time_pickup_return}}
                     </div>
                     <div v-if="headerElements[typeIndex].changeDate">{{ el.date_remarks !== '' ? el.date_remarks : returnDate(el) }}</div>
                   </div>
