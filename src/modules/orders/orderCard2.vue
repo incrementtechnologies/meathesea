@@ -441,7 +441,9 @@ export default {
       dataDel: [],
       addOn: [],
       prod: [],
+      prodDel: [],
       addons: [],
+      addonsDel: [],
       rejectionReason: null,
       image: null,
       global: global
@@ -479,26 +481,48 @@ export default {
       this.dataRes = []
       this.dataDel = []
       this.prod = []
+      this.prodDel = []
       this.addons = []
+      this.addonsDel = []
       this.dataPdf.order_items.forEach(element => {
-        console.log('[element]', element)
         if(element.product.category_type === 0){
+          this.prod.push(element.quantity)
           this.dataRes.push(element.product)
-          element.product_attributes.forEach((el, ndx) => {
-            element.product.attributes.forEach((le, index) => {
-              if(le.id === el.id) {
-                le.attribute_values.forEach((me, indx) => {
-                  if(parseInt(el.value) === me.id) {
-                    this.addons.push(me)
-                  }
-                })
-              }
+          if(element.product_attributes > 0){
+            element.product_attributes.forEach((el, ndx) => {
+              element.product.attributes.forEach((le, index) => {
+                if(le.id === el.id) {
+                  le.attribute_values.forEach((me, indx) => {
+                    if(parseInt(el.value) === me.id) {
+                      this.addons.push(me)
+                    }
+                  })
+                }
+              })
             })
-          })
-          this.dataRes[1] = this.addons
+          }
+          this.dataRes['quantity'] = this.prod
+          this.dataRes['add_on'] = this.addons
           this.PdfTemplate.getData(this.dataRes)
         }else if(element.product.category_type === 1){
-          this.dataDel.push(element)
+          this.prodDel.push(element.quantity)
+          this.dataDel.push(element.product)
+          if(element.product_attributes.length > 0){
+            element.product_attributes.forEach((el, ndx) => {
+              element.product.attributes.forEach((le, index) => {
+                if(le.id === el.id) {
+                  le.attribute_values.forEach((me, indx) => {
+                    if(parseInt(el.value) === me.id) {
+                      this.addonsDel.push(me)
+                      // this.addonsDel[el.product] = me
+                    }
+                  })
+                }
+              })
+            })
+          }
+          this.dataDel['quantity'] = this.prodDel
+          this.dataDel['add_on'] = this.addonsDel
           this.PdfTemplate.getDel(this.dataDel)
         }
       })
