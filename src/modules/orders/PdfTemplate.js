@@ -6,6 +6,11 @@ export default {
   dataContainerDel: [],
   imageLogo: [],
   dataAddOn: [],
+  add: [],
+  addDel: [],
+  nameDel: [],
+  nameRes: [],
+  ons: [],
   getItem(data) {
     let sub = []
     this.cutlery = data.add_cutlery
@@ -27,17 +32,42 @@ export default {
       return a + b
     }, 0)
   },
-  // getAddOn(addOn){
-  //   this.dataAddOn = addOn
-  // },
   getImage(image) {
     this.imageLogo = image
   },
   getData(retrieve) {
+    this.add = []
+    this.nameRes = []
     this.dataContainer = retrieve
+    if(this.dataContainer.length > 0){
+      this.dataContainer.map(el => {
+        console.log('con', el)
+        this.nameRes.push(el.name)
+      })
+    }
+    if(this.dataContainer['add_on'].length > 0){
+      this.dataContainer['add_on'].forEach(el => {
+        console.log('asdfdff', el)
+        this.add.push(el.name)
+      })
+    }
   },
   getDel(retrieveDel) {
+    this.addDel = []
+    this.nameDel = []
     this.dataContainerDel = retrieveDel
+    if(this.dataContainerDel.length > 0){
+      this.dataContainerDel['add_on'].map(el => {
+        console.log('conss', el)
+        this.nameDel.push(el.name)
+      })
+    }
+    if(this.dataContainerDel['add_on'].length > 0){
+      this.dataContainerDel['add_on'].forEach(el => {
+        console.log('asdfdsssssssssssssff', el, 'sdf', this.dataContainerDel)
+        this.addDel.push(el.name)
+      })
+    }
   },
   template() {
     var retrieve = []
@@ -100,19 +130,34 @@ export default {
         }
       ]
     )
+    let b = []
+    this.dataContainer.length > 0 &&
+    this.dataContainer.length > 0 &&
     this.dataContainer.map(key => {
-      console.log('jey', key)
+      key.attributes.map(e => {
+        e.attribute_values.map(a => {
+          b.push(a)
+        })
+      })
       retrieve.push([
-        {text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }]},
-        { text: key.quantity, fontSize: 10, margin: [65, 0, 0, 0], border: [false, false, false, false] },
+        { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((b.length > 0) ? ('\n+' + (this.add.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: key['quantity'], fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
         { text: (this.currency + ' ' + key.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
+    let c = []
+    this.dataContainerDel.length > 0 &&
     this.dataContainerDel.map(key => {
+      key.attributes.map(e => {
+        e.attribute_values.map(a => {
+          c.push(a)
+        })
+      })
       retrieveDel.push([
-        { text: key.product.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] },
-        { text: key.quantity, fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
-        { text: (this.currency + ' ' + key.product.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((c.length > 0) ? ('\n+' + (this.addDel.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        // { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((this.addDel.length > 0 && this.nameDel === this.addDel) ? ('\n+' + (this.addDel.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: key['quantity'], fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
+        { text: (this.currency + ' ' + key.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
     var docDefinition = {
@@ -219,10 +264,14 @@ export default {
             { width: '*', text: '' }
           ]
         },
-        {
+        this.dataContainer.length > 0
+        ? {
           text: '________________________________________________'
+        }
+        : {
         },
-        {
+        this.dataContainer.length > 0
+        ? {
           text: 'RESTAURANT ITEMS',
           fontSize: 10,
           style: 'header',
@@ -230,8 +279,11 @@ export default {
           bold: true,
           margin: [0, 7, 0, 0],
           border: [false, true, false, false]
+        }
+        : {
         },
-        {
+        this.dataContainer.length > 0
+        ? {
           style: 'tableExample',
           table: {
             headerRows: 1,
@@ -239,6 +291,8 @@ export default {
             widths: ['*', '*', '*'],
             body: retrieve
           }
+        }
+        : {
         },
         {
           text: '________________________________________________'
