@@ -24,7 +24,7 @@
                 :
                   h.key === 'order_total' ?
                     el['order_details'] !== undefined ?
-                      'HK$ ' + el['order_details'][h.key]
+                      global.currency[0].text + ' ' + el['order_details'][h.key]
                     :
                       ''
                   :
@@ -35,7 +35,7 @@
                   returnDate(el) 
                 : 
                   (h.key === 'order_total' ?
-                    'HK$ ' + el[h.key] 
+                    global.currency[0].text + ' ' + el[h.key] 
                   : 
                     el[h.key])
             }} 
@@ -54,11 +54,13 @@
   </div>
 </template>
 <script>
+import global from 'src/helpers/global'
 export default {
   props: ['tableData', 'headers', 'orderClicked'],
   data() {
     return {
-      viewType: 'normal_view' // normal_view, weekly_view, view_all
+      viewType: 'normal_view', // normal_view, weekly_view, view_all,
+      global: global
     }
   },
   watch: {
