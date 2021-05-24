@@ -67,7 +67,11 @@
                               v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
                               <b class="font-weight-normal"
                                 v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
-                                {{data.shipping_address.address1}}
+                                {{
+                                  (data.shipping_address.address2 ? data.shipping_address.address2 + ', ' : '') 
+                                  + (data.shipping_address.address1 ? data.shipping_address.address1 + ', ' : '')
+                                  + (data.shipping_address.city ? data.shipping_address.city : '')
+                                }}
                               </b>
                               <b class="font-weight-normal"
                                 v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
@@ -194,7 +198,11 @@
                       v-if="data.shipping_address !== null && data.shipping_address !== '' && data.shipping_address !== undefined">
                       <b class="font-weight-normal"
                         v-if="data.shipping_address.address1 !== '' && data.shipping_address.address1 !== null && data.shipping_address.address1 !== undefined">
-                        {{data.shipping_address.address1}}
+                        {{
+                          (data.shipping_address.address2 ? data.shipping_address.address2 + ', ' : '') 
+                          + (data.shipping_address.address1 ? data.shipping_address.address1 + ', ' : '')
+                          + (data.shipping_address.city ? data.shipping_address.city : '')
+                        }}
                       </b>
                       <b class="font-weight-normal"
                         v-else-if="data.shipping_address.address2 !== '' && data.shipping_address.address2 !== null && data.shipping_address.address2 !== undefined">
