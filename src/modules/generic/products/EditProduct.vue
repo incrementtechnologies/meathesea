@@ -438,6 +438,16 @@ export default {
         errorModal.style.display = 'block'
         return
       }
+      let bun = null
+      if(this.newBundle.length >= 1 && this.bundle === true){
+        this.newBundle.map(ele => {
+          bun = ele.id
+        })
+      }
+      if(this.bundle === true && this.newBundle.length >= 1 && (bun === null || bun === undefined)){
+        other.style.display = 'block'
+        return
+      }
       let a = null
       if(this.sample.length >= 1){
         this.sample.map(ele => {
@@ -725,7 +735,6 @@ export default {
       $('#choose_file')[0].click()
     },
     selectFile(event){
-      // console.log(event.target.files[0].name)
       this.images = event.target.files[0]
       let image = event.target.files[0].name
       // this.encodedImage = btoa(image);

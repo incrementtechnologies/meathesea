@@ -171,7 +171,6 @@ export default {
   },
   created() {
     const {user} = AUTH
-    console.log(user)
     this.getDate('day', null)
     this.retrieveNotification()
   },
@@ -553,7 +552,6 @@ export default {
         this.deliStore = []
         if(this.data.length > 0){
           this.APIGetRequest(`get_order_accept_time?orderId=${this.data[ndx].id}`, response => {
-            console.log('ORDER ACCEPT TIME: ', response)
             this.times = response.order_accept_time
             this.data[ndx].order_items.map(el => {
               if(el.product.category_type === 0){

@@ -5,12 +5,7 @@ export default {
   dataContainer: [],
   dataContainerDel: [],
   imageLogo: [],
-  dataAddOn: [],
-  add: [],
-  addDel: [],
-  nameDel: [],
-  nameRes: [],
-  ons: [],
+  priceAdd: [],
   getItem(data) {
     let sub = []
     this.cutlery = data.add_cutlery
@@ -26,7 +21,14 @@ export default {
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
     this.deliveryTime = data.order_accept_start_time + '-' + data.order_accept_end_time
     data.order_items.forEach(element => {
-      sub.push(element.product.price * element.quantity)
+      if(this.priceAdd.length > 0){
+        let a = this.priceAdd.reduce(function (a, b) {
+          return a + b
+        })
+        sub.push((element.product.price * element.quantity) + parseInt(a))
+      }else{
+        sub.push(element.product.price * element.quantity)
+      }
     })
     this.subTotal = sub.reduce(function (a, b) {
       return a + b
@@ -36,38 +38,20 @@ export default {
     this.imageLogo = image
   },
   getData(retrieve) {
-    this.add = []
-    this.nameRes = []
     this.dataContainer = retrieve
-    if(this.dataContainer.length > 0){
-      this.dataContainer.map(el => {
-        console.log('con', el)
-        this.nameRes.push(el.name)
+    this.dataContainer.forEach(el => {
+      el.addOn.forEach(e => {
+        this.priceAdd.push(e.price_adjustment)
       })
-    }
-    if(this.dataContainer['add_on'].length > 0){
-      this.dataContainer['add_on'].forEach(el => {
-        console.log('asdfdff', el)
-        this.add.push(el.name)
-      })
-    }
+    })
   },
   getDel(retrieveDel) {
-    this.addDel = []
-    this.nameDel = []
     this.dataContainerDel = retrieveDel
-    if(this.dataContainerDel.length > 0){
-      this.dataContainerDel['add_on'].map(el => {
-        console.log('conss', el)
-        this.nameDel.push(el.name)
+    this.dataContainerDel.forEach(key => {
+      key.addOn.forEach(el => {
+        this.priceAdd.push(el.price_adjustment)
       })
-    }
-    if(this.dataContainerDel['add_on'].length > 0){
-      this.dataContainerDel['add_on'].forEach(el => {
-        console.log('asdfdsssssssssssssff', el, 'sdf', this.dataContainerDel)
-        this.addDel.push(el.name)
-      })
-    }
+    })
   },
   template() {
     var retrieve = []
@@ -129,35 +113,33 @@ export default {
           alignment: 'right'
         }
       ]
-    )
-    let b = []
+      )
+    let a = []
+    let c = []
     this.dataContainer.length > 0 &&
-    this.dataContainer.length > 0 &&
-    this.dataContainer.map(key => {
-      key.attributes.map(e => {
-        e.attribute_values.map(a => {
-          b.push(a)
-        })
+    this.dataContainer.map((key, index) => {
+      key.addOn.map(el => {
+        a.push(el.name)
+        c.push(el.price_adjustment)
       })
       retrieve.push([
-        { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((b.length > 0) ? ('\n+' + (this.add.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: [{ text: key['product'], fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((key['addOn'].length > 0) ? ('\n+' + (a).join('\n  +')) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
         { text: key['quantity'], fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
-        { text: (this.currency + ' ' + key.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        { text: [{ text: (this.currency + ' ' + key['price']), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }, { text: ((key['addOn'].length > 0) ? ('\n ' + (c).join('\n')) : ' '), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }], margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
-    let c = []
+    let b = []
+    let d = []
     this.dataContainerDel.length > 0 &&
     this.dataContainerDel.map(key => {
-      key.attributes.map(e => {
-        e.attribute_values.map(a => {
-          c.push(a)
-        })
+      key.addOn.map(el => {
+        b.push(el.name)
+        d.push(el.price_adjustment)
       })
       retrieveDel.push([
-        { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((c.length > 0) ? ('\n+' + (this.addDel.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
-        // { text: [{ text: key.name, fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((this.addDel.length > 0 && this.nameDel === this.addDel) ? ('\n+' + (this.addDel.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: [{ text: key['product'], fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((key['addOn'].length > 0) ? ('\n+' + (b.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
         { text: key['quantity'], fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
-        { text: (this.currency + ' ' + key.price), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
+        { text: [{ text: (this.currency + ' ' + key['price']), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }, { text: ((key['addOn'].length > 0) ? ('\n ' + (d).join('\n')) : ' '), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }], margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
     var docDefinition = {
@@ -294,10 +276,15 @@ export default {
         }
         : {
         },
-        {
+        this.dataContainerDel.length > 0
+        ? {
           text: '________________________________________________'
+        }
+        : {
+
         },
-        {
+        this.dataContainerDel.length > 0
+        ? {
           text: 'DELI-SHOP ITEMS',
           fontSize: 10,
           style: 'header',
@@ -305,14 +292,21 @@ export default {
           bold: true,
           margin: [0, 7, 0, 0],
           border: [false, true, false, false]
+        }
+        : {
+
         },
-        {
+        this.dataContainerDel.length > 0
+        ? {
           style: 'tableExample',
           table: {
             headerRows: 1,
             widths: ['*', '*', '*'],
             body: retrieveDel
           }
+        }
+        : {
+
         },
         {
           text: '________________________________________________'

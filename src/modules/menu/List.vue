@@ -115,7 +115,6 @@ export default {
           this.products = response.products
           $('#loading').css({'display': 'none'})
         } else {
-          console.log(response.products)
           this.products = []
           $('#loading').css({'display': 'none'})
         }
@@ -164,17 +163,12 @@ export default {
           return
         }
       }else if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== '' && product.available_end_date_time_utc !== ''){
-        // console.log('dre sulod')
         newtimeStart = product.available_start_date_time_utc.split('T')
         newtimeEnd = product.available_end_date_time_utc.split('T')
         startTime = product.available_start_date_time_utc.split(':')
         endTime = product.available_end_date_time_utc.split(':')
         timeStart = product.available_start_date_time_utc.split('')
         timeEnd = product.available_end_date_time_utc.split('')
-        // console.log('sulod hoy!!!', timeStart)
-        // console.log(timeStart.length, timeEnd.length)
-        // console.log(timeStart.length, timeEnd.length)
-        // console.log(timeStart.length, timeEnd.length)
         if(timeStart.length === 5 && timeEnd.length === 5){
           if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
@@ -247,6 +241,18 @@ export default {
         })
       }
       if(b === undefined && product.attributes[1].attribute_values.length >= 1 && this.bundled === false){
+        this.dontExist = true
+        return
+      }else{
+        this.dontExist = false
+      }
+      let c = null
+      if(product.attributes[1].attribute_values.length >= 1){
+        product.attributes[1].attribute_values.map(el => {
+          c = el.id
+        })
+      }
+      if(c === undefined && product.attributes[1].attribute_values.length >= 1 && this.bundled === true){
         this.dontExist = true
         return
       }else{
