@@ -479,61 +479,28 @@ export default {
       this.PdfTemplate.getImage(this.image)
       this.dataPdf = data
       this.dataRes = []
-      this.dataDel = []
       this.prod = []
-      this.prodDel = []
       this.addons = []
+      this.dataDel = []
       this.addonsDel = []
+      this.prodDel = []
       this.dataPdf.order_items.forEach(element => {
         if(element.product.category_type === 0){
           this.prod.push(element.quantity)
-          this.dataRes.push(element.product)
-          if(element.product_attributes > 0){
-            element.product_attributes.forEach((el, ndx) => {
-              element.product.attributes.forEach((le, index) => {
-                if(le.id === el.id) {
-                  le.attribute_values.forEach((me, indx) => {
-                    if(parseInt(el.value) === me.id) {
-                      this.addons.push(me)
-                    }
-                  })
-                }
-              })
-            })
-          }
-          this.dataRes['quantity'] = this.prod
-          this.dataRes['add_on'] = this.addons
-          this.PdfTemplate.getData(this.dataRes)
+          this.dataRes.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': this.prod})
         }else if(element.product.category_type === 1){
           this.prodDel.push(element.quantity)
-          this.dataDel.push(element.product)
-          if(element.product_attributes.length > 0){
-            element.product_attributes.forEach((el, ndx) => {
-              element.product.attributes.forEach((le, index) => {
-                if(le.id === el.id) {
-                  le.attribute_values.forEach((me, indx) => {
-                    if(parseInt(el.value) === me.id) {
-                      this.addonsDel.push(me)
-                      // this.addonsDel[el.product] = me
-                    }
-                  })
-                }
-              })
-            })
-          }
-          this.dataDel['quantity'] = this.prodDel
-          this.dataDel['add_on'] = this.addonsDel
-          this.PdfTemplate.getDel(this.dataDel)
+          this.addonsDel.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': this.prodDel})
         }
       })
+      this.PdfTemplate.getData(this.dataRes)
+      this.PdfTemplate.getDel(this.addonsDel)
       this.PdfTemplate.getItem(data)
       this.PdfTemplate.template()
     },
     accept() {
       $('#loading').css({'display': 'block'})
-      console.log('ORDER ACCEPT TIME ID: ', `${typeof this.times !== 'string' && this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`)
       this.APIPutRequest(`update_order_status?orderId=${this.data.id}&orderStatusId=20&${typeof this.times !== 'string' && this.times.length > 0 ? 'orderAcceptTimeId=' + this.times[this.focusIndex].id : ''}`, {}, response => {
-        console.log('Accept order response: ', this.times[this.focusIndex])
         $('#loading').css({'display': 'none'})
         this.$emit('orderProcessed', {id: this.data.id, process: 'accepted'})
         this.$parent.retrieveNotification()
@@ -588,7 +555,6 @@ export default {
     },
     updateStatus(e, status) {
       if(status.toLowerCase() === 'out for delivery') {
-        console.log('<------- =========== --------->', e)
       }
     },
     returnDate(el) {
