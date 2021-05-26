@@ -35,18 +35,19 @@ export default {
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
     this.deliveryTime = data.order_accept_start_time + '-' + data.order_accept_end_time
-    data.order_items.forEach(element => {
-      if(element.product.category_type != null){
-        if(element.product.category_type === 0){
-          console.log('c', this.renderAddOns(element))
-          this.priceAdd = this.renderAddOns(element)
-          this.priceAdd.map(el => {
-            console.log('df', el.price_adjustment)
-          })
-        }else if(element.product.category_type === 1){
-        }
-      }
-    })
+    this.subTotal = data.order_total - data.delivery_fee
+    // data.order_items.forEach(element => {
+    //   if(element.product.category_type != null){
+    //     if(element.product.category_type === 0){
+    //       console.log('c', this.renderAddOns(element))
+    //       this.priceAdd = this.renderAddOns(element)
+    //       this.priceAdd.map(el => {
+    //         console.log('df', el.price_adjustment)
+    //       })
+    //     }else if(element.product.category_type === 1){
+    //     }
+    //   }
+    // })
   },
   getImage(image) {
     this.imageLogo = image
@@ -345,7 +346,7 @@ export default {
                   border: [false, false, false, false]
                 },
                 {
-                  text: this.currency + ' ' + this.total + '\n',
+                  text: this.currency + ' ' + this.subTotal + '\n',
                   bold: true,
                   fontSize: 11,
                   margin: [0, 10, 0, 0],
