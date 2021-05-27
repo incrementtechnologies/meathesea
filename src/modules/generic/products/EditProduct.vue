@@ -439,7 +439,7 @@ export default {
         return
       }
       let bun = null
-      if(this.newBundle.length >= 1 && this.bundle === true){
+      if(this.newBundle.length >= 1){
         this.newBundle.map(ele => {
           bun = ele.id
         })
