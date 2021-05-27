@@ -6,8 +6,23 @@ export default {
   dataContainerDel: [],
   imageLogo: [],
   priceAdd: [],
+  priceAddDel: [],
+  renderAddOns(element) {
+    let addons = []
+    element.product_attributes.forEach((el, ndx) => {
+      element.product.attributes.forEach((le, index) => {
+        if(le.id === el.id) {
+          le.attribute_values.forEach((me, indx) => {
+            if(parseInt(el.value) === me.id) {
+              addons.push(me)
+            }
+          })
+        }
+      })
+    })
+    return addons
+  },
   getItem(data) {
-    let sub = []
     this.cutlery = data.add_cutlery
     this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
@@ -20,38 +35,28 @@ export default {
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.time = new Date(data.created_on_utc).toLocaleTimeString()
     this.deliveryTime = data.order_accept_start_time + '-' + data.order_accept_end_time
-    data.order_items.forEach(element => {
-      if(this.priceAdd.length > 0){
-        let a = this.priceAdd.reduce(function (a, b) {
-          return a + b
-        })
-        sub.push((element.product.price * element.quantity) + parseInt(a))
-      }else{
-        sub.push(element.product.price * element.quantity)
-      }
-    })
-    this.subTotal = sub.reduce(function (a, b) {
-      return a + b
-    }, 0)
+    this.subTotal = data.order_total - data.delivery_fee
+    // data.order_items.forEach(element => {
+    //   if(element.product.category_type != null){
+    //     if(element.product.category_type === 0){
+    //       console.log('c', this.renderAddOns(element))
+    //       this.priceAdd = this.renderAddOns(element)
+    //       this.priceAdd.map(el => {
+    //         console.log('df', el.price_adjustment)
+    //       })
+    //     }else if(element.product.category_type === 1){
+    //     }
+    //   }
+    // })
   },
   getImage(image) {
     this.imageLogo = image
   },
   getData(retrieve) {
     this.dataContainer = retrieve
-    this.dataContainer.forEach(el => {
-      el.addOn.forEach(e => {
-        this.priceAdd.push(e.price_adjustment)
-      })
-    })
   },
   getDel(retrieveDel) {
     this.dataContainerDel = retrieveDel
-    this.dataContainerDel.forEach(key => {
-      key.addOn.forEach(el => {
-        this.priceAdd.push(el.price_adjustment)
-      })
-    })
   },
   template() {
     var retrieve = []
@@ -113,12 +118,12 @@ export default {
           alignment: 'right'
         }
       ]
-      )
-    let a = []
-    let c = []
+    )
     this.dataContainer.length > 0 &&
     this.dataContainer.map((key, index) => {
-      key.addOn.map(el => {
+      let a = []
+      let c = []
+      key.addOn.map((el, index) => {
         a.push(el.name)
         c.push(el.price_adjustment)
       })
@@ -128,16 +133,16 @@ export default {
         { text: [{ text: (this.currency + ' ' + key['price']), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }, { text: ((key['addOn'].length > 0) ? ('\n ' + (c).join('\n')) : ' '), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }], margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])
     })
-    let b = []
-    let d = []
     this.dataContainerDel.length > 0 &&
     this.dataContainerDel.map(key => {
+      let b = []
+      let d = []
       key.addOn.map(el => {
         b.push(el.name)
         d.push(el.price_adjustment)
       })
       retrieveDel.push([
-        { text: [{ text: key['product'], fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((key['addOn'].length > 0) ? ('\n+' + (b.join('\n  +'))) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
+        { text: [{ text: key['product'], fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }, { text: ((key['addOn'].length > 0) ? ('\n+' + (b).join('\n  +')) : ' '), fontSize: 10, margin: [0, 0, 0, 0], border: [false, false, false, false] }], margin: [0, 0, 0, 0], border: [false, false, false, false] },
         { text: key['quantity'], fontSize: 10, margin: [70, 0, 0, 0], border: [false, false, false, false] },
         { text: [{ text: (this.currency + ' ' + key['price']), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }, { text: ((key['addOn'].length > 0) ? ('\n ' + (d).join('\n')) : ' '), fontSize: 10, margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }], margin: [0, 0, 20, 0], border: [false, false, false, false], alignment: 'right' }
       ])

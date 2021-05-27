@@ -486,19 +486,15 @@ export default {
     viewReceipt(data){
       this.PdfTemplate.getImage(this.image)
       this.dataPdf = data
-      this.dataRes = []
-      this.prod = []
       this.addons = []
       this.dataDel = []
       this.addonsDel = []
-      this.prodDel = []
+      this.dataRes = []
       this.dataPdf.order_items.forEach(element => {
         if(element.product.category_type === 0){
-          this.prod.push(element.quantity)
-          this.dataRes.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': this.prod})
+          this.dataRes.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
         }else if(element.product.category_type === 1){
-          this.prodDel.push(element.quantity)
-          this.addonsDel.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': this.prodDel})
+          this.addonsDel.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
         }
       })
       this.PdfTemplate.getData(this.dataRes)
