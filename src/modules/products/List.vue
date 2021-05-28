@@ -132,7 +132,7 @@ export default {
       })
     },
     update(product){
-      var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd
+      var temp, temp1, timeStart, timeEnd, startTime, endTime, newtimeStart, newtimeEnd, endTimeb, startTimea
       if(product.available_start_date_time_utc === null && product.available_end_date_time_utc === null || product.available_start_date_time_utc === '' && product.available_end_date_time_utc === ''){
         newtimeStart = ''
         newtimeEnd = ''
@@ -140,16 +140,20 @@ export default {
         endTime = ''
         timeStart = ''
         timeEnd = ''
+        startTimea = ''
+        endTimeb = ''
       }else if(product.available_start_date_time_utc.HH !== undefined && product.available_start_date_time_utc.mm !== undefined && product.available_start_date_time_utc.HH !== null && product.available_start_date_time_utc.mm !== null && product.available_end_date_time_utc.HH !== '' && product.available_end_date_time_utc.mm !== ''){
         startTime = product.available_start_date_time_utc.HH
         endTime = product.available_end_date_time_utc.HH
+        startTimea = product.available_start_date_time_utc.mm
+        endTimeb = product.available_end_date_time_utc.mm
         if(startTime > 8){
           this.isErrorTimeStart = false
         }else{
           this.isErrorTimeStart = true
           return
         }
-        if(startTime < endTime && endTime < 17){
+        if((startTime === endTime ? (startTimea < endTimeb) : (startTime < endTime)) && endTime <= 18){
           this.isErrorTimeEnd = false
         }else{
           this.isErrorTimeEnd = true
@@ -162,9 +166,6 @@ export default {
         endTime = product.available_end_date_time_utc.split(':')
         timeStart = product.available_start_date_time_utc.split('')
         timeEnd = product.available_end_date_time_utc.split('')
-        // console.log(timeStart.length, timeEnd.length)
-        // console.log(timeStart.length, timeEnd.length)
-        // console.log(timeStart.length, timeEnd.length)
         if(timeStart.length === 5 && timeEnd.length === 5){
           if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
@@ -172,7 +173,7 @@ export default {
             this.isErrorTimeStart = true
             return
           }
-          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 17){
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) <= 18){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true

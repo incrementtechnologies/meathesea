@@ -475,10 +475,9 @@ export default {
           this.isErrorTimeStart = true
           return
         }
-        if(this.all_day === false && parseInt(this.time_until.HH) < 18 && (parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) ? (parseInt(this.time_until.mm) > parseInt(this.time_from.mm)) : (parseInt(this.time_until.HH) > parseInt(this.time_from.HH))){
+        if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && (parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) ? (parseInt(this.time_until.mm) > parseInt(this.time_from.mm)) : (parseInt(this.time_until.HH) > parseInt(this.time_from.HH))){
           this.isErrorTimeEnd = false
         }else{
-          console.log('start', parseInt(this.time_until.mm), 'end', parseInt(this.time_from.mm))
           this.isErrorTimeEnd = true
           return
         }
@@ -704,9 +703,9 @@ export default {
         $('#loading').css({'display': 'block'})
         this.APIGetRequest(`/products?CategoryId=${data.category_id}`, response => {
           $('#loading').css({'display': 'none'})
-          if(response.products.length > 0) {
-            this.$parent.products = response.products
-          }
+          // if(response.products.length > 0) {
+          this.$parent.products = response.products
+          // }
         })
       })
     },
