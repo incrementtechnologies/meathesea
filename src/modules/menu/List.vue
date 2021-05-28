@@ -156,7 +156,7 @@ export default {
           this.isErrorTimeStart = true
           return
         }
-        if(startTime < endTime && endTime < 17){
+        if(startTime < endTime && endTime <= 17){
           this.isErrorTimeEnd = false
         }else{
           this.isErrorTimeEnd = true
@@ -169,6 +169,7 @@ export default {
         endTime = product.available_end_date_time_utc.split(':')
         timeStart = product.available_start_date_time_utc.split('')
         timeEnd = product.available_end_date_time_utc.split('')
+        console.log('newS', newtimeStart, 'newE', newtimeEnd, 'startT', startTime, 'endT', endTime, 'timeS', timeStart, 'timeE', timeEnd)
         if(timeStart.length === 5 && timeEnd.length === 5){
           if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
@@ -176,14 +177,14 @@ export default {
             this.isErrorTimeStart = true
             return
           }
-          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) < 17){
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) <= 17){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
             return
           }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
-          if(parseInt(endTime) < 17){
+          if(parseInt(endTime) <= 17){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
