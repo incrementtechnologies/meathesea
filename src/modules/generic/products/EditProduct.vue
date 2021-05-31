@@ -469,15 +469,18 @@ export default {
         return
       }
       if(this.all_day === false){
-        if(parseInt(this.time_from.HH) > 8){
+        if(parseInt(this.time_from.HH) > 8 && parseInt(this.time_from.HH) <= 17){
           this.isErrorTimeStart = false
         }else{
           this.isErrorTimeStart = true
+          this.isErrorTimeEnd = false
           return
         }
-        if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && (parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) ? (parseInt(this.time_until.mm) > parseInt(this.time_from.mm)) : (parseInt(this.time_until.HH) > parseInt(this.time_from.HH))){
+        if(this.all_day === false && (parseInt(this.time_until.HH) === 18) && (parseInt(this.time_until.mm) === 0)){
           this.isErrorTimeEnd = false
-        }else{
+        }else if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && (parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) && (parseInt(this.time_until.mm) > parseInt(this.time_from.mm))){
+          this.isErrorTimeEnd = false
+        }else {
           this.isErrorTimeEnd = true
           return
         }
