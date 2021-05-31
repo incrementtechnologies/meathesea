@@ -274,6 +274,16 @@
           </center>
         </div>
       </div>
+      <div id="image" class="modal" v-if="imageFakeWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeImageModal()" class="close">&times;</span>
+          <p style="color: red">Please select existing category.</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeImageModal()" class="btn btn-danger">Close</button>
+          </center>
+        </div>
+      </div>
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -291,7 +301,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'errorProductCategory', 'errorBundleCategory', 'errorNoBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'imageDontExist', 'errorProductCategory', 'errorBundleCategory', 'errorNoBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -412,6 +422,14 @@ export default {
     dontExistWatch(){
       if(this.dontExist === true){
         let modal = document.getElementById('other')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
+    },
+    imageFakeWatch(){
+      if(this.imageDontExist === true){
+        let modal = document.getElementById('image')
         modal.style.display = 'block'
         return true
       }
@@ -667,6 +685,7 @@ export default {
           ]
           this.isSuccess = true
           this.APIPostRequest(`products`, {product: parameter}, res => {
+            console.log('df', res)
             if(this.isSuccess === true) {
               modal.style.display = 'block'
             }
@@ -677,6 +696,9 @@ export default {
               }
             })
           })
+          // if(res.errors){
+          //   this.imageFakeWatch()
+          // }
           $('#loading').css({'display': 'none'})
         })
       }else{
@@ -767,14 +789,17 @@ export default {
       this.$parent.updateError = false
       this.$parent.noUpdateError = false
       this.$parent.dontExist = false
+      this.$parent.imageDontExist = false
     },
     closeOtherModal() {
       let modal = document.getElementById('other')
-      // let span = document.getElementsByClassName('close')[0]
       modal.style.display = 'none'
-      // this.$parent.updateError = false
-      // this.$parent.noUpdateError = false
       this.$parent.dontExist = false
+    },
+    closeImageModal() {
+      let modal = document.getElementById('image')
+      modal.style.display = 'none'
+      this.$parent.imageDontExist = false
     },
     closeUpdateModal() {
       let modal = document.getElementById('updateModal')
