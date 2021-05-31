@@ -180,13 +180,7 @@ export default {
             return
           }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
-          if(parseInt(endTime) < 17){
-            this.isErrorTimeEnd = false
-          }else{
-            this.isErrorTimeEnd = true
-            return
-          }
-          if(parseInt(endTime) > parseInt(newtimeStart[1])){
+          if(parseInt(endTime) > parseInt(newtimeStart[1]) && parseInt(endTime) <= 18 && parseInt(endTime) === 18 && (parseInt(newtimeEnd[0].split(':')[1]) === 0)){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true

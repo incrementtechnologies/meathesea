@@ -154,49 +154,40 @@ export default {
         endTime = product.available_end_date_time_utc.HH
         startTimea = product.available_start_date_time_utc.mm
         endTimeb = product.available_end_date_time_utc.mm
-        if(startTime > 8 && startTime <= 17){
+        if(startTime > 8 && startTime <= 18){
           this.isErrorTimeStart = false
         }else{
           this.isErrorTimeStart = true
           return
         }
-        if((startTime === endTime ? (startTimea < endTimeb) : (startTime < endTime)) && (endTime === 18 ? endTimeb === 0 : endTime <= 18)){
+        if((startTime === endTime ? (startTimea < endTimeb) : (startTime < endTime)) && endTime <= 18){
           this.isErrorTimeEnd = false
         }else{
           this.isErrorTimeEnd = true
           return
         }
       }else if(product.available_start_date_time_utc !== null && product.available_end_date_time_utc !== null && product.available_start_date_time_utc !== '' && product.available_end_date_time_utc !== ''){
-        // Outdated
         newtimeStart = product.available_start_date_time_utc.split('T')
         newtimeEnd = product.available_end_date_time_utc.split('T')
-        // updated(HH)
         startTime = product.available_start_date_time_utc.split(':')
         endTime = product.available_end_date_time_utc.split(':')
-        // update(mm)
-        timeStart = product.available_start_date_time_utc.split(':')
-        timeEnd = product.available_end_date_time_utc.split(':')
+        timeStart = product.available_start_date_time_utc.split('')
+        timeEnd = product.available_end_date_time_utc.split('')
         if(timeStart.length === 5 && timeEnd.length === 5){
-          if(parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+          if(parseInt(startTime) > 8){
             this.isErrorTimeStart = false
           }else{
             this.isErrorTimeStart = true
             return
           }
-          if(parseInt(endTime) > parseInt(startTime) && ((parseInt(endTime) === 18) ? parseInt(timeEnd[1]) === 0 : parseInt(endTime) <= 18)){
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) <= 18){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
             return
           }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
-          if(parseInt(endTime) === 18 ? parseInt(timeEnd[1]) === 0 : parseInt(endTime) <= 18){
-            this.isErrorTimeEnd = false
-          }else{
-            this.isErrorTimeEnd = true
-            return
-          }
-          if(parseInt(endTime) > parseInt(newtimeStart[1])){
+          if(parseInt(endTime) > parseInt(newtimeStart[1]) && parseInt(endTime) <= 18 && parseInt(endTime) === 18 && (parseInt(newtimeEnd[0].split(':')[1]) === 0)){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true

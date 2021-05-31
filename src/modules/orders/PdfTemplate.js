@@ -24,7 +24,7 @@ export default {
   },
   getItem(data) {
     this.cutlery = data.add_cutlery
-    this.address = data.shipping_address.address1 !== null ? data.shipping_address.address1 : data.shipping_address.address1
+    this.address = data.shipping_address.address1 !== null ? data.shipping_address.address2 + ', ' + data.shipping_address.address1 + ', ' + data.shipping_address.city : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
     this.date = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.name = data.customer.first_name !== null ? data.customer.first_name : 'No Name'
@@ -33,21 +33,13 @@ export default {
     this.currency = global.currency[0].text
     this.purpose = data.order_status
     this.deliveryDate = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
-    this.time = new Date(data.created_on_utc).toLocaleTimeString()
+    if(data.delivery_time_requested === 'ASAP'){
+      this.time = data.local_time_created
+    }else{
+      this.time = data.delivery_time_requested
+    }
     this.deliveryTime = data.order_accept_start_time + '-' + data.order_accept_end_time
     this.subTotal = data.order_total - data.delivery_fee
-    // data.order_items.forEach(element => {
-    //   if(element.product.category_type != null){
-    //     if(element.product.category_type === 0){
-    //       console.log('c', this.renderAddOns(element))
-    //       this.priceAdd = this.renderAddOns(element)
-    //       this.priceAdd.map(el => {
-    //         console.log('df', el.price_adjustment)
-    //       })
-    //     }else if(element.product.category_type === 1){
-    //     }
-    //   }
-    // })
   },
   getImage(image) {
     this.imageLogo = image
@@ -178,7 +170,7 @@ export default {
                 },
                 {
                   text: ' ',
-                  margin: [0, 0, 84, 0],
+                  margin: [0, 0, 110, 0],
                   border: [false, false, false, true]
                 },
                 {
