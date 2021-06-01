@@ -278,7 +278,7 @@
         <!-- Modal content -->
         <div class="modal-content">
           <span @click="closeImageModal()" class="close">&times;</span>
-          <p style="color: red">Please select existing category.</p>
+          <p style="color: red">Please upload photo with extension ' bmp , gif, png , jpg , jpeg '</p>
           <center>
             <button style="width: 30%;" type="button" @click="closeImageModal()" class="btn btn-danger">Close</button>
           </center>
@@ -685,7 +685,6 @@ export default {
           ]
           this.isSuccess = true
           this.APIPostRequest(`products`, {product: parameter}, res => {
-            console.log('df', res)
             if(this.isSuccess === true) {
               modal.style.display = 'block'
             }
@@ -761,13 +760,19 @@ export default {
     },
     selectFile(event){
       this.images = event.target.files[0]
+      const validExtensions = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp']
+      const isValidExtension = validExtensions.indexOf(this.images.type, validExtensions) > -1
       let image = event.target.files[0].name
       // this.encodedImage = btoa(image);
-      const reader = new FileReader()
-      reader.onloadend = (e) => {
-        this.encodedImage = e.target.result
+      if(isValidExtension === true){
+        const reader = new FileReader()
+        reader.onloadend = (e) => {
+          this.encodedImage = e.target.result
+        }
+        reader.readAsDataURL(event.target.files[0])
+      }else{
+        this.imageDontExist = true
       }
-      reader.readAsDataURL(event.target.files[0])
     },
     timeError(){
       if(this.$parent.isError === true){
