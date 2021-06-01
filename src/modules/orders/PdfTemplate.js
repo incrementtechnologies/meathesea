@@ -24,7 +24,7 @@ export default {
   },
   getItem(data) {
     this.cutlery = data.add_cutlery
-    this.address = data.shipping_address.address1 !== null ? data.shipping_address.address2 + ', ' + data.shipping_address.address1 + ', ' + data.shipping_address.city : data.shipping_address.address1
+    this.address = data.shipping_address.address1 !== null ? (data.shipping_address.address2 !== '' ? data.shipping_address.address2 + ', ' : '') + (data.shipping_address.address1 !== '' ? data.shipping_address.address1 + ', ' : '') + data.shipping_address.city : data.shipping_address.address1
     this.contact_number = data.shipping_address.phone_number
     this.date = new Date(data.created_on_utc).toLocaleDateString().replaceAll('-', '/')
     this.name = data.customer.first_name !== null ? data.customer.first_name : 'No Name'
