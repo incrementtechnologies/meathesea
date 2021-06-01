@@ -176,10 +176,10 @@
             <span> - </span>
             <vue-timepicker v-model="data.available_end_date_time_utc"></vue-timepicker>
             <div v-show="isErrorTimeStart">
-              <h6 style="color:red; margin-left: 2">Invalid Start Time!</h6>
+              <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
             </div>
             <div v-show="isErrorTimeEnd">
-              <h6 style="color:red; margin-left: 2">Invalid End Time!</h6>
+              <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
             </div>
           </div>     
         </div>
@@ -199,12 +199,12 @@
             <vue-timepicker v-model="time_until" placeholder="until"></vue-timepicker>
             <div v-if="isErrorTimeStart === true">
               <div v-show="isErrorTimeStart === true">
-                <h6 style="color:red; margin-left: 2">Invalid Start Time!</h6>
+                <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
               </div>
             </div>
             <div v-if="isErrorTimeEnd === true">
               <div v-show="isErrorTimeEnd === true">
-                <h6 style="color:red; margin-left: 2">Invalid End Time!</h6>
+                <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
               </div>
             </div>
             <div v-else>
@@ -489,7 +489,6 @@ export default {
         return
       }
       if(this.all_day === false){
-        console.log('here', this.time_until)
         if(parseInt(this.time_from.HH) > 8 && parseInt(this.time_from.HH) <= 17){
           this.isErrorTimeStart = false
         }else{
@@ -501,7 +500,7 @@ export default {
           this.isErrorTimeEnd = false
         }else if((parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) && (parseInt(this.time_until.mm) > parseInt(this.time_from.mm))){
           this.isErrorTimeEnd = false
-        }else if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && parseInt(this.time_until.HH) > parseInt(this.time_from.HH)){
+        }else if(this.all_day === false && (parseInt(this.time_until.HH) === 18 ? parseInt(this.time_until.mm) === 0 : parseInt(this.time_until.HH) < 18) && parseInt(this.time_until.HH) > parseInt(this.time_from.HH)){
           this.isErrorTimeEnd = false
         }else {
           this.isErrorTimeEnd = true

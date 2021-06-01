@@ -167,33 +167,35 @@ export default {
         timeStart = product.available_start_date_time_utc.split('')
         timeEnd = product.available_end_date_time_utc.split('')
         if(timeStart.length === 5 && timeEnd.length === 5){
-          if(parseInt(startTime) > 8){
+          if(parseInt(endTime) > parseInt(startTime) && parseInt(startTime) > 8 && parseInt(startTime) <= 17 && (parseInt(endTime) === 18 ? parseInt(newtimeEnd[0].split(':')[1]) === 0 : parseInt(endTime) < 18)){
+            this.isErrorTimeStart = false
+          }else if(parseInt(endTime) > parseInt(startTime) && (parseInt(endTime) === 18 ? parseInt(newtimeEnd[0].split(':')[1]) === 0 : parseInt(endTime) < 18) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+            this.isErrorTimeStart = false
+          }else if(parseInt(endTime) === 18 && parseInt(newtimeEnd[0].split(':')[1]) === 0 && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+            this.isErrorTimeStart = false
+          }else if(parseInt(endTime) === parseInt(startTime) && (parseInt(newtimeEnd[0].split(':')[1]) > parseInt(newtimeStart[0].split(':')[1])) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
             this.isErrorTimeStart = false
           }else{
             this.isErrorTimeStart = true
             return
           }
-          if(parseInt(endTime) > parseInt(startTime) && parseInt(endTime) <= 18){
-            this.isErrorTimeEnd = false
-          }else{
-            this.isErrorTimeEnd = true
-            return
-          }
         }else if(timeStart.length > 5 && timeEnd.length === 5){
-          if(parseInt(endTime) > parseInt(newtimeStart[1]) && parseInt(endTime) <= 18 && parseInt(endTime) === 18 && (parseInt(newtimeEnd[0].split(':')[1]) === 0)){
+          if(parseInt(endTime) === 18 && parseInt(newtimeEnd[0].split(':')[1]) === 0){
+            this.isErrorTimeEnd = false
+          }else if(parseInt(endTime) === parseInt(newtimeStart[1]) && parseInt(newtimeEnd[0].split(':')[1]) > parseInt(startTime[1])){
+            this.isErrorTimeEnd = false
+          }else if(parseInt(endTime) > parseInt(newtimeStart[1]) && parseInt(endTime) < 18){
             this.isErrorTimeEnd = false
           }else{
             this.isErrorTimeEnd = true
             return
           }
         }else if(timeStart.length === 5 && timeEnd.length > 5){
-          if(parseInt(startTime) > 8){
+          if(parseInt(startTime) > 8 && parseInt(startTime) <= 17){
             this.isErrorTimeStart = false
-          }else{
-            this.isErrorTimeStart = true
-            return
-          }
-          if(parseInt(startTime) < parseInt(newtimeEnd[1])){
+          }else if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+            this.isErrorTimeStart = false
+          }else if((parseInt(startTime) === parseInt(newtimeEnd[1])) && (parseInt(newtimeEnd[1].split(':')[1]) > parseInt(newtimeStart[0].split(':')[1])) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
             this.isErrorTimeStart = false
           }else{
             this.isErrorTimeStart = true
