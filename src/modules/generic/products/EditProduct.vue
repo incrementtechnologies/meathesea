@@ -352,6 +352,8 @@ export default {
     ErrorModal
   },
   mounted(){
+    this.isErrorTimeEnd = false
+    this.isErrorTimeStart = false
     this.retrieveStore()
     if(this.category1 !== null){
       this.category1.forEach(element => {
@@ -487,6 +489,7 @@ export default {
         return
       }
       if(this.all_day === false){
+        console.log('here', this.time_until)
         if(parseInt(this.time_from.HH) > 8 && parseInt(this.time_from.HH) <= 17){
           this.isErrorTimeStart = false
         }else{
@@ -496,7 +499,9 @@ export default {
         }
         if(this.all_day === false && (parseInt(this.time_until.HH) === 18) && (parseInt(this.time_until.mm) === 0)){
           this.isErrorTimeEnd = false
-        }else if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && (parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) && (parseInt(this.time_until.mm) > parseInt(this.time_from.mm))){
+        }else if((parseInt(this.time_until.HH) === parseInt(this.time_from.HH)) && (parseInt(this.time_until.mm) > parseInt(this.time_from.mm))){
+          this.isErrorTimeEnd = false
+        }else if(this.all_day === false && parseInt(this.time_until.HH) <= 18 && parseInt(this.time_until.HH) > parseInt(this.time_from.HH)){
           this.isErrorTimeEnd = false
         }else {
           this.isErrorTimeEnd = true
