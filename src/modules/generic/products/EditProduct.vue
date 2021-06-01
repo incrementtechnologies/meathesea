@@ -274,6 +274,16 @@
           </center>
         </div>
       </div>
+      <div id="image" class="modal" v-if="imageFakeWatch">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span @click="closeImageModal()" class="close">&times;</span>
+          <p style="color: red">Please upload photo with extension ' bmp , gif, png , jpg , jpeg '</p>
+          <center>
+            <button style="width: 30%;" type="button" @click="closeImageModal()" class="btn btn-danger">Close</button>
+          </center>
+        </div>
+      </div>
       <Confirmation
         ref="prod"
         :title="'Confirmation Message'"
@@ -291,7 +301,7 @@ import VueTimepicker from 'vue2-timepicker/src/vue-timepicker.vue'
 import ErrorModal from '../../../components/increment/generic/modal/Alert.vue'
 import config from 'src/config'
 export default {
-  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'errorProductCategory', 'errorBundleCategory', 'errorNoBundleCategory'],
+  props: ['bundle', 'data', 'category1', 'category2', 'categoryId', 'isErrorTimeStart', 'isErrorTimeEnd', 'errorMessage', 'bundleProducts', 'hasUpdate', 'updateError', 'noUpdateError', 'dontExist', 'imageDontExist', 'errorProductCategory', 'errorBundleCategory', 'errorNoBundleCategory'],
   data(){
     return {
       newBundle: [],
@@ -412,6 +422,14 @@ export default {
     dontExistWatch(){
       if(this.dontExist === true){
         let modal = document.getElementById('other')
+        modal.style.display = 'block'
+        return true
+      }
+      return true
+    },
+    imageFakeWatch(){
+      if(this.imageDontExist === true){
+        let modal = document.getElementById('image')
         modal.style.display = 'block'
         return true
       }
@@ -677,6 +695,9 @@ export default {
               }
             })
           })
+          // if(res.errors){
+          //   this.imageFakeWatch()
+          // }
           $('#loading').css({'display': 'none'})
         })
       }else{
@@ -739,13 +760,19 @@ export default {
     },
     selectFile(event){
       this.images = event.target.files[0]
+      const validExtensions = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp']
+      const isValidExtension = validExtensions.indexOf(this.images.type, validExtensions) > -1
       let image = event.target.files[0].name
       // this.encodedImage = btoa(image);
-      const reader = new FileReader()
-      reader.onloadend = (e) => {
-        this.encodedImage = e.target.result
+      if(isValidExtension === true){
+        const reader = new FileReader()
+        reader.onloadend = (e) => {
+          this.encodedImage = e.target.result
+        }
+        reader.readAsDataURL(event.target.files[0])
+      }else{
+        this.imageDontExist = true
       }
-      reader.readAsDataURL(event.target.files[0])
     },
     timeError(){
       if(this.$parent.isError === true){
@@ -767,14 +794,17 @@ export default {
       this.$parent.updateError = false
       this.$parent.noUpdateError = false
       this.$parent.dontExist = false
+      this.$parent.imageDontExist = false
     },
     closeOtherModal() {
       let modal = document.getElementById('other')
-      // let span = document.getElementsByClassName('close')[0]
       modal.style.display = 'none'
-      // this.$parent.updateError = false
-      // this.$parent.noUpdateError = false
       this.$parent.dontExist = false
+    },
+    closeImageModal() {
+      let modal = document.getElementById('image')
+      modal.style.display = 'none'
+      this.$parent.imageDontExist = false
     },
     closeUpdateModal() {
       let modal = document.getElementById('updateModal')
