@@ -176,10 +176,10 @@
             <span> - </span>
             <vue-timepicker v-model="data.available_end_date_time_utc"></vue-timepicker>
             <div v-show="isErrorTimeStart">
-              <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
+              <h6 style="color:red; margin-left: 2">Invalid availability time!</h6>
             </div>
             <div v-show="isErrorTimeEnd">
-              <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
+              <h6 style="color:red; margin-left: 2">Invalid availability time!</h6>
             </div>
           </div>     
         </div>
@@ -199,12 +199,12 @@
             <vue-timepicker v-model="time_until" placeholder="until"></vue-timepicker>
             <div v-if="isErrorTimeStart === true">
               <div v-show="isErrorTimeStart === true">
-                <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
+                <h6 style="color:red; margin-left: 2">Invalid availability time!</h6>
               </div>
             </div>
             <div v-if="isErrorTimeEnd === true">
               <div v-show="isErrorTimeEnd === true">
-                <h6 style="color:red; margin-left: 2">Invalid Store Time!</h6>
+                <h6 style="color:red; margin-left: 2">Invalid availability time!</h6>
               </div>
             </div>
             <div v-else>
