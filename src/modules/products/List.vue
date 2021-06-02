@@ -192,10 +192,8 @@ export default {
           }
         }else if(timeStart.length === 5 && timeEnd.length > 5){
           if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
-            console.log('b')
             this.isErrorTimeStart = false
           }else if((parseInt(startTime) === parseInt(newtimeEnd[1])) && (parseInt(newtimeEnd[1].split(':')[1]) > parseInt(newtimeStart[0].split(':')[1])) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
-            console.log('c')
             this.isErrorTimeStart = false
           }else{
             this.isErrorTimeStart = true
