@@ -147,7 +147,7 @@ export default {
         endTime = product.available_end_date_time_utc.HH
         startTimea = product.available_start_date_time_utc.mm
         endTimeb = product.available_end_date_time_utc.mm
-        if(startTime > 8){
+        if(startTime > 8 && startTime <= 18){
           this.isErrorTimeStart = false
         }else{
           this.isErrorTimeStart = true
@@ -191,11 +191,11 @@ export default {
             return
           }
         }else if(timeStart.length === 5 && timeEnd.length > 5){
-          if(parseInt(startTime) > 8 && parseInt(startTime) <= 17){
-            this.isErrorTimeStart = false
-          }else if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+          if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+            console.log('b')
             this.isErrorTimeStart = false
           }else if((parseInt(startTime) === parseInt(newtimeEnd[1])) && (parseInt(newtimeEnd[1].split(':')[1]) > parseInt(newtimeStart[0].split(':')[1])) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+            console.log('c')
             this.isErrorTimeStart = false
           }else{
             this.isErrorTimeStart = true

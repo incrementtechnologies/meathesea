@@ -198,9 +198,7 @@ export default {
             return
           }
         }else if(timeStart.length === 5 && timeEnd.length > 5){
-          if(parseInt(startTime) > 8 && parseInt(startTime) <= 17){
-            this.isErrorTimeStart = false
-          }else if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
+          if(parseInt(startTime) < parseInt(newtimeEnd[1]) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
             this.isErrorTimeStart = false
           }else if((parseInt(startTime) === parseInt(newtimeEnd[1])) && (parseInt(newtimeEnd[1].split(':')[1]) > parseInt(newtimeStart[0].split(':')[1])) && parseInt(startTime) > 8 && parseInt(startTime) <= 17){
             this.isErrorTimeStart = false
