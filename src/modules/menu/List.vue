@@ -22,6 +22,7 @@ import EditProduct from 'modules/generic/products/EditProduct.vue'
 import CategoryList from 'modules/generic/products/CategoryList.vue'
 import axios from 'axios'
 import AUTH from 'src/services/auth'
+import moment from 'moment'
 import LoginHeaderVue from '../frame/LoginHeader.vue'
 export default {
   data() {
@@ -72,7 +73,7 @@ export default {
   methods: {
     retrieve() {
       const {user} = AUTH
-      this.APIGetRequest(`/products_restaurant?StoreId=${user.storeId}`, response => {
+      this.APIGetRequest(`/products_restaurant?StoreId=${user.storeId}&localTime=${moment().format('HH:mm')}`, response => {
         if(response.products.length > 0) {
           response.products.forEach(item => {
             item['name'] = item.Name
