@@ -382,6 +382,6 @@ export default {
         }
       ]
     }
-    PDFTemplate.createPdf(docDefinition).open()
+    PDFTemplate.createPdf(docDefinition).print()
   }
 }
