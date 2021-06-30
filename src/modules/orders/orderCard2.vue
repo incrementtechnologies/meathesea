@@ -354,15 +354,22 @@
         <b v-else-if="data.order_status === 'Late'">{{'Too late to take order'}}</b>
       </div>
     </div>
+    <printer
+    ref="printerModal"
+    @onConfirm="checkInfo(data)"
+    ></printer>
   </div>
 </template>
 <script>
+/* eslint-disable */
 import pdfFonts from 'pdfmake/build/vfs_fonts'
 import PDFTemplate from 'pdfmake'
 import TemplatePdf from './PdfTemplate.js'
 import moment from 'moment'
 import global from 'src/helpers/global'
 import _ from 'lodash'
+import printer from './printerConnect.vue'
+// import PrinterCheck from './printer.js'
 export default {
   props: {
     data: {
@@ -381,6 +388,9 @@ export default {
       default: [],
       type: Array
     }
+  },
+  components: {
+    printer
   },
   mounted(){
     const {vfs} = pdfFonts.pdfMake
@@ -444,6 +454,7 @@ export default {
       ],
       focusIndex: 0,
       PdfTemplate: TemplatePdf,
+      // PrintConnect: PrinterCheck,
       dataPdf: [],
       dataRes: [],
       dataDel: [],
@@ -454,11 +465,155 @@ export default {
       addonsDel: [],
       rejectionReason: null,
       image: null,
-      global: global
+      global: global,
       // localTime: moment(this.data.local_time_created, ['HH:mm']).format('hh:mm')
+      printer: null,
+      ePosDev: null
     }
   },
   methods: {
+    checkInfo() {
+      $('#loading').css({'display': 'block'})
+      console.log('Init Printer')
+      var printerPort = localStorage.getItem('printer_port')
+      var printerAddress = localStorage.getItem('printer_address')
+      this.ePosDev = new window.epson.ePOSDevice()
+      this.ePosDev.connect(printerAddress, printerPort, this.cbConnect)
+      console.log('[checkInfo]')
+    },
+
+    cbConnect(data) {
+      if (data === 'OK' || data === 'SSL_CONNECT_OK') {
+        $('#loading').css({'display': 'none'})
+        this.ePosDev.createDevice('local_printer', this.ePosDev.DEVICE_TYPE_PRINTER, {'crypto': false, 'buffer': false}, this.cbCreateDevice_printer)
+      } else {
+        $('#loading').css({'display': 'none'})
+        alert('Connection Failed. Please Try Again.')
+      }
+    },
+
+    cbCreateDevice_printer(devobj, retcode) {
+      var printer = this.printer
+      if (retcode === 'OK') {
+        printer = devobj
+        printer.timeout = 60000
+        printer.onreceive = function (res) { // alert(res.success)
+          console.log('Printer Object Created')
+        }
+        printer.oncoveropen = function () { // alert('coveropen')
+          console.log('Printer Cover Open')
+          alert('Printer Cover is Open')
+        }
+        this.print()
+      } else {
+        isRegPrintConnected = false
+        alert('System Error')
+      }
+    },
+
+    print() {
+      debugger
+      var printer = this.printer
+      console.log('Printing Started')
+      if (isRegPrintConnected === false || printer === null) {
+        return
+      }
+      // HEADER
+      printer.addLayout(printer.LAYOUT_RECEIPT, 800, 0, 0, 0, 35, 0) // optional
+      printer.addTextAlign(printer.ALIGN_CENTER)
+      printer.addFeed()
+      // HEADER IMAGE
+      printer.brightness = 1.0
+      printer.halftone = printer.HALFTONE_ERROR_DIFFUSION
+      // printer.addImage(context, 0, 0, 256, 60, printer.COLOR_1, printer.MODE_MONO)
+      // HEADER TITLE
+      printer.addTextLang('en')
+      printer.addTextSmooth(true)
+      printer.addText('Meat The Sea \n')
+      printer.addFeedLine(1)
+      // ID, TIME AND DATE
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addText('#ID \t\t\t DATE\t TIME \n')
+      printer.addFeed()
+      // CUSTOMER NAME
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('Customer Name: Jenny Kim')
+      printer.addFeed()
+      // CUSTOMER NO.
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addText('Customer #: 09123465678')
+      printer.addFeed()
+      // CUSTOMER ADDRESS
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addText('Address: Hollywood Terrace Block A')
+      printer.addFeed()
+      // ORDER FOR AND DELIVERY
+      printer.addTextAlign(printer.ALIGN_CENTER)
+      printer.addTextStyle(false, false, false, printer.COLOR_1)
+      printer.addText('Order for: Complete\n')
+      printer.addTextStyle(false, false, false, printer.COLOR_1)
+      printer.addText('Delivery Time:\n')
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('5/20/2021\n')
+      printer.addText('11:30:00-11:45:00\n')
+      printer.addFeed()
+      // RESTAURANT ITEMS
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('RESTAURANT ITEMS \n')
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, true, true, printer.COLOR_1)
+      printer.addText('Item\t\t\t Qty\t Amount\n')
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, false, printer.COLOR_1)
+      printer.addText('Pasta with Garlic\t1\t HKD 2\n')
+      printer.addFeed()
+      // DELI ITEMS
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('DELI SHOP\n')
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, true, true, printer.COLOR_1)
+      printer.addText('Item\t\t\t Qty\t Amount\n')
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, false, printer.COLOR_1)
+      printer.addText('Spaghetti\t\t 1\t HKD 2 \n')
+      printer.addFeed()
+      // NOTE
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('Note: ADD CUTLERY\n')
+      printer.addFeed()
+      // SUBTOTAL
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('Subtotal: \t\t\t HKD 4')
+      // VAT
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('VAT: \t\t\t\t ---')
+      // TOTAL
+      printer.addTextAlign(printer.ALIGN_LEFT)
+      printer.addTextPosition(30)
+      printer.addTextStyle(false, false, true, printer.COLOR_1)
+      printer.addText('Total: \t\t\t HKD 4\n')
+      printer.addFeed()
+      printer.send()
+    },
     renderAddOns(element) {
       let addons = []
       element.product_attributes.forEach((el, ndx) => {
@@ -484,23 +639,28 @@ export default {
       })
     },
     viewReceipt(data){
-      this.PdfTemplate.getImage(this.image)
-      this.dataPdf = data
-      this.addons = []
-      this.dataDel = []
-      this.addonsDel = []
-      this.dataRes = []
-      this.dataPdf.order_items.forEach(element => {
-        if(element.product.category_type === 0){
-          this.dataRes.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
-        }else if(element.product.category_type === 1){
-          this.addonsDel.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
-        }
-      })
-      this.PdfTemplate.getData(this.dataRes)
-      this.PdfTemplate.getDel(this.addonsDel)
-      this.PdfTemplate.getItem(data)
-      this.PdfTemplate.template()
+      if(localStorage.getItem('printer_address') || localStorage.getItem('printer_port')){
+      this.checkInfo()
+      }else{
+        this.$refs.printerModal.show()
+      }
+      // this.PdfTemplate.getImage(this.image)
+      // this.dataPdf = data
+      // this.addons = []
+      // this.dataDel = []
+      // this.addonsDel = []
+      // this.dataRes = []
+      // this.dataPdf.order_items.forEach(element => {
+      //   if(element.product.category_type === 0){
+      //     this.dataRes.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
+      //   }else if(element.product.category_type === 1){
+      //     this.addonsDel.push({'addOn': this.renderAddOns(element), 'product': element.product.name, 'price': element.product.price, 'quantity': element.quantity})
+      //   }
+      // })
+      // this.PdfTemplate.getData(this.dataRes)
+      // this.PdfTemplate.getDel(this.addonsDel)
+      // this.PdfTemplate.getItem(data)
+      // this.PdfTemplate.template()
     },
     accept() {
       $('#loading').css({'display': 'block'})
