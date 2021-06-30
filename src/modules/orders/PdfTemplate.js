@@ -382,6 +382,22 @@ export default {
         }
       ]
     }
-    PDFTemplate.createPdf(docDefinition).print()
+    // PDFTemplate.createPdf(docDefinition).print()
+    // var docDefinition = getRWABELPDF(data)
+    var createPdf = PDFTemplate.createPdf(docDefinition)
+    var base64data = null
+    createPdf.getBase64(function(encodedString) {
+      base64data = encodedString
+      console.log('[base]', base64data)
+      var byteCharacters = atob(base64data)
+      var byteNumbers = new Array(byteCharacters.length)
+      for (var i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      var byteArray = new Uint8Array(byteNumbers)
+      var file = new Blob([byteArray], { type: 'application/pdf;base64' })
+      var fileURL = URL.createObjectURL(file)
+      window.open(fileURL)
+    })
   }
 }
