@@ -478,7 +478,7 @@ export default {
       var printerPort = localStorage.getItem('printer_port')
       var printerAddress = localStorage.getItem('printer_address')
       this.ePosDev = new window.epson.ePOSDevice()
-      this.ePosDev.connect(printerAddress, printerPort, this.cbConnect)
+      this.ePosDev.connect(printerAddress, null, this.cbConnect)
       console.log('[checkInfo]')
     },
 

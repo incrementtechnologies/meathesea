@@ -95,19 +95,19 @@ export default {
       this.errorMessage = null
     },
     validate(){
-      if(this.printer_port === null || this.printer_port === ''){
-        this.errorMessage = 'Please input the printer port.'
-      }else if(this.printer_address === null || this.printer_address === ''){
-        this.errorMessage = 'Please input the printer address.'
-      }else if(this.printer_address.split('.').length !== 4){
-        this.errorMessage = 'Please input valid printer address'
-      }else if(!/^(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)$/.test(this.printer_address)){
-        this.errorMessage = 'Please input valid printer address'
-      }else if(this.printer_port.length !== 4){
-        this.errorMessage = 'Please input valid printer port'
-      }else{
-        this.submit()
-      }
+      // if(this.printer_port === null || this.printer_port === ''){
+      //   this.errorMessage = 'Please input the printer port.'
+      // }else if(this.printer_address === null || this.printer_address === ''){
+      //   this.errorMessage = 'Please input the printer address.'
+      // }else if(this.printer_address.split('.').length !== 4){
+      //   this.errorMessage = 'Please input valid printer address'
+      // }else if(!/^(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)$/.test(this.printer_address)){
+      //   this.errorMessage = 'Please input valid printer address'
+      // }else if(this.printer_port.length !== 4){
+      //   this.errorMessage = 'Please input valid printer port'
+      // }else{
+      this.submit()
+      // }
     },
     submit(){
       localStorage.setItem('printer_address', this.printer_address)
